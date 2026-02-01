@@ -1,0 +1,17 @@
+Glass Manifest: GlassFramework
+Version: 0.1.0
+Language: TypeScript
+Created: 2026-02-01
+
+Origins:
+  PRD: "Glass Framework Specification v0.1.0"
+    → authored by user, 2026-02-01
+
+Policies:
+  auto-approve: security, audit, infrastructure
+  require-approval: business-logic, data-model, compiler-semantics
+
+Intent Registry:
+  user-originated: 0 intents
+  conversation-derived: 0 intents
+  ai-generated: 0 intents
