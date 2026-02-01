@@ -1,0 +1,95 @@
+=== Glass Unit ===
+id: cli.entry
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Register and dispatch all Glass CLI commands via Commander.js
+source: prd reference "PRD Section 12"
+parent: glass.cli
+stakeholder: engineering
+
+sub-intents:
+  - cli.cmd_init (prd, glass init command)
+  - cli.cmd_verify (prd, glass verify command)
+  - cli.cmd_compile (prd, glass compile command)
+  - cli.cmd_views (prd, glass views command)
+  - cli.cmd_status (prd, glass status command)
+  - cli.cmd_tree (prd, glass tree command)
+  - cli.cmd_trace (prd, glass trace command)
+  - cli.cmd_eject (prd, glass eject command)
+  - cli.cmd_annotate (prd, glass annotate command)
+  - cli.cmd_build (ai-generated, legacy compile alias)
+  - cli.cmd_audit (prd, glass audit command)
+
+=== Contract ===
+requires:
+  - process.argv is available
+
+guarantees:
+  on_success:
+    - All 11 commands are registered: init, verify, compile, views, status, tree, trace, eject, annotate, build, audit
+    - Version and help flags are available
+    - Command dispatch routes to correct handler
+  on_failure:
+    - Unknown commands display help text
+
+invariants:
+  - Command registration is deterministic
+
+=== Implementation ===
+#!/usr/bin/env node
+
+/**
+ * Glass CLI — command-line interface for the Glass framework.
+ *
+ * Usage:
+ *   glass init <name>         Initialize a new Glass project
+ *   glass verify [options]    Run verification checks
+ *   glass compile [options]   Run full compilation pipeline
+ *   glass views [options]     Generate human-readable views
+ *   glass status [options]    Display verification status dashboard
+ *   glass tree [options]      Display the intent hierarchy tree
+ *   glass trace <unitId>      Show provenance chain for a unit
+ *   glass eject [options]     Eject to standalone code
+ *   glass build [options]     Compile Glass source files (legacy)
+ *   glass audit [options]     Display the audit trail
+ */
+
+import { Command } from "commander";
+import { initCommand } from "./commands/init";
+import { verifyCommand } from "./commands/verify";
+import { compileCommand } from "./commands/compile";
+import { viewsCommand } from "./commands/views";
+import { statusCommand } from "./commands/status";
+import { treeCommand } from "./commands/tree";
+import { traceCommand } from "./commands/trace";
+import { ejectCommand } from "./commands/eject";
+import { annotateCommand } from "./commands/annotate";
+import { buildCommand } from "./commands/build";
+import { auditCommand } from "./commands/audit";
+import { VERSION } from "../index";
+
+const program = new Command();
+
+program
+  .name("glass")
+  .description("Glass Framework — AI-authored, human-auditable, formally verified")
+  .version(VERSION);
+
+// Core commands
+program.addCommand(initCommand);
+program.addCommand(verifyCommand);
+program.addCommand(compileCommand);
+program.addCommand(viewsCommand);
+program.addCommand(statusCommand);
+program.addCommand(treeCommand);
+program.addCommand(traceCommand);
+program.addCommand(ejectCommand);
+program.addCommand(annotateCommand);
+
+// Legacy/additional commands
+program.addCommand(buildCommand);
+program.addCommand(auditCommand);
+
+program.parse(process.argv);

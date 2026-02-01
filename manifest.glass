@@ -12,6 +12,41 @@ Policies:
   require-approval: business-logic, data-model, compiler-semantics
 
 Intent Registry:
-  user-originated: 0 intents
+  user-originated: 26 intents
   conversation-derived: 0 intents
   ai-generated: 0 intents
+
+  Units:
+    # Types & Foundation
+    types.core                 src/types/index.glass
+    glass.entry                src/index.glass
+
+    # Compiler Pipeline
+    compiler.orchestrator      src/compiler/index.glass
+    compiler.parser            src/compiler/parser.glass
+    compiler.linker            src/compiler/linker.glass
+    compiler.verifier          src/compiler/verifier.glass
+    compiler.emitter           src/compiler/emitter.glass
+    compiler.manifest          src/compiler/manifest.glass
+    compiler.annotations       src/compiler/annotations.glass
+    compiler.view_generator    src/compiler/view-generator.glass
+
+    # CLI Layer
+    cli.entry                  src/cli/index.glass
+    cli.utils                  src/cli/utils.glass
+    cli.cmd_init               src/cli/commands/init.glass
+    cli.cmd_verify             src/cli/commands/verify.glass
+    cli.cmd_compile            src/cli/commands/compile.glass
+    cli.cmd_views              src/cli/commands/views.glass
+    cli.cmd_status             src/cli/commands/status.glass
+    cli.cmd_tree               src/cli/commands/tree.glass
+    cli.cmd_trace              src/cli/commands/trace.glass
+    cli.cmd_eject              src/cli/commands/eject.glass
+    cli.cmd_annotate           src/cli/commands/annotate.glass
+    cli.cmd_build              src/cli/commands/build.glass
+    cli.cmd_audit              src/cli/commands/audit.glass
+
+    # Adapters & Integration
+    adapters.typescript        src/adapters/typescript.glass
+    mcp.server                 src/mcp/index.glass
+    mcp.tools                  src/mcp/tools.glass

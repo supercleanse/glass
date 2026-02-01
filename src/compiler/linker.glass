@@ -1,0 +1,158 @@
+=== Glass Unit ===
+id: compiler.linker
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Build and validate the intent tree from parsed .glass files, resolving parent-child relationships
+source:
+  kind: prd
+  reference: "PRD Section 11.1 step 2"
+parent: glass.compiler
+stakeholder: engineering
+subIntents: []
+approvalStatus: approved
+
+=== Contract ===
+requires:
+  - "files is an array of valid GlassFile objects"
+  - "each file has a unique id"
+guarantees:
+  on_success:
+    - "Returns IntentTree with all relationships resolved"
+    - "No circular dependencies exist"
+    - "All parent references point to existing files"
+    - "All sub-intent references point to existing files"
+  on_failure:
+    - "Returns LinkError with reason and unitId"
+invariants:
+  - "Input files are never modified"
+  - "Linker is deterministic"
+fails:
+  DanglingReference: "Error(LinkError, reason: DanglingReference)"
+  CircularDependency: "Error(LinkError, reason: CircularDependency)"
+  DuplicateId: "Error(LinkError, reason: DuplicateId)"
+advisories: []
+
+=== Implementation ===
+/**
+ * Glass Intent Tree Linker — resolves parent/child intent relationships
+ * and constructs the complete intent hierarchy tree.
+ *
+ * This is the second stage of the Glass compiler pipeline.
+ */
+
+import type { GlassFile, IntentTree, LinkError, Result } from "../types/index";
+import { Ok, Err } from "../types/index";
+
+/**
+ * Link parsed GlassFile objects into an IntentTree.
+ * Validates all parent/child references and detects cycles.
+ */
+export function linkIntentTree(files: GlassFile[]): Result<IntentTree, LinkError> {
+  const fileMap = new Map<string, GlassFile>();
+  const parentMap = new Map<string, string | null>();
+  const childrenMap = new Map<string, string[]>();
+  const roots: string[] = [];
+
+  // Build ID map, check for duplicates
+  for (const file of files) {
+    if (fileMap.has(file.id)) {
+      return Err({
+        reason: "DuplicateId",
+        message: "Duplicate Glass unit ID: " + file.id,
+        unitId: file.id,
+      });
+    }
+    fileMap.set(file.id, file);
+    childrenMap.set(file.id, []);
+  }
+
+  // Resolve parent references
+  for (const file of files) {
+    const parentId = file.intent.parent;
+    parentMap.set(file.id, parentId);
+
+    if (parentId === null) {
+      roots.push(file.id);
+    } else if (!fileMap.has(parentId)) {
+      return Err({
+        reason: "DanglingReference",
+        message: "Parent intent not found: " + parentId + " (referenced by " + file.id + ")",
+        unitId: file.id,
+        referencedId: parentId,
+      });
+    } else {
+      childrenMap.get(parentId)!.push(file.id);
+    }
+  }
+
+  // Validate sub-intent references
+  for (const file of files) {
+    for (const subIntent of file.intent.subIntents) {
+      if (!fileMap.has(subIntent.id)) {
+        return Err({
+          reason: "DanglingReference",
+          message: "Sub-intent not found: " + subIntent.id + " (referenced by " + file.id + ")",
+          unitId: file.id,
+          referencedId: subIntent.id,
+        });
+      }
+    }
+  }
+
+  // Detect circular dependencies via DFS
+  const visited = new Set<string>();
+  const inStack = new Set<string>();
+
+  function detectCycle(id: string): string | null {
+    if (inStack.has(id)) return id;
+    if (visited.has(id)) return null;
+
+    visited.add(id);
+    inStack.add(id);
+
+    const children = childrenMap.get(id) || [];
+    for (const childId of children) {
+      const cycle = detectCycle(childId);
+      if (cycle !== null) return cycle;
+    }
+
+    inStack.delete(id);
+    return null;
+  }
+
+  for (const rootId of roots) {
+    const cycleAt = detectCycle(rootId);
+    if (cycleAt !== null) {
+      return Err({
+        reason: "CircularDependency",
+        message: "Circular dependency detected involving: " + cycleAt,
+        unitId: cycleAt,
+      });
+    }
+  }
+
+  return Ok({ files: fileMap, roots, parentMap, childrenMap });
+}
+
+/** Get all ancestors of a node in the intent tree. */
+export function getAncestors(tree: IntentTree, id: string): GlassFile[] {
+  const ancestors: GlassFile[] = [];
+  let currentId = tree.parentMap.get(id) ?? null;
+  while (currentId !== null) {
+    const file = tree.files.get(currentId);
+    if (file) ancestors.push(file);
+    currentId = tree.parentMap.get(currentId) ?? null;
+  }
+  return ancestors;
+}
+
+/** Get direct children of a node in the intent tree. */
+export function getChildren(tree: IntentTree, id: string): GlassFile[] {
+  const childIds = tree.childrenMap.get(id) || [];
+  return childIds
+    .map((cid) => tree.files.get(cid))
+    .filter((f): f is GlassFile => f !== undefined);
+}
+

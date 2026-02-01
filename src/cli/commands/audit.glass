@@ -1,0 +1,36 @@
+=== Glass Unit ===
+id: cli.cmd_audit
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Display audit trail for Glass project changes
+source: prd reference "PRD Section 12 — glass audit"
+parent: glass.cli
+stakeholder: security
+
+=== Contract ===
+advisories:
+  - Placeholder implementation — audit trail functionality not yet implemented
+
+=== Implementation ===
+/**
+ * glass audit — display the audit trail for compiled units.
+ */
+
+import { Command } from "commander";
+import chalk from "chalk";
+
+export const auditCommand = new Command("audit")
+  .description("Display the audit trail for Glass units")
+  .option("-u, --unit <id>", "Show audit for a specific unit")
+  .option("-v, --verbose", "Show detailed audit information", false)
+  .action(async (opts) => {
+    console.log(chalk.blue("Glass") + " Audit trail");
+
+    if (opts.unit) {
+      console.log("Showing audit for unit: " + chalk.cyan(opts.unit));
+    } else {
+      console.log("No compiled units found. Run " + chalk.cyan("glass build") + " first.");
+    }
+  });
