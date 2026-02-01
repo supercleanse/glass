@@ -9,9 +9,7 @@ source: prd reference "PRD Section 12 — glass views"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_views.load_project (ai-generated, load and validate Glass project)
-  - cli.cmd_views.generate_views (ai-generated, generate views to output directory)
+subIntents: []
 
 === Contract ===
 requires:
@@ -34,6 +32,7 @@ fails:
   ViewGenerationFailed: Error message and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound | ViewGenerationFailed */
 /**
  * glass views — generate human-readable views without full compilation.
  */

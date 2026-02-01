@@ -33,9 +33,9 @@ invariants:
   - Entry point is a pure re-export module with no logic
   - VERSION matches package.json version
 
-fails: {}
+fails:
 
-advisories: []
+advisories:
 
 === Implementation ===
 /**

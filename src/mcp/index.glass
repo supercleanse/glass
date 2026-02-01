@@ -32,9 +32,10 @@ fails:
   InvalidProjectPath: stderr message and exit code 1
   TransportError: stderr message and exit code 1
 
-advisories: []
+advisories:
 
 === Implementation ===
+/** @fails InvalidProjectPath | TransportError */
 #!/usr/bin/env node
 
 /**

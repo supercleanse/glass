@@ -1,0 +1,35 @@
+=== Glass Unit ===
+id: glass.adapters
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Group intent for Glass language adapters — translate Glass contracts to target languages
+source:
+  kind: prd
+  reference: "PRD Section 13 — Language Adapters"
+parent: glass.framework
+stakeholder: engineering
+subIntents:
+  - adapters.typescript
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "Adapters subsystem namespace is established"
+  on_failure: []
+invariants:
+  - "All adapter units are children of this intent"
+fails:
+advisories:
+
+=== Implementation ===
+/**
+ * Glass Adapters — group intent namespace.
+ *
+ * Language adapters translate Glass contracts into target-language
+ * constructs. Currently only TypeScript is supported.
+ * This unit anchors the adapters subtree in the intent hierarchy.
+ */

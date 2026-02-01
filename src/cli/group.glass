@@ -1,0 +1,46 @@
+=== Glass Unit ===
+id: glass.cli
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Group intent for the Glass CLI — user-facing commands for the Glass framework
+source:
+  kind: prd
+  reference: "PRD Section 12 — CLI Commands"
+parent: glass.framework
+stakeholder: user
+subIntents:
+  - cli.entry
+  - cli.utils
+  - cli.cmd_init
+  - cli.cmd_verify
+  - cli.cmd_compile
+  - cli.cmd_views
+  - cli.cmd_status
+  - cli.cmd_tree
+  - cli.cmd_trace
+  - cli.cmd_eject
+  - cli.cmd_annotate
+  - cli.cmd_build
+  - cli.cmd_audit
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "CLI subsystem namespace is established"
+  on_failure: []
+invariants:
+  - "All CLI units are children of this intent"
+fails:
+advisories:
+
+=== Implementation ===
+/**
+ * Glass CLI — group intent namespace.
+ *
+ * The CLI is bootstrapped by cli.entry (src/cli/index.glass).
+ * This unit anchors the CLI subtree in the intent hierarchy.
+ */

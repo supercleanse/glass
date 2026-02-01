@@ -28,7 +28,7 @@ invariants:
   - "Implementation code is never modified"
   - "Verification is deterministic — same input produces same output"
 fails: []
-advisories: []
+advisories:
 
 === Implementation ===
 /**

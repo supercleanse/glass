@@ -32,7 +32,7 @@ fails:
   DanglingReference: "Error(LinkError, reason: DanglingReference)"
   CircularDependency: "Error(LinkError, reason: CircularDependency)"
   DuplicateId: "Error(LinkError, reason: DuplicateId)"
-advisories: []
+advisories:
 
 === Implementation ===
 /**

@@ -9,11 +9,7 @@ source: prd reference "PRD Section 12 — glass compile"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_compile.parse_and_link (ai-generated, parse .glass files and link intent tree)
-  - cli.cmd_compile.verify_contracts (ai-generated, verify all contracts before emission)
-  - cli.cmd_compile.generate_views (ai-generated, generate human-readable views)
-  - cli.cmd_compile.emit_typescript (ai-generated, emit TypeScript to output directory)
+subIntents: []
 
 === Contract ===
 requires:
@@ -42,6 +38,7 @@ fails:
   EmitFailed: Error details and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound | VerificationFailed | EmitFailed */
 /**
  * glass compile — run full compilation pipeline: parse, link, verify, generate views, emit.
  */

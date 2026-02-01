@@ -35,7 +35,7 @@ fails:
   InvalidFormat: "Error(ParseError, reason: InvalidFormat)"
   MissingSection: "Error(ParseError, reason: MissingSection)"
   InvalidSectionContent: "Error(ParseError, reason: InvalidSectionContent)"
-advisories: []
+advisories:
 
 === Implementation ===
 /**

@@ -9,9 +9,7 @@ source: prd reference "PRD Section 12 — glass tree"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_tree.load_project (ai-generated, load and validate Glass project)
-  - cli.cmd_tree.render_tree (ai-generated, render ASCII tree with recursive traversal)
+subIntents: []
 
 === Contract ===
 requires:
@@ -34,6 +32,7 @@ fails:
   ProjectNotFound: Error message and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound */
 /**
  * glass tree — display the intent hierarchy as an ASCII tree.
  */

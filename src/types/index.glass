@@ -30,7 +30,7 @@ invariants:
   - "Types are purely declarative with no runtime side effects"
   - "Result discriminated union uses 'ok' boolean for type narrowing"
 fails: []
-advisories: []
+advisories:
 
 === Implementation ===
 /**

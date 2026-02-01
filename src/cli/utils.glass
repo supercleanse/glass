@@ -9,9 +9,7 @@ source: ai-generated (Common functionality extracted from CLI commands)
 parent: glass.cli
 stakeholder: engineering
 
-sub-intents:
-  - cli.utils.discover_glass_files (ai-generated, recursive file discovery)
-  - cli.utils.load_project (ai-generated, full pipeline: parse, link, verify)
+subIntents: []
 
 === Contract ===
 requires:

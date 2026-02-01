@@ -9,8 +9,7 @@ source: ai-generated (Backward compatibility alias for glass compile)
 parent: glass.cli
 stakeholder: engineering
 
-sub-intents:
-  - cli.cmd_build.compile (ai-generated, delegate to GlassCompiler.compile())
+subIntents: []
 
 === Contract ===
 requires:
@@ -35,6 +34,7 @@ advisories:
   - Uses GlassCompiler stub; glass compile command provides the real pipeline
 
 === Implementation ===
+/** @fails CompilationFailed */
 /**
  * glass build — compile Glass source files through the full pipeline.
  */
