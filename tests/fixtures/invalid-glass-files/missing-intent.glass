@@ -1,0 +1,18 @@
+=== Glass Unit ===
+id: broken.missing_intent
+version: 0.1.0
+language: typescript
+
+=== Contract ===
+requires:
+  - "something"
+guarantees:
+  on_success:
+    - "something"
+  on_failure: []
+invariants: []
+fails: []
+advisories: []
+
+=== Implementation ===
+export function broken() {}

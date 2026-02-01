@@ -1,0 +1,24 @@
+=== Glass Unit ===
+id: broken.missing_impl
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: A broken file with no implementation
+source:
+  kind: prd
+  reference: "none"
+parent: null
+stakeholder: engineering
+subIntents: []
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "Something"
+  on_failure: []
+invariants: []
+fails: []
+advisories: []

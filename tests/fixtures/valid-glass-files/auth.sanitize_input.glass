@@ -1,0 +1,42 @@
+=== Glass Unit ===
+id: auth.sanitize_input
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Sanitize authentication input to prevent injection attacks
+source:
+  kind: ai-generated
+  reason: security
+parent: auth.authenticate_user
+stakeholder: security
+subIntents: []
+approvalStatus: auto-approved
+
+=== Contract ===
+requires:
+  - "Input is a string value"
+guarantees:
+  on_success:
+    - "Returns sanitized string with dangerous characters escaped"
+    - "SQL injection patterns are neutralized"
+  on_failure:
+    - "Returns empty string for null/undefined input"
+invariants:
+  - "Original input is not modified"
+fails: []
+advisories: []
+
+=== Implementation ===
+export function sanitizeInput(input: string | null | undefined): string {
+  if (input == null) {
+    return "";
+  }
+
+  return input
+    .replace(/'/g, "''")
+    .replace(/;/g, "")
+    .replace(/--/g, "")
+    .replace(/<script/gi, "")
+    .trim();
+}
