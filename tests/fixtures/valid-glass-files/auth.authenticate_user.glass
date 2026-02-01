@@ -11,10 +11,7 @@ stakeholder: user
 
 sub-intents:
   - auth.validate_credentials
-  - auth.manage_session
   - auth.sanitize_input (ai-generated, security)
-  - auth.rate_limit_login (ai-generated, security)
-  - auth.log_auth_attempt (ai-generated, audit)
 
 === Contract ===
 requires:

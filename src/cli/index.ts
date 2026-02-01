@@ -25,6 +25,7 @@ import { statusCommand } from "./commands/status";
 import { treeCommand } from "./commands/tree";
 import { traceCommand } from "./commands/trace";
 import { ejectCommand } from "./commands/eject";
+import { annotateCommand } from "./commands/annotate";
 import { buildCommand } from "./commands/build";
 import { auditCommand } from "./commands/audit";
 import { VERSION } from "../index";
@@ -45,6 +46,7 @@ program.addCommand(statusCommand);
 program.addCommand(treeCommand);
 program.addCommand(traceCommand);
 program.addCommand(ejectCommand);
+program.addCommand(annotateCommand);
 
 // Legacy/additional commands
 program.addCommand(buildCommand);

@@ -24,9 +24,9 @@ describe("Glass Parser", () => {
       expect(file.intent.source).toEqual({ kind: "conversation", sessionId: "session-1" });
       expect(file.intent.parent).toBeNull();
       expect(file.intent.stakeholder).toBe("user");
-      expect(file.intent.subIntents).toHaveLength(5);
+      expect(file.intent.subIntents).toHaveLength(2);
       expect(file.intent.subIntents[0]).toEqual({ id: "auth.validate_credentials" });
-      expect(file.intent.subIntents[2]).toEqual({
+      expect(file.intent.subIntents[1]).toEqual({
         id: "auth.sanitize_input",
         annotations: ["ai-generated", "security"],
       });

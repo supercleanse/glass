@@ -1,0 +1,17 @@
+=== Glass Unit ===
+id: broken.missing_contract
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: A broken file with no contract
+source:
+  kind: prd
+  reference: "none"
+parent: null
+stakeholder: engineering
+subIntents: []
+approvalStatus: approved
+
+=== Implementation ===
+export function broken() {}
