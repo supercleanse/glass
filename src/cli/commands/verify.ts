@@ -30,7 +30,7 @@ export const verifyCommand = new Command("verify")
     const linkResult = link(parseResult.ast);
     if (!linkResult.success) {
       for (const diag of linkResult.diagnostics) {
-        if (diag.severity === "error") {
+        if ((diag.severity as string) === "error") {
           console.error(chalk.red("error[" + diag.code + "]") + ": " + diag.message);
         }
       }
