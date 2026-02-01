@@ -1,0 +1,53 @@
+=== Glass Unit ===
+id: adapters.typescript
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Provide TypeScript language adapter for Glass compilation
+source: prd (PRD Section 13)
+parent: glass.adapters
+stakeholder: engineering
+
+sub-intents: []
+
+=== Contract ===
+requires:
+  - GlassFile has language: typescript
+
+guarantees:
+  on_success:
+    - LanguageAdapter interface defines name, fileExtension, and compile method
+    - typescriptAdapter implements LanguageAdapter for TypeScript targets
+  on_failure: []
+
+invariants:
+  - Adapter is stateless
+
+fails: {}
+
+advisories:
+  - Placeholder implementation — actual TypeScript compilation handled by emitter
+
+=== Implementation ===
+/**
+ * TypeScript language adapter for Glass.
+ *
+ * Translates Glass contracts into TypeScript-native constructs
+ * and maps verification results back to contract terms.
+ */
+
+export interface LanguageAdapter {
+  name: string;
+  fileExtension: string;
+  compile(source: string): Promise<string>;
+}
+
+export const typescriptAdapter: LanguageAdapter = {
+  name: "typescript",
+  fileExtension: ".ts",
+  async compile(source: string): Promise<string> {
+    // Placeholder: will be implemented in Task 13 (TypeScript adapter)
+    return source;
+  },
+};

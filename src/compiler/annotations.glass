@@ -1,0 +1,261 @@
+=== Glass Unit ===
+id: compiler.annotations
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: "Manage human annotations on Glass units for AI-human collaboration"
+source: prd — PRD Section 7
+parent: glass.compiler
+stakeholder: user
+
+=== Contract ===
+requires:
+  - annotationsDir is a valid directory path
+  - unitId is a non-empty string
+  - target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*)
+
+guarantees:
+  on_success:
+    - addAnnotation persists annotation to .annotations/<unitId>.annotations.json
+    - Each annotation has a unique generated ID
+    - resolveAnnotation sets resolved: true and persists
+    - deleteAnnotation removes the annotation from storage
+    - loadAnnotations returns all annotations for a unit
+    - getUnresolvedAnnotations returns only annotations where resolved is false
+  on_failure:
+    - Returns AnnotationError with reason and message
+
+invariants:
+  - Annotation files are scoped per unit (one JSON file per unitId)
+  - Annotation IDs are unique across the project
+  - Empty annotation files are deleted (not left as empty arrays)
+
+fails:
+  UnitNotFound: Error(AnnotationError, reason: UnitNotFound)
+  AnnotationNotFound: Error(AnnotationError, reason: AnnotationNotFound)
+  InvalidTarget: Error(AnnotationError, reason: InvalidTarget)
+  WriteError: Error(AnnotationError, reason: WriteError)
+
+=== Implementation ===
+/**
+ * Annotation System — PRD Section 8.4
+ *
+ * Allows humans to attach notes to generated outlines for AI to act on.
+ * Annotations are stored in .annotations/<unitId>.annotations.json.
+ */
+
+import * as fs from "fs";
+import * as path from "path";
+import type { Annotation } from "../types/index";
+import { Ok, Err } from "../types/index";
+import type { Result } from "../types/index";
+
+/** Error reasons for annotation operations. */
+export type AnnotationErrorReason =
+  | "UnitNotFound"
+  | "AnnotationNotFound"
+  | "InvalidTarget"
+  | "WriteError";
+
+export interface AnnotationError {
+  reason: AnnotationErrorReason;
+  message: string;
+}
+
+/**
+ * Generate a unique annotation ID.
+ */
+function generateAnnotationId(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 8);
+  return "ann-" + timestamp + "-" + random;
+}
+
+/**
+ * Get the annotation file path for a given unit.
+ */
+function annotationFilePath(annotationsDir: string, unitId: string): string {
+  return path.join(annotationsDir, unitId + ".annotations.json");
+}
+
+/**
+ * Load annotations for a specific unit.
+ */
+export function loadAnnotations(
+  annotationsDir: string,
+  unitId: string,
+): Annotation[] {
+  const filePath = annotationFilePath(annotationsDir, unitId);
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+  const content = fs.readFileSync(filePath, "utf-8");
+  return JSON.parse(content) as Annotation[];
+}
+
+/**
+ * Load all annotations across all units.
+ */
+export function loadAllAnnotations(annotationsDir: string): Annotation[] {
+  if (!fs.existsSync(annotationsDir)) {
+    return [];
+  }
+
+  const all: Annotation[] = [];
+  const entries = fs.readdirSync(annotationsDir);
+  for (const entry of entries) {
+    if (entry.endsWith(".annotations.json")) {
+      const filePath = path.join(annotationsDir, entry);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const annotations = JSON.parse(content) as Annotation[];
+      all.push(...annotations);
+    }
+  }
+  return all;
+}
+
+/**
+ * Add an annotation to a unit.
+ */
+export function addAnnotation(
+  annotationsDir: string,
+  unitId: string,
+  target: string,
+  note: string,
+  author: string,
+): Result<Annotation, AnnotationError> {
+  // Validate target format
+  if (!isValidTarget(target)) {
+    return Err({
+      reason: "InvalidTarget",
+      message:
+        "Invalid target format: " +
+        target +
+        '. Expected "line:<n>" or dotted path like "contract.guarantees.success.2"',
+    });
+  }
+
+  const annotation: Annotation = {
+    id: generateAnnotationId(),
+    unitId,
+    target,
+    note,
+    author,
+    timestamp: new Date().toISOString(),
+    resolved: false,
+  };
+
+  // Load existing annotations
+  const existing = loadAnnotations(annotationsDir, unitId);
+  existing.push(annotation);
+
+  // Write back
+  try {
+    fs.mkdirSync(annotationsDir, { recursive: true });
+    const filePath = annotationFilePath(annotationsDir, unitId);
+    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  } catch (err) {
+    return Err({
+      reason: "WriteError",
+      message: "Failed to write annotation: " + (err as Error).message,
+    });
+  }
+
+  return Ok(annotation);
+}
+
+/**
+ * Resolve (mark as done) an annotation.
+ */
+export function resolveAnnotation(
+  annotationsDir: string,
+  unitId: string,
+  annotationId: string,
+): Result<Annotation, AnnotationError> {
+  const annotations = loadAnnotations(annotationsDir, unitId);
+  const annotation = annotations.find((a) => a.id === annotationId);
+  if (!annotation) {
+    return Err({
+      reason: "AnnotationNotFound",
+      message: "Annotation not found: " + annotationId,
+    });
+  }
+
+  annotation.resolved = true;
+
+  try {
+    const filePath = annotationFilePath(annotationsDir, unitId);
+    fs.writeFileSync(filePath, JSON.stringify(annotations, null, 2) + "\n", "utf-8");
+  } catch (err) {
+    return Err({
+      reason: "WriteError",
+      message: "Failed to write annotation: " + (err as Error).message,
+    });
+  }
+
+  return Ok(annotation);
+}
+
+/**
+ * Delete an annotation.
+ */
+export function deleteAnnotation(
+  annotationsDir: string,
+  unitId: string,
+  annotationId: string,
+): Result<void, AnnotationError> {
+  const annotations = loadAnnotations(annotationsDir, unitId);
+  const idx = annotations.findIndex((a) => a.id === annotationId);
+  if (idx === -1) {
+    return Err({
+      reason: "AnnotationNotFound",
+      message: "Annotation not found: " + annotationId,
+    });
+  }
+
+  annotations.splice(idx, 1);
+
+  try {
+    const filePath = annotationFilePath(annotationsDir, unitId);
+    if (annotations.length === 0) {
+      fs.unlinkSync(filePath);
+    } else {
+      fs.writeFileSync(filePath, JSON.stringify(annotations, null, 2) + "\n", "utf-8");
+    }
+  } catch (err) {
+    return Err({
+      reason: "WriteError",
+      message: "Failed to write annotation: " + (err as Error).message,
+    });
+  }
+
+  return Ok(undefined);
+}
+
+/**
+ * Get all unresolved annotations across the project.
+ */
+export function getUnresolvedAnnotations(annotationsDir: string): Annotation[] {
+  return loadAllAnnotations(annotationsDir).filter((a) => !a.resolved);
+}
+
+/**
+ * Validate an annotation target format.
+ * Valid formats:
+ *   - "line:<n>" — targets a specific line number
+ *   - "contract.requires.1" — targets a contract assertion
+ *   - "contract.guarantees.success.2" — targets a guarantee
+ *   - "intent.purpose" — targets intent section
+ */
+export function isValidTarget(target: string): boolean {
+  // line:<n>
+  if (/^line:\d+$/.test(target)) {
+    return true;
+  }
+  // Dotted path: intent.*, contract.*, implementation.*
+  if (/^(intent|contract|implementation)(\.\w+)*$/.test(target)) {
+    return true;
+  }
+  return false;
+}

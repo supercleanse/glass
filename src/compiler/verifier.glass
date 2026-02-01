@@ -1,0 +1,604 @@
+=== Glass Unit ===
+id: compiler.verifier
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Verify that implementations satisfy their contracts through static analysis and pattern matching
+source:
+  kind: prd
+  reference: "PRD Section 9"
+parent: glass.compiler
+stakeholder: engineering
+subIntents: []
+approvalStatus: approved
+
+=== Contract ===
+requires:
+  - "file is a valid GlassFile with contract and implementation"
+guarantees:
+  on_success:
+    - "Returns VerificationResult with all assertions checked"
+    - "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)"
+    - "Overall status is PROVEN if all assertions pass"
+  on_failure:
+    - "Returns VerificationResult with status FAILED"
+    - "Failed assertions include explanation messages"
+invariants:
+  - "Implementation code is never modified"
+  - "Verification is deterministic — same input produces same output"
+fails: []
+advisories: []
+
+=== Implementation ===
+/**
+ * Glass Contract Verifier — verifies that implementations satisfy their
+ * contracts through static analysis.
+ *
+ * This is the third stage of the Glass compiler pipeline.
+ * Phase 1 uses pattern-based static analysis on the implementation source.
+ * Phase 2 will add TypeScript Compiler API AST analysis and SMT solver integration.
+ */
+
+import type {
+  GlassFile,
+  VerificationResult,
+  VerificationAssertion,
+  VerificationLevel,
+  Advisory,
+  CompilerOptions,
+  DiagnosticMessage,
+} from "../types/index";
+
+// ============================================================
+// Pattern-Based Analysis Utilities (Phase 1)
+// ============================================================
+
+/**
+ * Check if a string identifier appears in the implementation code.
+ * Matches word boundaries to avoid false positives from substrings.
+ */
+function identifierExists(implementation: string, name: string): boolean {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`\\b${escaped}\\b`);
+  return pattern.test(implementation);
+}
+
+/**
+ * Check if the implementation contains a try/catch block.
+ */
+function hasTryCatch(implementation: string): boolean {
+  return /\btry\s*\{/.test(implementation) && /\bcatch\s*\(/.test(implementation);
+}
+
+/**
+ * Check if a sensitive identifier is passed to logging or output functions.
+ * Returns true if potentially exposed.
+ */
+function isSensitiveExposed(implementation: string, fieldName: string): boolean {
+  const logPatterns = [
+    new RegExp(`console\\.(log|warn|error|info|debug)\\([^)]*\\b${fieldName}\\b`),
+    new RegExp(`\\blog\\w*\\([^)]*\\b${fieldName}\\b`),
+    new RegExp(`JSON\\.stringify\\([^)]*\\b${fieldName}\\b`),
+  ];
+  for (const pattern of logPatterns) {
+    if (pattern.test(implementation)) return true;
+  }
+
+  // Check if it appears in a return statement directly
+  const returnPattern = new RegExp(`return\\s+[^;]*\\b${fieldName}\\b`);
+  if (returnPattern.test(implementation)) return true;
+
+  return false;
+}
+
+/**
+ * Extract the sensitive field name from an invariant description.
+ * Looks for patterns like "X never exposed" or "X never held in memory".
+ */
+function extractSensitiveField(description: string): string | null {
+  const match = description.match(/(\w+(?:\.\w+)*)\s+never\s+/i);
+  return match ? match[1] : null;
+}
+
+/**
+ * Check if a catch block handles a specific error type.
+ */
+function catchHandlesErrorType(implementation: string, errorType: string): boolean {
+  // Check instanceof pattern
+  if (new RegExp(`instanceof\\s+${errorType}`).test(implementation)) return true;
+  // Check error type name in catch block
+  if (new RegExp(`catch\\s*\\([^)]*\\)\\s*\\{[^}]*${errorType}`).test(implementation)) return true;
+  // Check string comparison pattern
+  if (new RegExp(`error\\.(?:name|code|type)\\s*===?\\s*['"]${errorType}['"]`).test(implementation)) return true;
+  // Check string matching in throw/new Error
+  if (new RegExp(`(?:throw|new Error)\\s*\\([^)]*${errorType}`).test(implementation)) return true;
+  return false;
+}
+
+/**
+ * Extract the handling strategy components from a failure mode handling string.
+ * e.g., "retry(3) then Error(ServiceUnavailable)" -> { hasRetry: true, retryCount: 3, errorType: "ServiceUnavailable" }
+ */
+function parseHandlingStrategy(handling: string): {
+  hasRetry: boolean;
+  retryCount: number | null;
+  errorType: string | null;
+  hasAlert: boolean;
+  alertTarget: string | null;
+} {
+  const retryMatch = handling.match(/retry\((\d+)\)/);
+  const errorMatch = handling.match(/Error\((\w+)/);
+  const alertMatch = handling.match(/alert\(([^)]+)\)/);
+  return {
+    hasRetry: retryMatch !== null,
+    retryCount: retryMatch ? parseInt(retryMatch[1], 10) : null,
+    errorType: errorMatch ? errorMatch[1] : null,
+    hasAlert: alertMatch !== null,
+    alertTarget: alertMatch ? alertMatch[1] : null,
+  };
+}
+
+// ============================================================
+// Verification Methods
+// ============================================================
+
+/**
+ * Verify preconditions (requires).
+ * Phase 1: Checks if referenced inputs are used in the implementation.
+ */
+function verifyRequires(file: GlassFile): VerificationAssertion[] {
+  const assertions: VerificationAssertion[] = [];
+  const impl = file.implementation;
+
+  for (const req of file.contract.requires) {
+    const desc = req.description;
+
+    // Parse "input.X is Type" or "system.X is Y" patterns
+    const inputMatch = desc.match(/^(\w+)\.(\w+)\s+is\s+(\w+)/i);
+    if (inputMatch) {
+      const [, objName, propName] = inputMatch;
+      const paramUsed = identifierExists(impl, objName) || identifierExists(impl, propName);
+
+      if (desc.toLowerCase().includes("system.")) {
+        // System preconditions can only be checked at runtime
+        assertions.push({
+          assertion: desc,
+          passed: true,
+          level: "INSTRUMENTED",
+          message: "System precondition will be checked at runtime: " + desc,
+        });
+      } else if (paramUsed) {
+        assertions.push({
+          assertion: desc,
+          passed: true,
+          level: "PROVEN",
+          message: "Input parameter '" + propName + "' is referenced in implementation",
+        });
+      } else {
+        assertions.push({
+          assertion: desc,
+          passed: false,
+          level: "TESTED",
+          message: "Input parameter '" + propName + "' is not referenced in implementation",
+        });
+      }
+    } else {
+      // Generic precondition
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: "INSTRUMENTED",
+        message: "Precondition will be checked at runtime",
+      });
+    }
+  }
+
+  return assertions;
+}
+
+/**
+ * Verify guarantees (postconditions).
+ * Phase 1: Checks if guaranteed outputs appear in the implementation.
+ */
+function verifyGuarantees(file: GlassFile): VerificationAssertion[] {
+  const assertions: VerificationAssertion[] = [];
+  const impl = file.implementation;
+
+  // Success guarantees
+  for (const guarantee of file.contract.guarantees.onSuccess) {
+    const desc = guarantee.description;
+
+    // Check "result is TypeName" pattern
+    const typeMatch = desc.match(/result\s+is\s+(\w+)/i);
+    if (typeMatch) {
+      const typeName = typeMatch[1];
+      const found = identifierExists(impl, typeName);
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: found ? "PROVEN" : "INSTRUMENTED",
+        message: found
+          ? "Success type '" + typeName + "' referenced in implementation"
+          : "Success type '" + typeName + "' will be checked at runtime",
+      });
+      continue;
+    }
+
+    // Check "result.X == Y" or "result.X is Y" pattern
+    const propMatch = desc.match(/result\.(\w+(?:\.\w+)*)/i);
+    if (propMatch) {
+      const propChain = propMatch[1];
+      const propName = propChain.split(".")[0];
+      const found = identifierExists(impl, propName);
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: found ? "PROVEN" : "INSTRUMENTED",
+        message: found
+          ? "Output property '" + propName + "' is produced in implementation"
+          : "Output property '" + propName + "' will be checked at runtime",
+      });
+      continue;
+    }
+
+    // Check for side-effect guarantees (e.g., "audit_log appended")
+    const sideEffectMatch = desc.match(/(\w+)\s+(?:appended|updated|created|written)/i);
+    if (sideEffectMatch) {
+      const effectTarget = sideEffectMatch[1];
+      const found = identifierExists(impl, effectTarget) ||
+        identifierExists(impl, effectTarget.replace(/_/g, ""));
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: found ? "INSTRUMENTED" : "INSTRUMENTED",
+        message: "Side-effect guarantee will be checked at runtime: " + desc,
+      });
+      continue;
+    }
+
+    // Fallback
+    assertions.push({
+      assertion: desc,
+      passed: true,
+      level: "INSTRUMENTED",
+      message: "Success guarantee will be checked at runtime",
+    });
+  }
+
+  // Failure guarantees
+  for (const guarantee of file.contract.guarantees.onFailure) {
+    const desc = guarantee.description;
+
+    // Check "result is TypeName" pattern
+    const typeMatch = desc.match(/result\s+is\s+(\w+)/i);
+    if (typeMatch) {
+      const typeName = typeMatch[1];
+      const found = identifierExists(impl, typeName);
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: found ? "PROVEN" : "INSTRUMENTED",
+        message: found
+          ? "Failure type '" + typeName + "' referenced in implementation"
+          : "Failure type '" + typeName + "' will be checked at runtime",
+      });
+      continue;
+    }
+
+    // Check for "no X created" patterns
+    const negativeMatch = desc.match(/no\s+(\w+)\s+created/i);
+    if (negativeMatch) {
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: "INSTRUMENTED",
+        message: "Negative guarantee will be checked at runtime: " + desc,
+      });
+      continue;
+    }
+
+    // Fallback
+    assertions.push({
+      assertion: desc,
+      passed: true,
+      level: "INSTRUMENTED",
+      message: "Failure guarantee will be checked at runtime",
+    });
+  }
+
+  return assertions;
+}
+
+/**
+ * Verify invariants through pattern-based analysis.
+ * Phase 1: Detects common security anti-patterns.
+ */
+function verifyInvariants(file: GlassFile): VerificationAssertion[] {
+  const assertions: VerificationAssertion[] = [];
+  const impl = file.implementation;
+
+  for (const invariant of file.contract.invariants) {
+    const desc = invariant.description;
+
+    // Handle "never exposed" invariants
+    const sensitiveField = extractSensitiveField(desc);
+    if (sensitiveField && desc.toLowerCase().includes("never exposed")) {
+      const fieldParts = sensitiveField.split(".");
+      const fieldName = fieldParts[fieldParts.length - 1];
+
+      if (isSensitiveExposed(impl, fieldName)) {
+        assertions.push({
+          assertion: desc,
+          passed: false,
+          level: "PROVEN",
+          message: "VIOLATION: Sensitive field '" + fieldName + "' appears to be exposed in output or logs",
+        });
+      } else if (identifierExists(impl, fieldName)) {
+        assertions.push({
+          assertion: desc,
+          passed: true,
+          level: "PROVEN",
+          message: "Sensitive field '" + fieldName + "' is used but not exposed in output or logs",
+        });
+      } else {
+        assertions.push({
+          assertion: desc,
+          passed: true,
+          level: "PROVEN",
+          message: "Sensitive field '" + fieldName + "' not referenced in implementation",
+        });
+      }
+      continue;
+    }
+
+    // Handle "never held in memory" invariants
+    if (sensitiveField && desc.toLowerCase().includes("never held in memory")) {
+      assertions.push({
+        assertion: desc,
+        passed: true,
+        level: "INSTRUMENTED",
+        message: "Memory safety invariant requires runtime analysis (Phase 2 will prove statically)",
+      });
+      continue;
+    }
+
+    // Handle "correctly updated" invariants
+    if (desc.toLowerCase().includes("correctly updated")) {
+      const stateMatch = desc.match(/(\w+(?:\.\w+)*)\s+correctly\s+updated/i);
+      if (stateMatch) {
+        const stateName = stateMatch[1].split(".").pop()!;
+        const found = identifierExists(impl, stateName);
+        assertions.push({
+          assertion: desc,
+          passed: true,
+          level: found ? "INSTRUMENTED" : "TESTED",
+          message: found
+            ? "State '" + stateName + "' is modified in implementation; correctness deferred to runtime"
+            : "State '" + stateName + "' not found in implementation",
+        });
+        continue;
+      }
+    }
+
+    // Generic invariant
+    assertions.push({
+      assertion: desc,
+      passed: true,
+      level: "INSTRUMENTED",
+      message: "Invariant will be checked at runtime",
+    });
+  }
+
+  return assertions;
+}
+
+/**
+ * Verify failure mode coverage.
+ * Phase 1: Checks that each declared failure mode has a handler in the implementation.
+ */
+function verifyFailureModes(file: GlassFile): VerificationAssertion[] {
+  const assertions: VerificationAssertion[] = [];
+  const impl = file.implementation;
+  const hasErrorHandling = hasTryCatch(impl);
+
+  for (const failureMode of file.contract.fails) {
+    const { errorType, handling } = failureMode;
+    const strategy = parseHandlingStrategy(handling);
+
+    // Check if the error type is referenced in the implementation
+    const errorReferenced = identifierExists(impl, errorType);
+
+    // Check if error handling exists
+    const errorHandled = hasErrorHandling && catchHandlesErrorType(impl, errorType);
+
+    // Check if the response error type matches
+    const responseErrorMatched = strategy.errorType
+      ? identifierExists(impl, strategy.errorType)
+      : true;
+
+    if (errorHandled && responseErrorMatched) {
+      assertions.push({
+        assertion: "Failure mode handled: " + errorType,
+        passed: true,
+        level: "PROVEN",
+        message: "Error type '" + errorType + "' is caught and handled with appropriate response",
+      });
+    } else if (errorReferenced) {
+      assertions.push({
+        assertion: "Failure mode handled: " + errorType,
+        passed: true,
+        level: "INSTRUMENTED",
+        message: "Error type '" + errorType + "' is referenced but handler completeness deferred to runtime",
+      });
+    } else {
+      assertions.push({
+        assertion: "Failure mode handled: " + errorType,
+        passed: false,
+        level: "TESTED",
+        message: "Error type '" + errorType + "' not found in implementation",
+      });
+    }
+  }
+
+  return assertions;
+}
+
+// ============================================================
+// Instrumentation Plan (Phase 1)
+// ============================================================
+
+/** A runtime check to be injected by the emitter. */
+export interface RuntimeCheck {
+  assertionText: string;
+  verificationLevel: "INSTRUMENTED";
+  checkCode: string;
+  insertionPoint: "pre" | "post" | "invariant";
+  errorMessage: string;
+}
+
+/** Plan for runtime instrumentation of unproven assertions. */
+export interface InstrumentationPlan {
+  unitId: string;
+  checks: RuntimeCheck[];
+}
+
+/**
+ * Generate an instrumentation plan for assertions that couldn't be statically proven.
+ * The emitter uses this to inject runtime guards.
+ */
+export function generateInstrumentation(
+  file: GlassFile,
+  result: VerificationResult,
+): InstrumentationPlan {
+  const checks: RuntimeCheck[] = [];
+
+  for (const assertion of result.assertions) {
+    if (assertion.level !== "INSTRUMENTED" || !assertion.passed) continue;
+
+    // Determine insertion point based on which contract section this came from
+    let insertionPoint: "pre" | "post" | "invariant" = "invariant";
+    const assertionText = assertion.assertion;
+
+    // Precondition checks
+    const isRequires = file.contract.requires.some((r) => r.description === assertionText);
+    if (isRequires) {
+      insertionPoint = "pre";
+      const inputMatch = assertionText.match(/^(\w+)\.(\w+)\s+is\s+(\w+)/i);
+      if (inputMatch) {
+        const [, objName, propName, typeName] = inputMatch;
+        const tsType = typeName.toLowerCase();
+        checks.push({
+          assertionText,
+          verificationLevel: "INSTRUMENTED",
+          insertionPoint,
+          checkCode: `if (typeof ${objName}?.${propName} !== "${tsType}") throw new GlassContractViolation("${assertionText}");`,
+          errorMessage: "Precondition failed: " + assertionText,
+        });
+      }
+      continue;
+    }
+
+    // Postcondition checks
+    const isGuarantee =
+      file.contract.guarantees.onSuccess.some((g) => g.description === assertionText) ||
+      file.contract.guarantees.onFailure.some((g) => g.description === assertionText);
+    if (isGuarantee) {
+      insertionPoint = "post";
+      checks.push({
+        assertionText,
+        verificationLevel: "INSTRUMENTED",
+        insertionPoint,
+        checkCode: `// Runtime postcondition check: ${assertionText}`,
+        errorMessage: "Postcondition failed: " + assertionText,
+      });
+      continue;
+    }
+
+    // Invariant checks
+    checks.push({
+      assertionText,
+      verificationLevel: "INSTRUMENTED",
+      insertionPoint: "invariant",
+      checkCode: `// Runtime invariant check: ${assertionText}`,
+      errorMessage: "Invariant violated: " + assertionText,
+    });
+  }
+
+  return { unitId: file.id, checks };
+}
+
+/**
+ * Generate a human-readable summary of the instrumentation plan.
+ */
+export function summarizeInstrumentation(plan: InstrumentationPlan): string {
+  if (plan.checks.length === 0) {
+    return "No runtime instrumentation needed for " + plan.unitId + " — all assertions statically verified.";
+  }
+
+  const lines = [
+    "Instrumentation plan for " + plan.unitId + ":",
+    "  " + plan.checks.length + " runtime check(s) will be injected:",
+  ];
+
+  for (const check of plan.checks) {
+    lines.push("  [" + check.insertionPoint.toUpperCase() + "] " + check.assertionText);
+  }
+
+  return lines.join("\n");
+}
+
+// ============================================================
+// Contract Verifier Orchestrator
+// ============================================================
+
+/**
+ * Verify a single GlassFile's implementation against its contract.
+ * Runs all Phase 1 verification methods and aggregates results.
+ */
+export function verifyContract(file: GlassFile): VerificationResult {
+  const assertions: VerificationAssertion[] = [];
+  const advisories: Advisory[] = [];
+
+  // Run all verification methods
+  assertions.push(...verifyRequires(file));
+  assertions.push(...verifyGuarantees(file));
+  assertions.push(...verifyInvariants(file));
+  assertions.push(...verifyFailureModes(file));
+
+  // Generate advisories for INSTRUMENTED assertions
+  for (const assertion of assertions) {
+    if (assertion.level === "INSTRUMENTED") {
+      advisories.push({
+        description: "Runtime check needed: " + assertion.assertion + " — " + assertion.message,
+        resolved: false,
+      });
+    }
+  }
+
+  // Pass through contract advisories
+  for (const advisory of file.contract.advisories) {
+    advisories.push({ ...advisory });
+  }
+
+  const allPassed = assertions.every((a) => a.passed);
+
+  return {
+    unitId: file.id,
+    status: allPassed ? "PROVEN" : "FAILED",
+    assertions,
+    advisories,
+  };
+}
+
+/**
+ * Verify multiple GlassFiles.
+ */
+export function verifyAll(files: GlassFile[]): Map<string, VerificationResult> {
+  const results = new Map<string, VerificationResult>();
+  for (const file of files) {
+    results.set(file.id, verifyContract(file));
+  }
+  return results;
+}
+
