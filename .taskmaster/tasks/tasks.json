@@ -627,10 +627,10 @@
             "description": "Inventory every TypeScript source file in the Glass framework (compiler, CLI commands, adapters, types, utilities) and create a comprehensive conversion plan mapping each .ts file to its .glass equivalent with intents and contracts.",
             "dependencies": [],
             "details": "This subtask is the prerequisite analysis before any conversion work begins. Since Task 25 depends on Task 13 (glass compile) and Task 22 (test suite), all compiler components and CLI commands exist as working TypeScript at this point.\n\n1. **Full source file inventory**: Enumerate every .ts file under src/, categorized by module:\n   - src/compiler/: parser.ts, linker.ts, verifier.ts, emitter.ts (and any sub-modules like verifier/ts-ast-utils.ts, verifier/type-verifier.ts, etc.)\n   - src/cli/commands/: init.ts, verify.ts, compile.ts, views.ts, status.ts, tree.ts, trace.ts, eject.ts, annotate.ts, diff.ts, generate.ts\n   - src/cli/: framework/router (command router from Task 10)\n   - src/adapters/: typescript.ts adapter\n   - src/types/: core.ts type definitions\n   - src/compiler/: result.ts, parser-errors.ts, manifest.ts (from Tasks 3, 4, 6)\n   - Any utility modules created during bootstrap\n\n2. **Conversion mapping document**: Create a conversion-plan.md (temporary working document) that maps each source file to its target .glass format:\n   - Target .glass file path (e.g., src/compiler/parser.ts → src/compiler/parser.glass)\n   - Proposed intent (purpose, source, parent in the intent hierarchy)\n   - Proposed contract outline (key requires/guarantees based on the existing implementation)\n   - Dependencies between units (which .glass files reference which others)\n   - Conversion priority order (foundational types first, then compiler core, then CLI, then adapters)\n\n3. **Intent hierarchy design**: Design the complete intent tree for the Glass framework itself:\n   - Root intent: 'glass.framework' (purpose: 'Provide AI-first development framework with formal verification')\n   - Second level: 'glass.compiler', 'glass.cli', 'glass.adapters', 'glass.types'\n   - Third level: individual units (parser, linker, verifier, emitter, each command, etc.)\n   - Document parent-child relationships for every unit\n\n4. **Risk assessment**: Identify files that may be difficult to convert:\n   - Files with circular dependencies\n   - Files that use patterns not yet supported by the Glass parser\n   - Large files that may need to be split into multiple .glass units\n   - Shared utility code that multiple .glass units depend on",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify the inventory is complete by comparing the file list against all tasks 1-24 deliverables. Confirm every .ts file in src/ is accounted for. Validate the intent hierarchy forms a valid tree (no cycles, single root, all nodes connected). Review conversion priority order ensures foundational units are converted before dependent ones. Cross-reference the proposed contracts against existing test cases from Task 22 to ensure contracts capture tested behavior.",
             "parentId": "undefined",
-            "updatedAt": "2026-02-01T21:32:54.712Z"
+            "updatedAt": "2026-02-01T21:45:24.348Z"
           },
           {
             "id": 2,
@@ -640,9 +640,10 @@
               1
             ],
             "details": "Using the conversion plan from subtask 1, write complete Intent and Contract sections for every Glass framework component. These will be embedded into the .glass files during conversion (subtask 3).\n\n**Compiler component intents and contracts** (highest priority, most detailed):\n\n1. **compiler.parser** (src/compiler/parser.glass):\n   - Intent: Purpose is to parse .glass files into structured GlassFile objects. Source: PRD Section 4 & 11.1 step 1. Parent: glass.compiler.\n   - Contract requires: valid file path, file exists, file follows .glass format. Guarantees: returns valid GlassFile with all three sections extracted. Fails: FileNotFound, InvalidFormat, MissingSection. Invariants: original file never modified, parser is stateless.\n\n2. **compiler.linker** (src/compiler/linker.glass):\n   - Intent: Build and validate the intent tree from parsed .glass files. Source: PRD Section 11.1 step 2. Parent: glass.compiler.\n   - Contract requires: array of valid GlassFile objects with unique IDs. Guarantees: returns IntentTree with all relationships resolved, no circular dependencies. Fails: DanglingReference, CircularDependency, DuplicateId.\n\n3. **compiler.verifier** (src/compiler/verifier.glass):\n   - Intent: Verify implementations satisfy their contracts through static analysis. Source: PRD Section 9. Parent: glass.compiler.\n   - Contract requires: valid GlassFile with contract and implementation, TypeScript code compiles. Guarantees: returns VerificationResult with all assertions checked, each at appropriate level. Invariants: implementation not modified, verification is deterministic.\n\n4. **compiler.emitter** (src/compiler/emitter.glass):\n   - Intent: Output clean standard TypeScript from verified .glass files. Source: PRD Section 11.1 step 6. Parent: glass.compiler.\n   - Contract requires: verified GlassFile (all contracts satisfied). Guarantees: emitted TypeScript compiles with tsc, no Glass artifacts in output. Invariants: source .glass files not modified.\n\n**CLI command intents and contracts** (one per command from PRD Section 12):\n- cli.init, cli.verify, cli.compile, cli.views, cli.status, cli.tree, cli.trace, cli.annotate, cli.diff, cli.eject, cli.generate\n- Each follows the pattern: Intent references PRD Section 12, parent is glass.cli. Contract specifies valid Glass project as precondition and command-specific guarantees/exit codes.\n\n**Adapter and utility intents and contracts**:\n- adapters.typescript: Intent to translate contracts into TypeScript constructs. Contract requires valid GlassFile with language: typescript.\n- types.core: Intent to define all Glass type definitions. Contract guarantees types compile without errors and represent all PRD concepts.\n- compiler.result: Intent to provide Result<T,E> monad. Contract guarantees type safety for error handling.\n- compiler.manifest: Intent to parse and manage manifest.glass. Contract requires valid manifest format.\n\nAll contracts must follow the exact format from PRD Section 4.1: requires, guarantees (on_success/on_failure), invariants, fails, and advisories sections. Every failure mode must be explicitly named with a handling strategy.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Validate each intent has all required fields (purpose, source, parent, stakeholder). Validate each contract has all mandatory sections (requires, guarantees with on_success/on_failure, invariants, fails). Cross-reference contracts against the existing test suite from Task 22 — every tested behavior should map to a contract assertion. Verify the intent hierarchy matches the design from subtask 1. Parse each intent and contract section through the Glass parser (Task 4) to confirm they are syntactically valid .glass format. Count total contract assertions and compare against Task 22 test count for coverage parity.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-02-01T21:45:50.827Z"
           },
           {
             "id": 3,
@@ -681,12 +682,12 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-02-01T21:32:54.712Z"
+        "updatedAt": "2026-02-01T21:45:50.827Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-01T21:32:54.713Z",
+      "lastModified": "2026-02-01T21:45:50.827Z",
       "taskCount": 25,
       "completedCount": 24,
       "tags": [
