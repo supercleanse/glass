@@ -1,0 +1,76 @@
+=== Glass Unit ===
+id: auth.authenticate_user
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Allow registered users to securely log into the system
+source: conversation/session-1
+parent: null
+stakeholder: user
+
+sub-intents:
+  - auth.validate_credentials
+  - auth.manage_session
+  - auth.sanitize_input (ai-generated, security)
+  - auth.rate_limit_login (ai-generated, security)
+  - auth.log_auth_attempt (ai-generated, audit)
+
+=== Contract ===
+requires:
+  - input.email is String
+  - input.password is String
+  - system.database is Active
+  - system.session_store is Active
+
+guarantees:
+  on_success:
+    - result is AuthSuccess
+    - result.session is ValidSession
+    - result.session.userId == verified_user.id
+    - audit_log appended with AuthAttempt(success: true)
+  on_failure:
+    - result is AuthFailure
+    - result.reason in [InvalidCredentials, AccountLocked,
+                         RateLimited, ServiceUnavailable]
+    - no session created
+    - audit_log appended with AuthAttempt(success: false)
+
+invariants:
+  - user.password_hash never exposed in output or logs
+  - user.password_hash never held in memory after comparison
+  - rate_limit.state correctly updated
+
+fails:
+  DatabaseUnavailable: retry(3) then Error(ServiceUnavailable)
+  SessionStoreUnavailable: retry(3) then Error(ServiceUnavailable)
+  RateLimitExceeded: Error(RateLimited, lockout: remaining_seconds)
+  UnexpectedError: Error(ServiceUnavailable), alert(ops-team)
+
+advisories:
+  - rate_limit_login uses fail-open policy (see unit for details)
+
+=== Implementation ===
+export async function authenticateUser(input: { email: string; password: string }) {
+  // Implementation placeholder
+  try {
+    const user = await findUser(input.email);
+    if (!user) throw new Error("InvalidCredentials");
+    const valid = await comparePassword(input.password, user.passwordHash);
+    if (!valid) throw new Error("InvalidCredentials");
+    const session = await createSession(user.id);
+    await logAuthAttempt(user.id, true);
+    return { success: true, session };
+  } catch (error) {
+    if (error instanceof DatabaseUnavailable) {
+      throw new Error("ServiceUnavailable");
+    }
+    if (error instanceof SessionStoreUnavailable) {
+      throw new Error("ServiceUnavailable");
+    }
+    if (error instanceof RateLimitExceeded) {
+      throw new Error("RateLimited");
+    }
+    throw new Error("UnexpectedError");
+  }
+}
