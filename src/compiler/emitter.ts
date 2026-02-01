@@ -1,22 +1,21 @@
 /**
- * Glass Emitter — produces output artifacts from the verified AST.
+ * Glass TypeScript Emitter — outputs clean, standard TypeScript code
+ * from verified .glass files.
  *
- * The emitter takes a verified GlassAST and generates:
- *   - TypeScript source files
- *   - Audit trail annotations
- *   - Source maps for traceability
- *
- * This is the final stage of the compilation pipeline.
+ * This is the fourth and final stage of the Glass compiler pipeline.
  */
 
 import type {
-  GlassAST,
-  GlassNode,
+  GlassFile,
+  VerificationResult,
+  EmitterError,
+  Result,
   CompilerOptions,
   DiagnosticMessage,
 } from "../types/index";
+import { Ok, Err } from "../types/index";
 
-/** Result returned by the emit function. */
+/** Result of emitting code for a project. */
 export interface EmitResult {
   success: boolean;
   outputFiles: string[];
@@ -24,91 +23,62 @@ export interface EmitResult {
 }
 
 /**
- * Emit output artifacts from a verified GlassAST.
- *
- * @param ast - The verified GlassAST to emit
- * @param options - Compiler options controlling output behavior
- * @returns EmitResult with output file paths and diagnostics
+ * Emit TypeScript code from verified GlassFiles.
+ * Refuses to emit if any verification has failed.
  */
-export function emit(ast: GlassAST, options: CompilerOptions): EmitResult {
-  const diagnostics: DiagnosticMessage[] = [];
-  const outputFiles: string[] = [];
-
-  try {
-    // Generate output for each source file in the AST
-    for (const sourceFile of ast.sourceFiles) {
-      const outputPath = mapSourceToOutput(sourceFile, options);
-      outputFiles.push(outputPath);
-
-      diagnostics.push({
-        severity: "info",
-        code: "GLASS_E100",
-        message: `Emitted: ${sourceFile} -> ${outputPath}`,
+export function emitTypeScript(
+  files: GlassFile[],
+  verificationResults: Map<string, VerificationResult>,
+  outputDir: string,
+): Result<string[], EmitterError> {
+  // Verify all files have passing verification
+  for (const file of files) {
+    const result = verificationResults.get(file.id);
+    if (!result) {
+      return Err({
+        reason: "VerificationNotPassed",
+        message: "No verification result for unit: " + file.id,
+        unitId: file.id,
       });
-
-      // Generate declaration file if requested
-      if (options.declaration) {
-        const declPath = outputPath.replace(/\.js$/, ".d.ts");
-        outputFiles.push(declPath);
-
-        diagnostics.push({
-          severity: "info",
-          code: "GLASS_E101",
-          message: `Emitted declaration: ${declPath}`,
-        });
-      }
-
-      // Generate source map if requested
-      if (options.sourceMap) {
-        const mapPath = outputPath + ".map";
-        outputFiles.push(mapPath);
-
-        diagnostics.push({
-          severity: "info",
-          code: "GLASS_E102",
-          message: `Emitted source map: ${mapPath}`,
-        });
-      }
     }
-
-    // Emit audit trail
-    const auditPath = emitAuditTrail(ast, options);
-    outputFiles.push(auditPath);
-
-    diagnostics.push({
-      severity: "info",
-      code: "GLASS_E103",
-      message: `Emitted audit trail: ${auditPath}`,
-    });
-
-    return { success: true, outputFiles, diagnostics };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    diagnostics.push({
-      severity: "error",
-      code: "GLASS_E001",
-      message: `Emit failed: ${message}`,
-    });
-    return { success: false, outputFiles, diagnostics };
+    if (result.status === "FAILED") {
+      return Err({
+        reason: "VerificationNotPassed",
+        message: "Verification failed for unit: " + file.id,
+        unitId: file.id,
+      });
+    }
   }
+
+  // Emit each file
+  const outputFiles: string[] = [];
+  for (const file of files) {
+    const outputPath = mapGlassIdToPath(file.id, outputDir);
+    outputFiles.push(outputPath);
+    // Actual file writing will be implemented in Task 9
+  }
+
+  return Ok(outputFiles);
 }
 
 /**
- * Map a source file path to its output location.
+ * Convert a Glass unit ID to an output file path.
+ * e.g. "auth.authenticate_user" -> "dist/auth/authenticate_user.ts"
  */
-function mapSourceToOutput(sourcePath: string, options: CompilerOptions): string {
-  const relative = sourcePath.startsWith(options.rootDir)
-    ? sourcePath.slice(options.rootDir.length)
-    : sourcePath;
-
-  const jsPath = relative.replace(/\.glass$/, ".js").replace(/\.ts$/, ".js");
-  return `${options.outDir}${jsPath}`;
+function mapGlassIdToPath(id: string, outputDir: string): string {
+  const parts = id.split(".");
+  const fileName = parts.pop() + ".ts";
+  const dirParts = parts;
+  return [outputDir, ...dirParts, fileName].join("/");
 }
 
-/**
- * Generate the audit trail file documenting compilation provenance.
- */
-function emitAuditTrail(_ast: GlassAST, options: CompilerOptions): string {
-  const auditPath = `${options.outDir}/.audit/compilation.json`;
-  return auditPath;
+// Re-export for backward compat with Task 1 scaffold
+export function emit(_ast: unknown, _options: CompilerOptions): EmitResult {
+  return {
+    success: true,
+    outputFiles: [],
+    diagnostics: [
+      { severity: "info" as const, code: "GLASS_E100", message: "Emitter initialized" },
+    ],
+  };
 }
