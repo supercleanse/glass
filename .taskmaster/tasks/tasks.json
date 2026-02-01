@@ -9,9 +9,9 @@
         "testStrategy": "Verify:\n- npm install completes without errors\n- TypeScript compiler runs successfully with tsc --noEmit\n- All directories are created correctly\n- manifest.glass validates against the format specification\n- Project structure matches Section 16 specification",
         "priority": "high",
         "dependencies": [],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [],
-        "updatedAt": "2026-02-01T18:44:17.894Z"
+        "updatedAt": "2026-02-01T18:49:38.025Z"
       },
       {
         "id": "2",
@@ -23,8 +23,9 @@
         "dependencies": [
           "1"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T18:49:56.627Z"
       },
       {
         "id": "3",
@@ -37,8 +38,9 @@
           "1",
           "2"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T18:53:40.882Z"
       },
       {
         "id": "4",
@@ -50,7 +52,7 @@
         "dependencies": [
           "3"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -115,7 +117,8 @@
             "testStrategy": "Integration test: parse the complete auth.authenticate_user example from PRD Section 4.1 and verify every field of the returned GlassFile object. Test FileNotFound error for non-existent paths. Test parseContent method works without file I/O. Test that parser is stateless (parse two different files sequentially, verify no cross-contamination). Test validation catches missing id, invalid semver, unsupported language. Test implementation section is extracted as raw string without modification. Test that the full GlassFile object matches the type definitions from Task 3. End-to-end test: create a temporary .glass file, parse it, verify the output, clean up.",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2026-02-01T18:58:20.577Z"
       },
       {
         "id": "5",
@@ -127,8 +130,9 @@
         "dependencies": [
           "4"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T19:00:16.372Z"
       },
       {
         "id": "6",
@@ -141,8 +145,9 @@
           "3",
           "4"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T19:08:49.182Z"
       },
       {
         "id": "7",
@@ -155,7 +160,7 @@
           "4",
           "5"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -216,7 +221,8 @@
             "testStrategy": "Test generateInstrumentation with a VerificationResult containing INSTRUMENTED preconditions — verify generated check code is syntactically valid TypeScript. Test that PROVEN assertions are NOT instrumented (no runtime checks generated for them). Test postcondition check generation for return type assertions. Test invariant instrumentation for memory-clearing patterns. Test GlassContractViolation error class is included in the plan when any checks are generated. Test summarizeInstrumentation produces readable output listing all injected checks. Test with a VerificationResult that has zero INSTRUMENTED assertions — expect empty checks array. Integration test: generate instrumentation for the auth example's rate_limit advisory — verify appropriate runtime check is generated. Verify the module never modifies the input GlassFile (immutability contract).",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2026-02-01T19:03:41.663Z"
       },
       {
         "id": "8",
@@ -230,8 +236,9 @@
           "5",
           "7"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T19:11:03.353Z"
       },
       {
         "id": "9",
@@ -244,7 +251,7 @@
           "4",
           "7"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -305,7 +312,8 @@
             "testStrategy": "Integration test: emit a set of well-formed, verified GlassFiles to a temp directory and verify: (a) all .ts files exist with correct content, (b) package.json exists and is valid, (c) tsconfig.json exists and is valid, (d) `tsc --noEmit` succeeds on the output. Test verification gate: provide GlassFiles where one has FAILED verification status — expect EmitterError with reason 'VerificationNotPassed' and verify zero files were written to output directory. Test missing verification: provide a GlassFile with no corresponding VerificationResult — expect same rejection. Test atomic output: simulate a failure during file emission (e.g., invalid implementation code) and verify the output directory is clean (no partial files). Test clean output: emit once, then emit again with cleanOutput=true and verify old files are removed. Test immutability: deep-clone inputs before and after emit, assert equality. Test with the full auth system example from PRD Section 17: 6 GlassFiles should produce 6 .ts files + package.json + tsconfig.json in dist/, and the output should be deployable via `cd dist && npm install`. Test source map generation is toggled by sourceMapEnabled flag. Test that the emitter refuses to write to dangerous paths (e.g., '/').",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2026-02-01T19:06:21.722Z"
       },
       {
         "id": "10",
@@ -317,8 +325,9 @@
         "dependencies": [
           "1"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T18:53:40.885Z"
       },
       {
         "id": "11",
@@ -345,8 +354,9 @@
           "7",
           "10"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-02-01T19:11:08.843Z"
       },
       {
         "id": "13",
@@ -661,9 +671,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-01T18:44:17.894Z",
+      "lastModified": "2026-02-01T19:11:08.843Z",
       "taskCount": 25,
-      "completedCount": 0,
+      "completedCount": 10,
       "tags": [
         "master"
       ]

@@ -1,80 +1,65 @@
 /**
- * glass verify — run verification checks without full compilation.
+ * glass verify — run contract verification on all .glass files.
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { parse } from "../../compiler/parser";
-import { link } from "../../compiler/linker";
-import { verify } from "../../compiler/verifier";
-import type { CompilerOptions } from "../../types/index";
+import { loadProject } from "../utils";
 
 export const verifyCommand = new Command("verify")
-  .description("Run verification checks on Glass source files")
+  .description("Run contract verification on Glass source files")
   .option("-s, --source <dir>", "Source directory", "src")
-  .option("--strict", "Enable strict mode", true)
+  .option("--failures-only", "Show only failed units", false)
   .option("-v, --verbose", "Enable verbose output", false)
   .action(async (opts) => {
-    console.log(chalk.blue("Glass") + " Verifying...");
+    console.log(chalk.blue("Glass") + " Verifying...\n");
 
-    const parseResult = parse([]);
-
-    if (!parseResult.ast) {
-      for (const diag of parseResult.diagnostics) {
-        console.error(chalk.red("error[" + diag.code + "]") + ": " + diag.message);
-      }
+    const project = loadProject(opts.source);
+    if (!project.ok) {
+      console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;
       return;
     }
 
-    const linkResult = link(parseResult.ast);
-    if (!linkResult.success) {
-      for (const diag of linkResult.diagnostics) {
-        if ((diag.severity as string) === "error") {
-          console.error(chalk.red("error[" + diag.code + "]") + ": " + diag.message);
-        }
-      }
-      process.exitCode = 1;
-      return;
-    }
+    const { verificationResults } = project.value;
+    let allPassed = true;
+    let totalUnits = 0;
+    let passedUnits = 0;
+    let totalAdvisories = 0;
 
-    const options: CompilerOptions = {
-      rootDir: opts.source,
-      outDir: "dist",
-      strict: opts.strict,
-      sourceMap: false,
-      declaration: false,
-      verbose: opts.verbose,
-    };
+    for (const [unitId, result] of verificationResults) {
+      totalUnits++;
+      const passed = result.assertions.filter((a) => a.passed).length;
+      const total = result.assertions.length;
+      const advisoryCount = result.advisories.length;
+      totalAdvisories += advisoryCount;
 
-    const result = verify(linkResult.ast, options);
-
-    for (const diag of result.diagnostics) {
-      switch (diag.severity) {
-        case "error":
-          console.error(chalk.red("error[" + diag.code + "]") + ": " + diag.message);
-          break;
-        case "warning":
-          console.warn(chalk.yellow("warn[" + diag.code + "]") + ": " + diag.message);
-          break;
-        case "info":
-          if (opts.verbose) {
-            console.log(chalk.gray("info[" + diag.code + "]") + ": " + diag.message);
+      if (result.status === "FAILED") {
+        allPassed = false;
+        const failed = total - passed;
+        console.log(chalk.red("  x " + unitId + ": FAILED") + " (" + failed + "/" + total + " assertions failed)");
+        if (opts.verbose) {
+          for (const a of result.assertions.filter((a) => !a.passed)) {
+            console.log(chalk.red("      - " + a.assertion + ": " + a.message));
           }
-          break;
+        }
+      } else if (!opts.failuresOnly) {
+        passedUnits++;
+        if (advisoryCount > 0) {
+          console.log(chalk.yellow("  ! " + unitId + ": PROVEN") + " with " + advisoryCount + " advisory");
+        } else {
+          console.log(chalk.green("  + " + unitId + ": PROVEN") + " (" + passed + "/" + total + " assertions)");
+        }
+      } else {
+        passedUnits++;
       }
     }
 
-    if (result.valid) {
-      console.log(
-        chalk.green("Verification passed") +
-        ": " + result.satisfiedConstraints + "/" + result.checkedConstraints + " constraints satisfied",
-      );
-    } else {
-      console.error(
-        chalk.red("Verification failed") +
-        ": " + result.satisfiedConstraints + "/" + result.checkedConstraints + " constraints satisfied",
-      );
+    console.log("");
+    console.log(chalk.bold("Summary:") + " " + passedUnits + "/" + totalUnits + " units verified" +
+      (totalAdvisories > 0 ? ", " + totalAdvisories + " advisories" : ""));
+
+    if (!allPassed) {
       process.exitCode = 1;
     }
   });
