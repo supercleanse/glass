@@ -138,9 +138,11 @@ main ──┬──────────────────────
 4. **One task per branch.** Do not combine multiple tasks in a single PR.
 5. **Keep PRs focused.** If a task is too large, work on its subtasks as separate PRs.
 
-## Glass Methodology (Proto-Compiler)
+## Glass Methodology
 
-During Phase 0 (Bootstrap), this CLAUDE.md serves as the proto-compiler. Follow these rules for all Glass source files:
+> **Post-Ignition:** The Glass compiler now enforces these rules automatically via `glass verify` and `glass compile`. This section remains as documentation and guidance. See [IGNITION.md](IGNITION.md) for details on the self-hosting milestone.
+
+Follow these rules for all Glass source files:
 
 ### Always
 
@@ -243,7 +245,7 @@ Every contract must have:
 
 ### Naming
 
-- Files: `kebab-case.ts` (or `.glass` during bootstrap)
+- Files: `kebab-case.ts` or `kebab-case.glass`
 - Classes: `PascalCase`
 - Functions/methods: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
@@ -254,7 +256,8 @@ Every contract must have:
 
 ```
 glass/
-├── CLAUDE.md                    # This file (proto-compiler)
+├── CLAUDE.md                    # This file (project guide)
+├── IGNITION.md                  # Self-hosting milestone record
 ├── manifest.glass               # Living requirements document
 ├── glass.config.json            # Project configuration
 ├── src/
@@ -290,6 +293,17 @@ Each Taskmaster task maps to a Glass unit:
 
 | Phase | Authority | Status |
 |-------|-----------|--------|
-| Phase 0: Bootstrap | CLAUDE.md (this file) | **Current** |
-| Phase 1.5: Ignition | Glass compiler + CLAUDE.md | Pending |
-| Phase 2+: Self-hosting | Glass compiler (CLAUDE.md becomes guide) | Pending |
+| Phase 0: Bootstrap | CLAUDE.md (this file) | Complete |
+| Phase 1.5: Ignition | Glass compiler + CLAUDE.md | **Complete** (2026-02-01) |
+| Phase 2+: Self-hosting | Glass compiler (CLAUDE.md becomes guide) | **Current** |
+
+## Self-Verification
+
+After any change to `.glass` files, run:
+
+```bash
+glass verify --source src/     # All 30 units must be PROVEN
+glass compile --source src/    # Must emit 30 files successfully
+```
+
+The Glass compiler enforces all contract rules automatically. See [IGNITION.md](IGNITION.md) for the full milestone record.
