@@ -20,6 +20,22 @@ export { verifyContract, verifyAll } from "./compiler/verifier";
 // Emitter
 export { emitTypeScript } from "./compiler/emitter";
 
+// Annotations
+export {
+  addAnnotation,
+  loadAnnotations,
+  loadAllAnnotations,
+  resolveAnnotation,
+  deleteAnnotation,
+  getUnresolvedAnnotations,
+} from "./compiler/annotations";
+
+// Manifest
+export { parseManifest, parseManifestContent, serializeManifest, ManifestManager } from "./compiler/manifest";
+
+// View Generator
+export { generateAllViews } from "./compiler/view-generator";
+
 // Types — re-export everything
 export type {
   // Result

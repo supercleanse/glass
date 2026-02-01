@@ -1,0 +1,383 @@
+/**
+ * MCP Tool registrations for the Glass framework.
+ *
+ * Exposes all 10 tools from PRD Section 14.2 to any MCP-compatible client.
+ */
+
+import { z } from "zod";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import * as path from "path";
+import * as fs from "fs";
+import { loadProject } from "../cli/utils";
+import { parseGlassFile } from "../compiler/parser";
+import { linkIntentTree, getAncestors } from "../compiler/linker";
+import { verifyContract, verifyAll, generateInstrumentation } from "../compiler/verifier";
+import { emitTypeScript } from "../compiler/emitter";
+import { generateAllViews } from "../compiler/view-generator";
+import { parseManifest } from "../compiler/manifest";
+import {
+  addAnnotation,
+  loadAnnotations,
+  getUnresolvedAnnotations,
+} from "../compiler/annotations";
+import type { GlassFile, VerificationResult } from "../types/index";
+
+export function registerTools(server: McpServer, projectRoot: string) {
+  // ─── glass_init ─────────────────────────────────────────────
+  server.registerTool(
+    "glass_init",
+    {
+      title: "Glass Init",
+      description: "Initialize a new Glass project with manifest, config, and directory structure",
+      inputSchema: {
+        projectName: z.string().describe("Name of the project to initialize"),
+        language: z.enum(["typescript", "rust"]).default("typescript").describe("Target language"),
+      },
+    },
+    async ({ projectName, language }) => {
+      const targetDir = path.resolve(projectRoot, projectName);
+      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: "Directory already exists and is not empty" }) }] };
+      }
+
+      const dirs = ["", "src", "src/glass", "dist", ".generated", ".generated/units", ".annotations", "tests"];
+      for (const dir of dirs) {
+        fs.mkdirSync(path.join(targetDir, dir), { recursive: true });
+      }
+
+      const date = new Date().toISOString().split("T")[0];
+      const lang = language === "rust" ? "Rust" : "TypeScript";
+      fs.writeFileSync(path.join(targetDir, "manifest.glass"),
+        `Glass Manifest: ${projectName}\nVersion: 0.1.0\nLanguage: ${lang}\nCreated: ${date}\n\nOrigins:\n\nPolicies:\n  auto-approve: security, audit, infrastructure\n  require-approval: business-logic, data-model\n\nIntent Registry:\n  user-originated: 0 intents\n  conversation-derived: 0 intents\n  ai-generated: 0 intents\n`, "utf-8");
+      fs.writeFileSync(path.join(targetDir, "glass.config.json"),
+        JSON.stringify({ version: "0.1.0", language, projectName, outputDir: "dist", generatedDir: ".generated", annotationsDir: ".annotations" }, null, 2) + "\n", "utf-8");
+
+      return { content: [{ type: "text", text: JSON.stringify({ success: true, data: { projectPath: targetDir, language }, summary: "Initialized Glass project: " + projectName }) }] };
+    },
+  );
+
+  // ─── glass_verify ───────────────────────────────────────────
+  server.registerTool(
+    "glass_verify",
+    {
+      title: "Glass Verify",
+      description: "Run contract verification pipeline and return verification results",
+      inputSchema: {
+        source: z.string().default("src").describe("Source directory"),
+        failuresOnly: z.boolean().default(false).describe("Show only failures"),
+      },
+    },
+    async ({ source, failuresOnly }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const results: Record<string, { status: string; assertions: number; passed: number; advisories: number }> = {};
+      let allPassed = true;
+      for (const [unitId, result] of project.value.verificationResults) {
+        const passed = result.assertions.filter((a) => a.passed).length;
+        if (failuresOnly && result.status === "PROVEN") continue;
+        results[unitId] = {
+          status: result.status,
+          assertions: result.assertions.length,
+          passed,
+          advisories: result.advisories.length,
+        };
+        if (result.status === "FAILED") allPassed = false;
+      }
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { allPassed, units: results, totalUnits: project.value.glassFiles.length },
+        summary: allPassed ? "All units verified successfully" : "Some units failed verification",
+      }) }] };
+    },
+  );
+
+  // ─── glass_compile ──────────────────────────────────────────
+  server.registerTool(
+    "glass_compile",
+    {
+      title: "Glass Compile",
+      description: "Run full Glass compilation pipeline: verify + emit target-language code",
+      inputSchema: {
+        source: z.string().default("src").describe("Source directory"),
+        output: z.string().default("dist").describe("Output directory"),
+        noVerify: z.boolean().default(false).describe("Skip verification step"),
+        clean: z.boolean().default(false).describe("Clean output before emitting"),
+      },
+    },
+    async ({ source, output, noVerify, clean }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const outputDir = path.resolve(projectRoot, output);
+
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const { glassFiles, tree, verificationResults } = project.value;
+
+      if (!noVerify) {
+        for (const [, result] of verificationResults) {
+          if (result.status === "FAILED") {
+            return { content: [{ type: "text", text: JSON.stringify({ success: false, error: "Verification failed — compilation aborted" }) }] };
+          }
+        }
+      }
+
+      // Generate views
+      const viewsDir = path.join(projectRoot, ".generated");
+      generateAllViews(glassFiles, tree, verificationResults, viewsDir);
+
+      // Generate instrumentation plans
+      const instrumentationPlans = new Map<string, ReturnType<typeof generateInstrumentation>>();
+      for (const file of glassFiles) {
+        const result = verificationResults.get(file.id);
+        if (result) instrumentationPlans.set(file.id, generateInstrumentation(file, result));
+      }
+
+      const emitResult = emitTypeScript(glassFiles, verificationResults, outputDir, {
+        instrumentationPlans,
+        cleanOutput: clean,
+      });
+
+      if (!emitResult.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: emitResult.error.message }) }] };
+      }
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { filesEmitted: emitResult.value.length, outputDir },
+        summary: "Compilation successful! " + emitResult.value.length + " files emitted",
+      }) }] };
+    },
+  );
+
+  // ─── glass_views ────────────────────────────────────────────
+  server.registerTool(
+    "glass_views",
+    {
+      title: "Glass Views",
+      description: "Generate human-readable outlines, checklists, and dashboards",
+      inputSchema: {
+        source: z.string().default("src").describe("Source directory"),
+        output: z.string().default(".generated").describe("Output directory for views"),
+      },
+    },
+    async ({ source, output }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const outputDir = path.resolve(projectRoot, output);
+
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const { glassFiles, tree, verificationResults } = project.value;
+      const result = generateAllViews(glassFiles, tree, verificationResults, outputDir);
+      if (!result.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: result.error.message }) }] };
+      }
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { viewsGenerated: result.value.length, outputDir },
+        summary: "Generated " + result.value.length + " view files",
+      }) }] };
+    },
+  );
+
+  // ─── glass_status ───────────────────────────────────────────
+  server.registerTool(
+    "glass_status",
+    {
+      title: "Glass Status",
+      description: "Return current verification status of all units as a summary dashboard",
+      inputSchema: {
+        source: z.string().default("src").describe("Source directory"),
+      },
+    },
+    async ({ source }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const { glassFiles, verificationResults } = project.value;
+      let verified = 0, failed = 0, withAdvisories = 0;
+      for (const [, result] of verificationResults) {
+        if (result.status === "PROVEN") {
+          verified++;
+          if (result.advisories.length > 0) withAdvisories++;
+        } else {
+          failed++;
+        }
+      }
+
+      const pendingApprovals = glassFiles.filter((f) => f.intent.approvalStatus === "pending").map((f) => f.id);
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { totalUnits: glassFiles.length, verified, failed, withAdvisories, pendingApprovals },
+        summary: glassFiles.length + " units: " + verified + " verified, " + failed + " failed, " + withAdvisories + " with advisories",
+      }) }] };
+    },
+  );
+
+  // ─── glass_tree ─────────────────────────────────────────────
+  server.registerTool(
+    "glass_tree",
+    {
+      title: "Glass Tree",
+      description: "Display the full intent hierarchy tree with approval status and sources",
+      inputSchema: {
+        source: z.string().default("src").describe("Source directory"),
+        depth: z.number().optional().describe("Maximum tree depth to display"),
+      },
+    },
+    async ({ source, depth }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const { tree } = project.value;
+      const maxDepth = depth ?? Infinity;
+
+      function buildTreeObj(id: string, currentDepth: number): Record<string, unknown> | null {
+        const file = tree.files.get(id);
+        if (!file) return null;
+        const node: Record<string, unknown> = {
+          id: file.id,
+          purpose: file.intent.purpose,
+          source: file.intent.source.kind,
+          approval: file.intent.approvalStatus,
+        };
+        if (currentDepth < maxDepth) {
+          const children = tree.childrenMap.get(id) || [];
+          if (children.length > 0) {
+            node.children = children.map((cid) => buildTreeObj(cid, currentDepth + 1)).filter(Boolean);
+          }
+        }
+        return node;
+      }
+
+      const treeData = tree.roots.map((rid) => buildTreeObj(rid, 0));
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { tree: treeData, rootCount: tree.roots.length },
+        summary: "Intent tree with " + tree.roots.length + " root(s)",
+      }) }] };
+    },
+  );
+
+  // ─── glass_trace ────────────────────────────────────────────
+  server.registerTool(
+    "glass_trace",
+    {
+      title: "Glass Trace",
+      description: "Show the full provenance chain for a unit: from business goal to implementation",
+      inputSchema: {
+        unitId: z.string().describe("Unit ID to trace provenance for"),
+        source: z.string().default("src").describe("Source directory"),
+      },
+    },
+    async ({ unitId, source }) => {
+      const sourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(sourceDir);
+      if (!project.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
+      }
+
+      const { tree } = project.value;
+      if (!tree.files.has(unitId)) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: "Unit not found: " + unitId }) }] };
+      }
+
+      // Build chain from root to target
+      const ancestors = getAncestors(tree, unitId).reverse();
+      const targetFile = tree.files.get(unitId)!;
+      const chain = [...ancestors, targetFile].map((f) => ({
+        id: f.id,
+        purpose: f.intent.purpose,
+        source: f.intent.source,
+        approval: f.intent.approvalStatus,
+      }));
+
+      const children = (tree.childrenMap.get(unitId) || []).map((cid) => {
+        const cf = tree.files.get(cid);
+        return cf ? { id: cf.id, purpose: cf.intent.purpose } : null;
+      }).filter(Boolean);
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { chain, children },
+        summary: "Provenance chain for " + unitId + " (" + chain.length + " levels)",
+      }) }] };
+    },
+  );
+
+  // ─── glass_annotate ─────────────────────────────────────────
+  server.registerTool(
+    "glass_annotate",
+    {
+      title: "Glass Annotate",
+      description: "Add a human annotation to a specific line or section in a generated outline",
+      inputSchema: {
+        unitId: z.string().describe("Unit ID to annotate"),
+        target: z.string().describe('Target: "line:<n>" or dotted path like "contract.guarantees.success.2"'),
+        note: z.string().describe("Annotation text"),
+        author: z.string().default("ai-assistant").describe("Annotation author"),
+      },
+    },
+    async ({ unitId, target, note, author }) => {
+      const annotationsDir = path.resolve(projectRoot, ".annotations");
+      const result = addAnnotation(annotationsDir, unitId, target, note, author);
+      if (!result.ok) {
+        return { content: [{ type: "text", text: JSON.stringify({ success: false, error: result.error.message }) }] };
+      }
+
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { annotationId: result.value.id, unitId, target },
+        summary: "Added annotation " + result.value.id + " to " + unitId,
+      }) }] };
+    },
+  );
+
+  // ─── glass_annotations_list ─────────────────────────────────
+  server.registerTool(
+    "glass_annotations_list",
+    {
+      title: "Glass Annotations List",
+      description: "List annotations for a unit or all unresolved annotations",
+      inputSchema: {
+        unitId: z.string().optional().describe("Unit ID to list annotations for (omit for all unresolved)"),
+      },
+    },
+    async ({ unitId }) => {
+      const annotationsDir = path.resolve(projectRoot, ".annotations");
+      if (unitId) {
+        const annotations = loadAnnotations(annotationsDir, unitId);
+        return { content: [{ type: "text", text: JSON.stringify({
+          success: true,
+          data: { annotations, unitId },
+          summary: annotations.length + " annotation(s) for " + unitId,
+        }) }] };
+      }
+
+      const unresolved = getUnresolvedAnnotations(annotationsDir);
+      return { content: [{ type: "text", text: JSON.stringify({
+        success: true,
+        data: { annotations: unresolved },
+        summary: unresolved.length + " unresolved annotation(s)",
+      }) }] };
+    },
+  );
+}
