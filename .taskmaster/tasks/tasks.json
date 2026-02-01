@@ -542,9 +542,9 @@
           "2",
           "19"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [],
-        "updatedAt": "2026-02-01T19:27:07.985Z"
+        "updatedAt": "2026-02-01T19:29:53.088Z"
       },
       {
         "id": "21",
@@ -558,9 +558,9 @@
           "19",
           "20"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [],
-        "updatedAt": "2026-02-01T19:27:07.988Z"
+        "updatedAt": "2026-02-01T19:29:53.092Z"
       },
       {
         "id": "22",
@@ -619,7 +619,7 @@
           "13",
           "22"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -627,9 +627,10 @@
             "description": "Inventory every TypeScript source file in the Glass framework (compiler, CLI commands, adapters, types, utilities) and create a comprehensive conversion plan mapping each .ts file to its .glass equivalent with intents and contracts.",
             "dependencies": [],
             "details": "This subtask is the prerequisite analysis before any conversion work begins. Since Task 25 depends on Task 13 (glass compile) and Task 22 (test suite), all compiler components and CLI commands exist as working TypeScript at this point.\n\n1. **Full source file inventory**: Enumerate every .ts file under src/, categorized by module:\n   - src/compiler/: parser.ts, linker.ts, verifier.ts, emitter.ts (and any sub-modules like verifier/ts-ast-utils.ts, verifier/type-verifier.ts, etc.)\n   - src/cli/commands/: init.ts, verify.ts, compile.ts, views.ts, status.ts, tree.ts, trace.ts, eject.ts, annotate.ts, diff.ts, generate.ts\n   - src/cli/: framework/router (command router from Task 10)\n   - src/adapters/: typescript.ts adapter\n   - src/types/: core.ts type definitions\n   - src/compiler/: result.ts, parser-errors.ts, manifest.ts (from Tasks 3, 4, 6)\n   - Any utility modules created during bootstrap\n\n2. **Conversion mapping document**: Create a conversion-plan.md (temporary working document) that maps each source file to its target .glass format:\n   - Target .glass file path (e.g., src/compiler/parser.ts → src/compiler/parser.glass)\n   - Proposed intent (purpose, source, parent in the intent hierarchy)\n   - Proposed contract outline (key requires/guarantees based on the existing implementation)\n   - Dependencies between units (which .glass files reference which others)\n   - Conversion priority order (foundational types first, then compiler core, then CLI, then adapters)\n\n3. **Intent hierarchy design**: Design the complete intent tree for the Glass framework itself:\n   - Root intent: 'glass.framework' (purpose: 'Provide AI-first development framework with formal verification')\n   - Second level: 'glass.compiler', 'glass.cli', 'glass.adapters', 'glass.types'\n   - Third level: individual units (parser, linker, verifier, emitter, each command, etc.)\n   - Document parent-child relationships for every unit\n\n4. **Risk assessment**: Identify files that may be difficult to convert:\n   - Files with circular dependencies\n   - Files that use patterns not yet supported by the Glass parser\n   - Large files that may need to be split into multiple .glass units\n   - Shared utility code that multiple .glass units depend on",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Verify the inventory is complete by comparing the file list against all tasks 1-24 deliverables. Confirm every .ts file in src/ is accounted for. Validate the intent hierarchy forms a valid tree (no cycles, single root, all nodes connected). Review conversion priority order ensures foundational units are converted before dependent ones. Cross-reference the proposed contracts against existing test cases from Task 22 to ensure contracts capture tested behavior.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-02-01T21:32:54.712Z"
           },
           {
             "id": 2,
@@ -679,14 +680,15 @@
             "testStrategy": "Idempotency test: run `diff -r` between first and second compilation outputs — must show zero differences. The second-generation compiled Glass must pass its own test suite (Task 22 tests executed against dist/ output). IGNITION.md exists and contains all required sections (timeline, before/after metrics, issues, lessons, idempotency results). CLAUDE.md has been updated to reflect post-Ignition status. CI pipeline includes self-verification and self-compilation steps. Run `glass verify` using the second-generation compiler on a sample project (e.g., the auth example from PRD Section 17) to confirm the self-compiled compiler works on external projects.",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2026-02-01T21:32:54.712Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-01T19:27:07.988Z",
+      "lastModified": "2026-02-01T21:32:54.713Z",
       "taskCount": 25,
-      "completedCount": 22,
+      "completedCount": 24,
       "tags": [
         "master"
       ]
