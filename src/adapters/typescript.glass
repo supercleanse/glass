@@ -24,7 +24,7 @@ guarantees:
 invariants:
   - Adapter is stateless
 
-fails: {}
+fails:
 
 advisories:
   - Placeholder implementation — actual TypeScript compilation handled by emitter

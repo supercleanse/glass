@@ -1,0 +1,35 @@
+=== Glass Unit ===
+id: glass.mcp
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Group intent for the Glass MCP server — expose Glass tools via Model Context Protocol
+source:
+  kind: prd
+  reference: "PRD Section 14 — MCP Integration"
+parent: glass.framework
+stakeholder: engineering
+subIntents:
+  - mcp.server
+  - mcp.tools
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "MCP subsystem namespace is established"
+  on_failure: []
+invariants:
+  - "All MCP units are children of this intent"
+fails:
+advisories:
+
+=== Implementation ===
+/**
+ * Glass MCP — group intent namespace.
+ *
+ * The MCP server is bootstrapped by mcp.server (src/mcp/index.glass).
+ * This unit anchors the MCP subtree in the intent hierarchy.
+ */

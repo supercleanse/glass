@@ -1,0 +1,39 @@
+=== Glass Unit ===
+id: glass.framework
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Root intent for the Glass Framework — AI-authored, human-auditable, formally verified software
+source:
+  kind: prd
+  reference: "Glass Framework Specification v0.1.0"
+parent: null
+stakeholder: product
+subIntents:
+  - glass.compiler
+  - glass.cli
+  - glass.adapters
+  - glass.mcp
+  - glass.entry
+  - types.core
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "Glass framework namespace is established"
+  on_failure: []
+invariants:
+  - "This is the root intent — no parent exists"
+fails:
+advisories:
+
+=== Implementation ===
+/**
+ * Glass Framework — root intent namespace.
+ *
+ * This unit exists solely to anchor the intent hierarchy.
+ * The actual entry point is glass.entry (src/index.glass).
+ */

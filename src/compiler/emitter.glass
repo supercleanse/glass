@@ -33,7 +33,7 @@ invariants:
 fails:
   VerificationNotPassed: "Error(EmitterError, reason: VerificationNotPassed)"
   WriteError: "Error(EmitterError, reason: WriteError)"
-advisories: []
+advisories:
 
 === Implementation ===
 /**

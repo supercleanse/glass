@@ -9,10 +9,7 @@ source: prd reference "PRD Section 12 — glass trace"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_trace.load_project (ai-generated, load and validate Glass project)
-  - cli.cmd_trace.build_ancestry (ai-generated, walk parent chain to build ancestry from root to target)
-  - cli.cmd_trace.display_chain (ai-generated, display provenance chain with source and approval info)
+subIntents: []
 
 === Contract ===
 requires:
@@ -37,6 +34,7 @@ fails:
   UnitNotFound: Error message and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound | UnitNotFound */
 /**
  * glass trace — display full provenance chain from business goal to implementation.
  */

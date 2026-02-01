@@ -31,9 +31,10 @@ invariants:
 fails:
   ToolExecutionFailed: Returns JSON with success: false and error message
 
-advisories: []
+advisories:
 
 === Implementation ===
+/** @fails ToolExecutionFailed */
 /**
  * MCP Tool registrations for the Glass framework.
  *

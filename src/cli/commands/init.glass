@@ -9,10 +9,7 @@ source: prd reference "PRD Section 12 — glass init"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_init.create_dirs (ai-generated, create project directory structure)
-  - cli.cmd_init.create_manifest (ai-generated, generate manifest.glass)
-  - cli.cmd_init.create_config (ai-generated, generate glass.config.json)
+subIntents: []
 
 === Contract ===
 requires:
@@ -36,6 +33,7 @@ fails:
   DirectoryExists: Error message and exit code 1
 
 === Implementation ===
+/** @fails DirectoryExists */
 /**
  * glass init — initialize a new Glass project.
  */

@@ -9,9 +9,7 @@ source: prd reference "PRD Section 12 — glass verify"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_verify.load_and_verify (ai-generated, load project and collect verification results)
-  - cli.cmd_verify.display_results (ai-generated, format and display per-unit verification status)
+subIntents: []
 
 === Contract ===
 requires:
@@ -34,6 +32,7 @@ fails:
   VerificationFailed: Error details and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound | VerificationFailed */
 /**
  * glass verify — run contract verification on all .glass files.
  */

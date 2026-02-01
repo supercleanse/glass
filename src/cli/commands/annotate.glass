@@ -9,11 +9,7 @@ source: prd reference "PRD Section 12 — glass annotate"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_annotate.list_unresolved (ai-generated, list all unresolved annotations across units)
-  - cli.cmd_annotate.list_annotations (ai-generated, list annotations for a specific unit)
-  - cli.cmd_annotate.resolve_annotation (ai-generated, mark an annotation as resolved)
-  - cli.cmd_annotate.add_annotation (ai-generated, add a new annotation to a unit)
+subIntents: []
 
 === Contract ===
 requires:
@@ -40,6 +36,7 @@ fails:
   InvalidTarget: Error message and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound | UnitNotFound | AnnotationNotFound | InvalidTarget */
 /**
  * glass annotate — attach human annotations to generated outlines.
  */

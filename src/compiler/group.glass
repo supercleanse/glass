@@ -1,0 +1,42 @@
+=== Glass Unit ===
+id: glass.compiler
+version: 0.1.0
+language: typescript
+
+=== Intent ===
+purpose: Group intent for the Glass compiler pipeline — parse, link, verify, and emit
+source:
+  kind: prd
+  reference: "PRD Section 11 — Compiler Pipeline"
+parent: glass.framework
+stakeholder: engineering
+subIntents:
+  - compiler.orchestrator
+  - compiler.parser
+  - compiler.linker
+  - compiler.verifier
+  - compiler.emitter
+  - compiler.manifest
+  - compiler.annotations
+  - compiler.view_generator
+approvalStatus: approved
+
+=== Contract ===
+requires: []
+guarantees:
+  on_success:
+    - "Compiler subsystem namespace is established"
+  on_failure: []
+invariants:
+  - "All compiler units are children of this intent"
+fails:
+advisories:
+
+=== Implementation ===
+/**
+ * Glass Compiler — group intent namespace.
+ *
+ * The compiler pipeline is orchestrated by compiler.orchestrator
+ * (src/compiler/index.glass). This unit anchors the compiler
+ * subtree in the intent hierarchy.
+ */

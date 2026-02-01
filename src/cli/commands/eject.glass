@@ -9,10 +9,7 @@ source: prd reference "PRD Section 12 — glass eject"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_eject.validate_dist (ai-generated, verify dist/ exists and has files)
-  - cli.cmd_eject.copy_files (ai-generated, copy compiled output to ejected directory)
-  - cli.cmd_eject.generate_ejected_md (ai-generated, create EJECTED.md documentation)
+subIntents: []
 
 === Contract ===
 requires:
@@ -39,6 +36,7 @@ fails:
   OutputExists: Error message and exit code 1
 
 === Implementation ===
+/** @fails DistNotFound | OutputExists */
 /**
  * glass eject — export clean target-language code with no Glass dependencies.
  */

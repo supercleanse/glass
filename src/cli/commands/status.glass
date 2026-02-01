@@ -9,10 +9,7 @@ source: prd reference "PRD Section 12 — glass status"
 parent: glass.cli
 stakeholder: user
 
-sub-intents:
-  - cli.cmd_status.load_project (ai-generated, load and validate Glass project)
-  - cli.cmd_status.display_summary (ai-generated, display summary counts)
-  - cli.cmd_status.display_per_unit (ai-generated, display per-unit verification status)
+subIntents: []
 
 === Contract ===
 requires:
@@ -34,6 +31,7 @@ fails:
   ProjectNotFound: Error message and exit code 1
 
 === Implementation ===
+/** @fails ProjectNotFound */
 /**
  * glass status — display verification status dashboard.
  */
