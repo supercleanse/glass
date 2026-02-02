@@ -7,35 +7,37 @@
 
 **Assertions:** 9/9 passed
 
-## INSTRUMENTED
+## PROVEN
 
 - [+] server is a valid McpServer instance
-  - Precondition will be checked at runtime
+  - Parameter 'server' has type 'McpServer' in registerTools()
+
+## INSTRUMENTED
+
 - [+] projectRoot is a valid directory path
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Registers 10 tools: glass_init, glass_verify, glass_compile, glass_views, glass_status, glass_tree, glass_trace, glass_annotate, glass_annotations_list
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Each tool has a Zod schema for input validation
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Each tool returns JSON with success boolean and data/error fields
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Tool-specific errors returned as JSON with success: false
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Tool registration is idempotent
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Tool schemas match their implementations
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ToolExecutionFailed
-  - Error type 'ToolExecutionFailed' is referenced but handler completeness deferred to runtime
+  - Error 'ToolExecutionFailed' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: server is a valid McpServer instance — Precondition will be checked at runtime
-- Runtime check needed: projectRoot is a valid directory path — Precondition will be checked at runtime
-- Runtime check needed: Registers 10 tools: glass_init, glass_verify, glass_compile, glass_views, glass_status, glass_tree, glass_trace, glass_annotate, glass_annotations_list — Success guarantee will be checked at runtime
-- Runtime check needed: Each tool has a Zod schema for input validation — Success guarantee will be checked at runtime
-- Runtime check needed: Each tool returns JSON with success boolean and data/error fields — Success guarantee will be checked at runtime
-- Runtime check needed: Tool-specific errors returned as JSON with success: false — Failure guarantee will be checked at runtime
-- Runtime check needed: Tool registration is idempotent — Invariant will be checked at runtime
-- Runtime check needed: Tool schemas match their implementations — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ToolExecutionFailed — Error type 'ToolExecutionFailed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: projectRoot is a valid directory path — Semantic precondition: runtime verification required
+- Runtime check needed: Registers 10 tools: glass_init, glass_verify, glass_compile, glass_views, glass_status, glass_tree, glass_trace, glass_annotate, glass_annotations_list — Guarantee requires runtime verification
+- Runtime check needed: Each tool has a Zod schema for input validation — Guarantee requires runtime verification
+- Runtime check needed: Each tool returns JSON with success boolean and data/error fields — Guarantee requires runtime verification
+- Runtime check needed: Tool-specific errors returned as JSON with success: false — Failure guarantee requires runtime verification
+- Runtime check needed: Tool registration is idempotent — Invariant requires runtime verification
+- Runtime check needed: Tool schemas match their implementations — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ToolExecutionFailed — Error 'ToolExecutionFailed' referenced in implementation

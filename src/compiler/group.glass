@@ -20,6 +20,7 @@ subIntents:
   - compiler.annotations
   - compiler.view_generator
   - compiler.ts_program_factory
+  - compiler.ast_verifier
 approvalStatus: approved
 
 === Contract ===

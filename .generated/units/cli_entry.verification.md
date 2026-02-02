@@ -7,28 +7,28 @@
 
 **Assertions:** 6/6 passed
 
-## PROVEN
-
-- [+] process.argv is available
-  - Input parameter 'argv' is referenced in implementation
-
 ## INSTRUMENTED
 
+- [+] process.argv is available
+  - Precondition requires runtime verification
 - [+] All 11 commands are registered: init, verify, compile, views, status, tree, trace, eject, annotate, build, audit
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Version and help flags are available
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Command dispatch routes to correct handler
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Unknown commands display help text
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
+
+## PROVEN
+
 - [+] Command registration is deterministic
-  - Invariant will be checked at runtime
+  - No non-deterministic calls detected
 
 ## Advisories
 
-- Runtime check needed: All 11 commands are registered: init, verify, compile, views, status, tree, trace, eject, annotate, build, audit — Success guarantee will be checked at runtime
-- Runtime check needed: Version and help flags are available — Success guarantee will be checked at runtime
-- Runtime check needed: Command dispatch routes to correct handler — Success guarantee will be checked at runtime
-- Runtime check needed: Unknown commands display help text — Failure guarantee will be checked at runtime
-- Runtime check needed: Command registration is deterministic — Invariant will be checked at runtime
+- Runtime check needed: process.argv is available — Precondition requires runtime verification
+- Runtime check needed: All 11 commands are registered: init, verify, compile, views, status, tree, trace, eject, annotate, build, audit — Guarantee requires runtime verification
+- Runtime check needed: Version and help flags are available — Guarantee requires runtime verification
+- Runtime check needed: Command dispatch routes to correct handler — Guarantee requires runtime verification
+- Runtime check needed: Unknown commands display help text — Failure guarantee requires runtime verification

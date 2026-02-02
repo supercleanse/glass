@@ -4,9 +4,10 @@
  *
  * This is the third stage of the Glass compiler pipeline.
  * Phase 1 uses pattern-based static analysis on the implementation source.
- * Phase 2 will add TypeScript Compiler API AST analysis and SMT solver integration.
+ * Phase 2 uses TypeScript Compiler API AST analysis for PROVEN-level assertions.
  */
 
+import * as ts from "typescript";
 import type {
   GlassFile,
   VerificationResult,
@@ -16,6 +17,17 @@ import type {
   CompilerOptions,
   DiagnosticMessage,
 } from "../types/index";
+import {
+  createBatchProgram,
+  createProgramFromGlassFile,
+  getVirtualPath,
+} from "./ts-program-factory";
+import {
+  verifyGuaranteesWithAST,
+  verifyRequiresWithAST,
+  verifyFailureModesWithAST,
+  verifyInvariantsWithAST,
+} from "./ast-verifier";
 
 // ============================================================
 // Pattern-Based Analysis Utilities (Phase 1)
@@ -521,17 +533,29 @@ export function summarizeInstrumentation(plan: InstrumentationPlan): string {
 
 /**
  * Verify a single GlassFile's implementation against its contract.
- * Runs all Phase 1 verification methods and aggregates results.
+ * Uses Phase 2 AST verification when a ts.Program is available,
+ * falls back to Phase 1 pattern matching otherwise.
  */
-export function verifyContract(file: GlassFile): VerificationResult {
+export function verifyContract(
+  file: GlassFile,
+  program?: ts.Program | null,
+): VerificationResult {
   const assertions: VerificationAssertion[] = [];
   const advisories: Advisory[] = [];
 
-  // Run all verification methods
-  assertions.push(...verifyRequires(file));
-  assertions.push(...verifyGuarantees(file));
-  assertions.push(...verifyInvariants(file));
-  assertions.push(...verifyFailureModes(file));
+  if (program) {
+    // Phase 2: AST-based verification
+    assertions.push(...verifyRequiresWithAST(file, program));
+    assertions.push(...verifyGuaranteesWithAST(file, program));
+    assertions.push(...verifyInvariantsWithAST(file, program));
+    assertions.push(...verifyFailureModesWithAST(file, program));
+  } else {
+    // Phase 1: Pattern-based verification (fallback)
+    assertions.push(...verifyRequires(file));
+    assertions.push(...verifyGuarantees(file));
+    assertions.push(...verifyInvariants(file));
+    assertions.push(...verifyFailureModes(file));
+  }
 
   // Generate advisories for INSTRUMENTED assertions
   for (const assertion of assertions) {
@@ -559,13 +583,23 @@ export function verifyContract(file: GlassFile): VerificationResult {
 }
 
 /**
- * Verify multiple GlassFiles.
+ * Verify multiple GlassFiles using batch AST analysis for performance.
+ * Creates a single ts.Program shared across all units.
  */
-export function verifyAll(files: GlassFile[]): Map<string, VerificationResult> {
+export function verifyAll(
+  files: GlassFile[],
+  projectRoot: string = ".",
+): Map<string, VerificationResult> {
   const results = new Map<string, VerificationResult>();
+
+  // Try to create batch program for Phase 2 verification
+  const batch = createBatchProgram(files, projectRoot);
+
   for (const file of files) {
-    results.set(file.id, verifyContract(file));
+    const program = batch?.program ?? null;
+    results.set(file.id, verifyContract(file, program));
   }
+
   return results;
 }
 

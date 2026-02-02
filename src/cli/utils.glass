@@ -37,7 +37,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { parseGlassFile } from "../compiler/parser";
 import { linkIntentTree } from "../compiler/linker";
-import { verifyContract } from "../compiler/verifier";
+import { verifyAll } from "../compiler/verifier";
 import type { GlassFile, IntentTree, VerificationResult, Result } from "../types/index";
 import { Ok, Err, collectResults } from "../types/index";
 
@@ -70,7 +70,7 @@ export function discoverGlassFiles(dir: string): string[] {
 /**
  * Load and parse all .glass files, link the intent tree, and verify contracts.
  */
-export function loadProject(sourceDir: string): Result<ProjectContext, string> {
+export function loadProject(sourceDir: string, projectRoot?: string): Result<ProjectContext, string> {
   const filePaths = discoverGlassFiles(sourceDir);
   if (filePaths.length === 0) {
     return Err("No .glass files found in " + sourceDir);
@@ -92,11 +92,9 @@ export function loadProject(sourceDir: string): Result<ProjectContext, string> {
     return Err("Link error: " + treeResult.error.message);
   }
 
-  // Verify contracts
-  const verificationResults = new Map<string, VerificationResult>();
-  for (const file of parsed) {
-    verificationResults.set(file.id, verifyContract(file));
-  }
+  // Verify contracts using batch AST analysis (Phase 2)
+  const root = projectRoot ?? process.cwd();
+  const verificationResults = verifyAll(parsed, root);
 
   return Ok({
     rootDir: sourceDir,

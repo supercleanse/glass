@@ -10,35 +10,35 @@
 ## INSTRUMENTED
 
 - [+] name argument is a non-empty string
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] Creates project directory with src/, dist/, .generated/, .annotations/, tests/
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Creates manifest.glass with project name and default settings
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Creates glass.config.json with project configuration
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Creates .gitignore with standard Glass ignore patterns
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Displays error message if directory exists and is non-empty
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Never overwrites existing non-empty directories
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: DirectoryExists
-  - Error type 'DirectoryExists' is referenced but handler completeness deferred to runtime
+  - Error 'DirectoryExists' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: name argument is a non-empty string — Precondition will be checked at runtime
-- Runtime check needed: Creates project directory with src/, dist/, .generated/, .annotations/, tests/ — Success guarantee will be checked at runtime
-- Runtime check needed: Creates manifest.glass with project name and default settings — Success guarantee will be checked at runtime
-- Runtime check needed: Creates glass.config.json with project configuration — Success guarantee will be checked at runtime
-- Runtime check needed: Creates .gitignore with standard Glass ignore patterns — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Displays error message if directory exists and is non-empty — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Never overwrites existing non-empty directories — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: DirectoryExists — Error type 'DirectoryExists' is referenced but handler completeness deferred to runtime
+- Runtime check needed: name argument is a non-empty string — Precondition requires runtime verification
+- Runtime check needed: Creates project directory with src/, dist/, .generated/, .annotations/, tests/ — Guarantee requires runtime verification
+- Runtime check needed: Creates manifest.glass with project name and default settings — Guarantee requires runtime verification
+- Runtime check needed: Creates glass.config.json with project configuration — Guarantee requires runtime verification
+- Runtime check needed: Creates .gitignore with standard Glass ignore patterns — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Displays error message if directory exists and is non-empty — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Never overwrites existing non-empty directories — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: DirectoryExists — Error 'DirectoryExists' referenced in implementation

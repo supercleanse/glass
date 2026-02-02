@@ -7,43 +7,44 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Units | 31 |
-| Verified (PROVEN) | 31 |
+| Total Units | 32 |
+| Verified (PROVEN) | 32 |
 | Failed | 0 |
-| Total Assertions | 277 |
-| Passed Assertions | 277 |
-| Advisories | 278 |
+| Total Assertions | 288 |
+| Passed Assertions | 288 |
+| Advisories | 235 |
 
 ## Per-Unit Status
 
 - [!] **glass.adapters**: PROVEN (2/2 assertions, 2 advisory)
-- [!] **adapters.typescript**: PROVEN (4/4 assertions, 5 advisory)
+- [!] **adapters.typescript**: PROVEN (4/4 assertions, 2 advisory)
 - [!] **cli.cmd_annotate**: PROVEN (13/13 assertions, 13 advisory)
 - [!] **cli.cmd_audit**: PROVEN (0/0 assertions, 1 advisory)
 - [!] **cli.cmd_build**: PROVEN (8/8 assertions, 9 advisory)
-- [!] **cli.cmd_compile**: PROVEN (15/15 assertions, 15 advisory)
-- [!] **cli.cmd_eject**: PROVEN (13/13 assertions, 13 advisory)
+- [!] **cli.cmd_compile**: PROVEN (15/15 assertions, 14 advisory)
+- [!] **cli.cmd_eject**: PROVEN (13/13 assertions, 11 advisory)
 - [!] **cli.cmd_init**: PROVEN (10/10 assertions, 10 advisory)
 - [!] **cli.cmd_status**: PROVEN (8/8 assertions, 8 advisory)
 - [!] **cli.cmd_trace**: PROVEN (11/11 assertions, 11 advisory)
 - [!] **cli.cmd_tree**: PROVEN (9/9 assertions, 9 advisory)
 - [!] **cli.cmd_verify**: PROVEN (9/9 assertions, 9 advisory)
-- [!] **cli.cmd_views**: PROVEN (9/9 assertions, 9 advisory)
+- [!] **cli.cmd_views**: PROVEN (9/9 assertions, 8 advisory)
 - [!] **glass.cli**: PROVEN (2/2 assertions, 2 advisory)
 - [!] **cli.entry**: PROVEN (6/6 assertions, 5 advisory)
-- [!] **cli.utils**: PROVEN (8/8 assertions, 8 advisory)
-- [!] **compiler.annotations**: PROVEN (17/17 assertions, 16 advisory)
-- [!] **compiler.emitter**: PROVEN (13/13 assertions, 12 advisory)
+- [!] **cli.utils**: PROVEN (8/8 assertions, 6 advisory)
+- [!] **compiler.annotations**: PROVEN (17/17 assertions, 13 advisory)
+- [!] **compiler.ast_verifier**: PROVEN (9/9 assertions, 6 advisory)
+- [!] **compiler.emitter**: PROVEN (13/13 assertions, 8 advisory)
 - [!] **glass.compiler**: PROVEN (2/2 assertions, 2 advisory)
-- [!] **compiler.orchestrator**: PROVEN (10/10 assertions, 11 advisory)
-- [!] **compiler.linker**: PROVEN (12/12 assertions, 12 advisory)
-- [!] **compiler.parser**: PROVEN (15/15 assertions, 15 advisory)
-- [!] **compiler.ts_program_factory**: PROVEN (13/13 assertions, 14 advisory)
-- [!] **compiler.verifier**: PROVEN (8/8 assertions, 8 advisory)
-- [!] **compiler.view_generator**: PROVEN (15/15 assertions, 14 advisory)
+- [!] **compiler.orchestrator**: PROVEN (10/10 assertions, 10 advisory)
+- [!] **compiler.linker**: PROVEN (12/12 assertions, 4 advisory)
+- [!] **compiler.parser**: PROVEN (15/15 assertions, 6 advisory)
+- [!] **compiler.ts_program_factory**: PROVEN (13/13 assertions, 12 advisory)
+- [!] **compiler.verifier**: PROVEN (10/10 assertions, 5 advisory)
+- [!] **compiler.view_generator**: PROVEN (15/15 assertions, 10 advisory)
 - [!] **glass.framework**: PROVEN (2/2 assertions, 2 advisory)
-- [!] **glass.entry**: PROVEN (13/13 assertions, 13 advisory)
+- [!] **glass.entry**: PROVEN (13/13 assertions, 11 advisory)
 - [!] **glass.mcp**: PROVEN (2/2 assertions, 2 advisory)
 - [!] **mcp.server**: PROVEN (10/10 assertions, 10 advisory)
-- [!] **mcp.tools**: PROVEN (9/9 assertions, 9 advisory)
-- [!] **types.core**: PROVEN (9/9 assertions, 9 advisory)
+- [!] **mcp.tools**: PROVEN (9/9 assertions, 8 advisory)
+- [!] **types.core**: PROVEN (9/9 assertions, 6 advisory)

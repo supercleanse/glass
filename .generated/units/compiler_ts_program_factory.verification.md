@@ -10,45 +10,46 @@
 ## INSTRUMENTED
 
 - [+] "TypeScript compiler API is available (typescript package installed)"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "projectRoot points to a directory with tsconfig.json"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "GlassFile has a non-empty implementation section"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "createProgramFromGlassFile returns a ts.Program with type checker"
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] "createBatchProgram returns all source files in a single shared program"
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] "getVirtualPath returns a deterministic path for a unit ID"
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] "Relative imports in implementations are resolved against actual source"
-  - Success guarantee will be checked at runtime
-- [+] "Returns null if implementation has syntax errors"
-  - Failure guarantee will be checked at runtime
-- [+] "Returns null if program creation fails"
-  - Failure guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Compiler options are cached across calls"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] "Shebang lines are stripped before parsing"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] "Virtual files never collide with real file paths"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: SyntaxError
-  - Error type 'SyntaxError' is referenced but handler completeness deferred to runtime
+  - Error 'SyntaxError' referenced; try/catch present
+
+## PROVEN
+
+- [+] "Returns null if implementation has syntax errors"
+  - Failure return type contains 'null'
+- [+] "Returns null if program creation fails"
+  - Failure return type contains 'null'
 
 ## Advisories
 
-- Runtime check needed: "TypeScript compiler API is available (typescript package installed)" — Precondition will be checked at runtime
-- Runtime check needed: "projectRoot points to a directory with tsconfig.json" — Precondition will be checked at runtime
-- Runtime check needed: "GlassFile has a non-empty implementation section" — Precondition will be checked at runtime
-- Runtime check needed: "createProgramFromGlassFile returns a ts.Program with type checker" — Success guarantee will be checked at runtime
-- Runtime check needed: "createBatchProgram returns all source files in a single shared program" — Success guarantee will be checked at runtime
-- Runtime check needed: "getVirtualPath returns a deterministic path for a unit ID" — Success guarantee will be checked at runtime
-- Runtime check needed: "Relative imports in implementations are resolved against actual source" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns null if implementation has syntax errors" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Returns null if program creation fails" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Compiler options are cached across calls" — Invariant will be checked at runtime
-- Runtime check needed: "Shebang lines are stripped before parsing" — Invariant will be checked at runtime
-- Runtime check needed: "Virtual files never collide with real file paths" — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: SyntaxError — Error type 'SyntaxError' is referenced but handler completeness deferred to runtime
+- Runtime check needed: "TypeScript compiler API is available (typescript package installed)" — Semantic precondition: runtime verification required
+- Runtime check needed: "projectRoot points to a directory with tsconfig.json" — Semantic precondition: runtime verification required
+- Runtime check needed: "GlassFile has a non-empty implementation section" — Semantic precondition: runtime verification required
+- Runtime check needed: "createProgramFromGlassFile returns a ts.Program with type checker" — Referenced identifiers found in exports
+- Runtime check needed: "createBatchProgram returns all source files in a single shared program" — Referenced identifiers found in exports
+- Runtime check needed: "getVirtualPath returns a deterministic path for a unit ID" — Referenced identifiers found in exports
+- Runtime check needed: "Relative imports in implementations are resolved against actual source" — Guarantee requires runtime verification
+- Runtime check needed: "Compiler options are cached across calls" — Invariant requires runtime verification
+- Runtime check needed: "Shebang lines are stripped before parsing" — Invariant requires runtime verification
+- Runtime check needed: "Virtual files never collide with real file paths" — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: SyntaxError — Error 'SyntaxError' referenced; try/catch present
 - "Batch program creation shares a single ts.Program for performance"

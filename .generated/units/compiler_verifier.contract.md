@@ -12,6 +12,8 @@
 - "Returns VerificationResult with all assertions checked"
 - "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)"
 - "Overall status is PROVEN if all assertions pass"
+- "verifyAll uses batch ts.Program for performance"
+- "Uses Phase 2 AST verification when ts.Program available, falls back to Phase 1"
 
 ## Guarantees on Failure
 

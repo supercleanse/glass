@@ -10,58 +10,55 @@
 ## INSTRUMENTED
 
 - [+] annotationsDir is a valid directory path
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] unitId is a non-empty string
-  - Precondition will be checked at runtime
+  - Parameter referenced but type match not confirmable
 - [+] target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*)
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] addAnnotation persists annotation to .annotations/<unitId>.annotations.json
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] Each annotation has a unique generated ID
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] resolveAnnotation sets resolved: true and persists
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] deleteAnnotation removes the annotation from storage
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] loadAnnotations returns all annotations for a unit
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] getUnresolvedAnnotations returns only annotations where resolved is false
-  - Success guarantee will be checked at runtime
-- [+] Returns AnnotationError with reason and message
-  - Failure guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] Annotation files are scoped per unit (one JSON file per unitId)
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Annotation IDs are unique across the project
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Empty annotation files are deleted (not left as empty arrays)
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: UnitNotFound
-  - Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
-- [+] Failure mode handled: AnnotationNotFound
-  - Error type 'AnnotationNotFound' is referenced but handler completeness deferred to runtime
-- [+] Failure mode handled: InvalidTarget
-  - Error type 'InvalidTarget' is referenced but handler completeness deferred to runtime
+  - Error 'UnitNotFound' referenced; try/catch present
 
 ## PROVEN
 
+- [+] Returns AnnotationError with reason and message
+  - Failure return type contains 'AnnotationError'
+- [+] Failure mode handled: AnnotationNotFound
+  - Error 'AnnotationNotFound' found in Err() call via AST
+- [+] Failure mode handled: InvalidTarget
+  - Error 'InvalidTarget' found in Err() call via AST
 - [+] Failure mode handled: WriteError
-  - Error type 'WriteError' is caught and handled with appropriate response
+  - Error 'WriteError' found in Err() call via AST
 
 ## Advisories
 
-- Runtime check needed: annotationsDir is a valid directory path — Precondition will be checked at runtime
-- Runtime check needed: unitId is a non-empty string — Precondition will be checked at runtime
-- Runtime check needed: target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*) — Precondition will be checked at runtime
-- Runtime check needed: addAnnotation persists annotation to .annotations/<unitId>.annotations.json — Success guarantee will be checked at runtime
-- Runtime check needed: Each annotation has a unique generated ID — Success guarantee will be checked at runtime
-- Runtime check needed: resolveAnnotation sets resolved: true and persists — Success guarantee will be checked at runtime
-- Runtime check needed: deleteAnnotation removes the annotation from storage — Success guarantee will be checked at runtime
-- Runtime check needed: loadAnnotations returns all annotations for a unit — Success guarantee will be checked at runtime
-- Runtime check needed: getUnresolvedAnnotations returns only annotations where resolved is false — Success guarantee will be checked at runtime
-- Runtime check needed: Returns AnnotationError with reason and message — Failure guarantee will be checked at runtime
-- Runtime check needed: Annotation files are scoped per unit (one JSON file per unitId) — Invariant will be checked at runtime
-- Runtime check needed: Annotation IDs are unique across the project — Invariant will be checked at runtime
-- Runtime check needed: Empty annotation files are deleted (not left as empty arrays) — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: UnitNotFound — Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: AnnotationNotFound — Error type 'AnnotationNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: InvalidTarget — Error type 'InvalidTarget' is referenced but handler completeness deferred to runtime
+- Runtime check needed: annotationsDir is a valid directory path — Semantic precondition: runtime verification required
+- Runtime check needed: unitId is a non-empty string — Parameter referenced but type match not confirmable
+- Runtime check needed: target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*) — Semantic precondition: runtime verification required
+- Runtime check needed: addAnnotation persists annotation to .annotations/<unitId>.annotations.json — Referenced identifiers found in exports
+- Runtime check needed: Each annotation has a unique generated ID — Guarantee requires runtime verification
+- Runtime check needed: resolveAnnotation sets resolved: true and persists — Referenced identifiers found in exports
+- Runtime check needed: deleteAnnotation removes the annotation from storage — Referenced identifiers found in exports
+- Runtime check needed: loadAnnotations returns all annotations for a unit — Referenced identifiers found in exports
+- Runtime check needed: getUnresolvedAnnotations returns only annotations where resolved is false — Referenced identifiers found in exports
+- Runtime check needed: Annotation files are scoped per unit (one JSON file per unitId) — Invariant requires runtime verification
+- Runtime check needed: Annotation IDs are unique across the project — Invariant requires runtime verification
+- Runtime check needed: Empty annotation files are deleted (not left as empty arrays) — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: UnitNotFound — Error 'UnitNotFound' referenced; try/catch present

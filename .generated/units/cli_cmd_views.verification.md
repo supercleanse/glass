@@ -10,32 +10,34 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Views generated in .generated/ directory
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Reports count of generated views
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Error message with details
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
-- [+] Source .glass files are never modified
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 - [+] Failure mode handled: ViewGenerationFailed
-  - Error type 'ViewGenerationFailed' is referenced but handler completeness deferred to runtime
+  - Error 'ViewGenerationFailed' referenced in implementation
+
+## PROVEN
+
+- [+] Source .glass files are never modified
+  - 'files' is not mutated (no assignment/mutation patterns found)
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: Views generated in .generated/ directory — Success guarantee will be checked at runtime
-- Runtime check needed: Reports count of generated views — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Error message with details — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Source .glass files are never modified — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: ViewGenerationFailed — Error type 'ViewGenerationFailed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: Views generated in .generated/ directory — Guarantee requires runtime verification
+- Runtime check needed: Reports count of generated views — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Error message with details — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: ViewGenerationFailed — Error 'ViewGenerationFailed' referenced in implementation

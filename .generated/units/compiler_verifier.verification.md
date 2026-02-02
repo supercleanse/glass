@@ -5,34 +5,38 @@
 
 **Status:** PROVEN
 
-**Assertions:** 8/8 passed
+**Assertions:** 10/10 passed
+
+## PROVEN
+
+- [+] "file is a valid GlassFile with contract and implementation"
+  - Parameter 'file' has type 'GlassFile' in generateInstrumentation()
+- [+] "Returns VerificationResult with all assertions checked"
+  - Return type 'VerificationResult' contains 'VerificationResult'
+- [+] "Returns VerificationResult with status FAILED"
+  - Failure return type contains 'VerificationResult'
+- [+] "Implementation code is never modified"
+  - 'code' is not mutated (no assignment/mutation patterns found)
+- [+] "Verification is deterministic — same input produces same output" fails: []
+  - No non-deterministic calls detected
 
 ## INSTRUMENTED
 
-- [+] "file is a valid GlassFile with contract and implementation"
-  - Precondition will be checked at runtime
-- [+] "Returns VerificationResult with all assertions checked"
-  - Success guarantee will be checked at runtime
 - [+] "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Overall status is PROVEN if all assertions pass"
-  - Success guarantee will be checked at runtime
-- [+] "Returns VerificationResult with status FAILED"
-  - Failure guarantee will be checked at runtime
+  - Guarantee requires runtime verification
+- [+] "verifyAll uses batch ts.Program for performance"
+  - Referenced identifiers found in exports
+- [+] "Uses Phase 2 AST verification when ts.Program available, falls back to Phase 1"
+  - Guarantee requires runtime verification
 - [+] "Failed assertions include explanation messages"
-  - Failure guarantee will be checked at runtime
-- [+] "Implementation code is never modified"
-  - Invariant will be checked at runtime
-- [+] "Verification is deterministic — same input produces same output" fails: []
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "file is a valid GlassFile with contract and implementation" — Precondition will be checked at runtime
-- Runtime check needed: "Returns VerificationResult with all assertions checked" — Success guarantee will be checked at runtime
-- Runtime check needed: "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)" — Success guarantee will be checked at runtime
-- Runtime check needed: "Overall status is PROVEN if all assertions pass" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns VerificationResult with status FAILED" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Failed assertions include explanation messages" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Implementation code is never modified" — Invariant will be checked at runtime
-- Runtime check needed: "Verification is deterministic — same input produces same output" fails: [] — Invariant will be checked at runtime
+- Runtime check needed: "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)" — Guarantee requires runtime verification
+- Runtime check needed: "Overall status is PROVEN if all assertions pass" — Guarantee requires runtime verification
+- Runtime check needed: "verifyAll uses batch ts.Program for performance" — Referenced identifiers found in exports
+- Runtime check needed: "Uses Phase 2 AST verification when ts.Program available, falls back to Phase 1" — Guarantee requires runtime verification
+- Runtime check needed: "Failed assertions include explanation messages" — Failure guarantee requires runtime verification

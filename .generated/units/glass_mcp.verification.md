@@ -10,11 +10,11 @@
 ## INSTRUMENTED
 
 - [+] "MCP subsystem namespace is established" on_failure: []
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "All MCP units are children of this intent"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "MCP subsystem namespace is established" on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: "All MCP units are children of this intent" — Invariant will be checked at runtime
+- Runtime check needed: "MCP subsystem namespace is established" on_failure: [] — Guarantee requires runtime verification
+- Runtime check needed: "All MCP units are children of this intent" — Invariant requires runtime verification

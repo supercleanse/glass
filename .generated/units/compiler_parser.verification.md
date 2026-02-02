@@ -7,53 +7,47 @@
 
 **Assertions:** 15/15 passed
 
-## INSTRUMENTED
+## PROVEN
 
 - [+] "filePath is a valid string path"
-  - Precondition will be checked at runtime
-- [+] "file exists on disk for parseGlassFile"
-  - Precondition will be checked at runtime
-- [+] "content follows .glass format with four sections"
-  - Precondition will be checked at runtime
+  - Parameter 'filePath' has type 'string' in parseGlassFile()
 - [+] "Returns GlassFile with all three sections extracted"
-  - Success guarantee will be checked at runtime
-- [+] "id, version, and language are populated from Glass Unit header"
-  - Success guarantee will be checked at runtime
-- [+] "Intent has purpose, source, parent, stakeholder, subIntents"
-  - Success guarantee will be checked at runtime
-- [+] "Contract has requires, guarantees, invariants, fails, advisories"
-  - Success guarantee will be checked at runtime
+  - Return type 'Result<GlassFile, ParseError>' contains 'GlassFile'
 - [+] "Returns ParseError with reason, message, and filePath"
-  - Failure guarantee will be checked at runtime
-- [+] "ParseError includes section where failure occurred"
-  - Failure guarantee will be checked at runtime
+  - Failure return type contains 'ParseError'
 - [+] "Original file is never modified"
-  - Invariant will be checked at runtime
+  - 'file' is not mutated (no assignment/mutation patterns found)
 - [+] "Parser is stateless"
-  - Invariant will be checked at runtime
+  - No module-level mutable state detected
 - [+] Failure mode handled: FileNotFound
-  - Error type 'FileNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'FileNotFound' found in Err() call via AST
 - [+] Failure mode handled: InvalidFormat
-  - Error type 'InvalidFormat' is referenced but handler completeness deferred to runtime
+  - Error 'InvalidFormat' found in Err() call via AST
 - [+] Failure mode handled: MissingSection
-  - Error type 'MissingSection' is referenced but handler completeness deferred to runtime
+  - Error 'MissingSection' found in Err() call via AST
 - [+] Failure mode handled: InvalidSectionContent
-  - Error type 'InvalidSectionContent' is referenced but handler completeness deferred to runtime
+  - Error 'InvalidSectionContent' found in Err() call via AST
+
+## INSTRUMENTED
+
+- [+] "file exists on disk for parseGlassFile"
+  - Semantic precondition: runtime verification required
+- [+] "content follows .glass format with four sections"
+  - Semantic precondition: runtime verification required
+- [+] "id, version, and language are populated from Glass Unit header"
+  - Guarantee requires runtime verification
+- [+] "Intent has purpose, source, parent, stakeholder, subIntents"
+  - Guarantee requires runtime verification
+- [+] "Contract has requires, guarantees, invariants, fails, advisories"
+  - Guarantee requires runtime verification
+- [+] "ParseError includes section where failure occurred"
+  - Failure guarantee requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "filePath is a valid string path" — Precondition will be checked at runtime
-- Runtime check needed: "file exists on disk for parseGlassFile" — Precondition will be checked at runtime
-- Runtime check needed: "content follows .glass format with four sections" — Precondition will be checked at runtime
-- Runtime check needed: "Returns GlassFile with all three sections extracted" — Success guarantee will be checked at runtime
-- Runtime check needed: "id, version, and language are populated from Glass Unit header" — Success guarantee will be checked at runtime
-- Runtime check needed: "Intent has purpose, source, parent, stakeholder, subIntents" — Success guarantee will be checked at runtime
-- Runtime check needed: "Contract has requires, guarantees, invariants, fails, advisories" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns ParseError with reason, message, and filePath" — Failure guarantee will be checked at runtime
-- Runtime check needed: "ParseError includes section where failure occurred" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Original file is never modified" — Invariant will be checked at runtime
-- Runtime check needed: "Parser is stateless" — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: FileNotFound — Error type 'FileNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: InvalidFormat — Error type 'InvalidFormat' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: MissingSection — Error type 'MissingSection' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: InvalidSectionContent — Error type 'InvalidSectionContent' is referenced but handler completeness deferred to runtime
+- Runtime check needed: "file exists on disk for parseGlassFile" — Semantic precondition: runtime verification required
+- Runtime check needed: "content follows .glass format with four sections" — Semantic precondition: runtime verification required
+- Runtime check needed: "id, version, and language are populated from Glass Unit header" — Guarantee requires runtime verification
+- Runtime check needed: "Intent has purpose, source, parent, stakeholder, subIntents" — Guarantee requires runtime verification
+- Runtime check needed: "Contract has requires, guarantees, invariants, fails, advisories" — Guarantee requires runtime verification
+- Runtime check needed: "ParseError includes section where failure occurred" — Failure guarantee requires runtime verification

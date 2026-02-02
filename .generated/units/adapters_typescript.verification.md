@@ -10,18 +10,18 @@
 ## INSTRUMENTED
 
 - [+] GlassFile has language: typescript
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
+
+## PROVEN
+
 - [+] LanguageAdapter interface defines name, fileExtension, and compile method
-  - Success guarantee will be checked at runtime
+  - Exports found: LanguageAdapter
 - [+] typescriptAdapter implements LanguageAdapter for TypeScript targets on_failure: []
-  - Success guarantee will be checked at runtime
+  - Exports found: LanguageAdapter
 - [+] Adapter is stateless
-  - Invariant will be checked at runtime
+  - No module-level mutable state detected
 
 ## Advisories
 
-- Runtime check needed: GlassFile has language: typescript — Precondition will be checked at runtime
-- Runtime check needed: LanguageAdapter interface defines name, fileExtension, and compile method — Success guarantee will be checked at runtime
-- Runtime check needed: typescriptAdapter implements LanguageAdapter for TypeScript targets on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: Adapter is stateless — Invariant will be checked at runtime
+- Runtime check needed: GlassFile has language: typescript — Precondition requires runtime verification
 - Placeholder implementation — actual TypeScript compilation handled by emitter

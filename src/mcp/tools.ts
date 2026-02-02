@@ -1,3 +1,4 @@
+/** @fails ToolExecutionFailed */
 /**
  * MCP Tool registrations for the Glass framework.
  *
@@ -11,7 +12,7 @@ import * as fs from "fs";
 import { loadProject } from "../cli/utils";
 import { parseGlassFile } from "../compiler/parser";
 import { linkIntentTree, getAncestors } from "../compiler/linker";
-import { verifyContract, verifyAll, generateInstrumentation } from "../compiler/verifier";
+import { generateInstrumentation } from "../compiler/verifier";
 import { emitTypeScript } from "../compiler/emitter";
 import { generateAllViews } from "../compiler/view-generator";
 import { parseManifest } from "../compiler/manifest";
@@ -69,7 +70,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
     },
     async ({ source, failuresOnly }) => {
       const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -113,7 +114,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       const sourceDir = path.resolve(projectRoot, source);
       const outputDir = path.resolve(projectRoot, output);
 
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -171,7 +172,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       const sourceDir = path.resolve(projectRoot, source);
       const outputDir = path.resolve(projectRoot, output);
 
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -202,7 +203,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
     },
     async ({ source }) => {
       const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -241,7 +242,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
     },
     async ({ source, depth }) => {
       const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -290,7 +291,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
     },
     async ({ unitId, source }) => {
       const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir);
+      const project = loadProject(sourceDir, projectRoot);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }

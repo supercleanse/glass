@@ -10,36 +10,38 @@
 ## INSTRUMENTED
 
 - [+] "sourcePaths is an array of valid file paths"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "CompilerOptions provides rootDir and outDir"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "Returns CompilationResult with success: true"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Pipeline stages execute in order: parse, link, verify, emit"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Diagnostics array contains info messages for each stage"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Duration reflects actual elapsed time in milliseconds"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Returns CompilationResult with success: false"
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] "Diagnostics include error messages identifying the failing stage"
-  - Failure guarantee will be checked at runtime
-- [+] "Source files are never modified"
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] "Pipeline stages are idempotent" fails: []
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
+
+## PROVEN
+
+- [+] "Source files are never modified"
+  - 'files' is not mutated (no assignment/mutation patterns found)
 
 ## Advisories
 
-- Runtime check needed: "sourcePaths is an array of valid file paths" — Precondition will be checked at runtime
-- Runtime check needed: "CompilerOptions provides rootDir and outDir" — Precondition will be checked at runtime
-- Runtime check needed: "Returns CompilationResult with success: true" — Success guarantee will be checked at runtime
-- Runtime check needed: "Pipeline stages execute in order: parse, link, verify, emit" — Success guarantee will be checked at runtime
-- Runtime check needed: "Diagnostics array contains info messages for each stage" — Success guarantee will be checked at runtime
-- Runtime check needed: "Duration reflects actual elapsed time in milliseconds" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns CompilationResult with success: false" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Diagnostics include error messages identifying the failing stage" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Source files are never modified" — Invariant will be checked at runtime
-- Runtime check needed: "Pipeline stages are idempotent" fails: [] — Invariant will be checked at runtime
+- Runtime check needed: "sourcePaths is an array of valid file paths" — Semantic precondition: runtime verification required
+- Runtime check needed: "CompilerOptions provides rootDir and outDir" — Semantic precondition: runtime verification required
+- Runtime check needed: "Returns CompilationResult with success: true" — Guarantee requires runtime verification
+- Runtime check needed: "Pipeline stages execute in order: parse, link, verify, emit" — Guarantee requires runtime verification
+- Runtime check needed: "Diagnostics array contains info messages for each stage" — Guarantee requires runtime verification
+- Runtime check needed: "Duration reflects actual elapsed time in milliseconds" — Guarantee requires runtime verification
+- Runtime check needed: "Returns CompilationResult with success: false" — Failure guarantee requires runtime verification
+- Runtime check needed: "Diagnostics include error messages identifying the failing stage" — Failure guarantee requires runtime verification
+- Runtime check needed: "Pipeline stages are idempotent" fails: [] — Invariant requires runtime verification
 - "GlassCompiler.compile() is currently a stub; real pipeline runs through CLI commands via loadProject()"

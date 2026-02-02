@@ -10,50 +10,52 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Output directory is writable
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] All contracts verified before emission
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Views generated in .generated/ directory
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] TypeScript emitted to output directory
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Compilation duration reported
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Compilation halted at failing stage
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Error message identifies the failing stage and unit
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
-- [+] Source .glass files are never modified
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Unverified code is never emitted
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 - [+] Failure mode handled: VerificationFailed
-  - Error type 'VerificationFailed' is referenced but handler completeness deferred to runtime
+  - Error 'VerificationFailed' referenced in implementation
 - [+] Failure mode handled: EmitFailed
-  - Error type 'EmitFailed' is referenced but handler completeness deferred to runtime
+  - Error 'EmitFailed' referenced in implementation
+
+## PROVEN
+
+- [+] Source .glass files are never modified
+  - 'files' is not mutated (no assignment/mutation patterns found)
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: Output directory is writable — Precondition will be checked at runtime
-- Runtime check needed: All contracts verified before emission — Success guarantee will be checked at runtime
-- Runtime check needed: Views generated in .generated/ directory — Success guarantee will be checked at runtime
-- Runtime check needed: TypeScript emitted to output directory — Success guarantee will be checked at runtime
-- Runtime check needed: Compilation duration reported — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Compilation halted at failing stage — Failure guarantee will be checked at runtime
-- Runtime check needed: Error message identifies the failing stage and unit — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Source .glass files are never modified — Invariant will be checked at runtime
-- Runtime check needed: Unverified code is never emitted — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: VerificationFailed — Error type 'VerificationFailed' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: EmitFailed — Error type 'EmitFailed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: Output directory is writable — Precondition requires runtime verification
+- Runtime check needed: All contracts verified before emission — Guarantee requires runtime verification
+- Runtime check needed: Views generated in .generated/ directory — Guarantee requires runtime verification
+- Runtime check needed: TypeScript emitted to output directory — Guarantee requires runtime verification
+- Runtime check needed: Compilation duration reported — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Compilation halted at failing stage — Failure guarantee requires runtime verification
+- Runtime check needed: Error message identifies the failing stage and unit — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Unverified code is never emitted — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: VerificationFailed — Error 'VerificationFailed' referenced in implementation
+- Runtime check needed: Failure mode handled: EmitFailed — Error 'EmitFailed' referenced in implementation
