@@ -11,7 +11,7 @@
 
 ## Guarantees on Success
 
-- addAnnotation persists annotation to .annotations/<unitId>.annotations.json
+- addAnnotation persists annotation to annotations/<unitId>.annotations.json
 - Each annotation has a unique generated ID
 - resolveAnnotation sets resolved: true and persists
 - deleteAnnotation removes the annotation from storage

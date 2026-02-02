@@ -11,7 +11,7 @@
 
 - [+] Current directory or --source flag points to a valid Glass project
   - Semantic precondition: runtime verification required
-- [+] Views generated in .generated/ directory
+- [+] Views generated in glass-views/ directory
   - Guarantee requires runtime verification
 - [+] Reports count of generated views
   - Guarantee requires runtime verification
@@ -34,7 +34,7 @@
 ## Advisories
 
 - Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
-- Runtime check needed: Views generated in .generated/ directory — Guarantee requires runtime verification
+- Runtime check needed: Views generated in glass-views/ directory — Guarantee requires runtime verification
 - Runtime check needed: Reports count of generated views — Guarantee requires runtime verification
 - Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
 - Runtime check needed: Error message with details — Failure guarantee requires runtime verification

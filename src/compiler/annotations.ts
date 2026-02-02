@@ -2,7 +2,7 @@
  * Annotation System — PRD Section 8.4
  *
  * Allows humans to attach notes to generated outlines for AI to act on.
- * Annotations are stored in .annotations/<unitId>.annotations.json.
+ * Annotations are stored in annotations/<unitId>.annotations.json.
  */
 
 import * as fs from "fs";

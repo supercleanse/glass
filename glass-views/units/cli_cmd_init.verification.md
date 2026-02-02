@@ -11,7 +11,7 @@
 
 - [+] name argument is a non-empty string
   - Precondition requires runtime verification
-- [+] Creates project directory with src/, dist/, .generated/, .annotations/, tests/
+- [+] Creates project directory with src/, dist/, glass-views/, annotations/, tests/
   - Guarantee requires runtime verification
 - [+] Creates manifest.glass with project name and default settings
   - Guarantee requires runtime verification
@@ -33,7 +33,7 @@
 ## Advisories
 
 - Runtime check needed: name argument is a non-empty string — Precondition requires runtime verification
-- Runtime check needed: Creates project directory with src/, dist/, .generated/, .annotations/, tests/ — Guarantee requires runtime verification
+- Runtime check needed: Creates project directory with src/, dist/, glass-views/, annotations/, tests/ — Guarantee requires runtime verification
 - Runtime check needed: Creates manifest.glass with project name and default settings — Guarantee requires runtime verification
 - Runtime check needed: Creates glass.config.json with project configuration — Guarantee requires runtime verification
 - Runtime check needed: Creates .gitignore with standard Glass ignore patterns — Guarantee requires runtime verification

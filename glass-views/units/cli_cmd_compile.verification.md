@@ -15,7 +15,7 @@
   - Precondition requires runtime verification
 - [+] All contracts verified before emission
   - Guarantee requires runtime verification
-- [+] Views generated in .generated/ directory
+- [+] Views generated in glass-views/ directory
   - Guarantee requires runtime verification
 - [+] TypeScript emitted to output directory
   - Guarantee requires runtime verification
@@ -48,7 +48,7 @@
 - Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
 - Runtime check needed: Output directory is writable — Precondition requires runtime verification
 - Runtime check needed: All contracts verified before emission — Guarantee requires runtime verification
-- Runtime check needed: Views generated in .generated/ directory — Guarantee requires runtime verification
+- Runtime check needed: Views generated in glass-views/ directory — Guarantee requires runtime verification
 - Runtime check needed: TypeScript emitted to output directory — Guarantee requires runtime verification
 - Runtime check needed: Compilation duration reported — Guarantee requires runtime verification
 - Runtime check needed: Exit code is 0 — Guarantee requires runtime verification

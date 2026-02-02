@@ -3,6 +3,6 @@
   "language": "typescript",
   "projectName": "glass-framework",
   "outputDir": "dist",
-  "generatedDir": ".generated",
-  "annotationsDir": ".annotations"
+  "generatedDir": "glass-views",
+  "annotationsDir": "annotations"
 }

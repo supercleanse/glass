@@ -6,6 +6,45 @@ Glass is a framework for AI-first software development. Every unit of code has t
 
 Glass is self-hosting: the compiler verifies and compiles itself. All 32 units are **PROVEN**.
 
+## Why Glass?
+
+### The Problem
+
+AI writes code faster than humans can review it. A single prompt can generate hundreds of lines across multiple files. Teams using AI coding tools face a new challenge: **how do you know the AI built what you asked for?**
+
+Today, the answer is "read all the code." That doesn't scale. Code review becomes a bottleneck. Bugs hide in the gap between what was requested and what was generated. There's no systematic way to verify that AI-generated code actually does what it's supposed to do.
+
+### The Approach
+
+Glass adds a verification layer between intent and implementation:
+
+1. **You describe what you want** -- in conversation, a PRD, or annotations
+2. **AI writes the code** -- with an explicit contract declaring what the code promises
+3. **The compiler proves it** -- statically verifying that the implementation satisfies its contract
+4. **You review outlines, not code** -- structured summaries of intent, contracts, and verification status
+
+The human never needs to read implementation code. You review *what* the system promises, not *how* it does it. The compiler handles the "how" verification.
+
+### What You Get
+
+**Full traceability.** Every line of code traces back to a stated purpose. Every requirement links to its source -- whether that's a PRD, a conversation, or an AI-generated security measure. Run `glass trace` on any unit and see the full chain from business goal to implementation.
+
+**Verified contracts.** The compiler doesn't just check types -- it proves that functions return what they promise, handle the errors they declare, and maintain their invariants. 288 assertions across 32 units, all statically verified.
+
+**Human-readable dashboards.** The `glass-views/` directory contains auto-generated outlines: intent trees, contract summaries, verification checklists, and a business-level view. Readable by anyone, technical or not.
+
+**Eject anytime.** Run `glass eject` and get clean, standalone TypeScript with zero Glass dependencies. No vendor lock-in. The `dist/` output deploys to any platform -- Cloudflare, AWS, Vercel, Docker, anywhere.
+
+**Audit trail.** Every intent records who requested it, where the requirement came from, and whether it was human-originated, conversation-derived, or AI-generated. Built for teams that need compliance and accountability.
+
+### Who It's For
+
+- **Teams using AI to write code** who need confidence that the AI built what was asked for
+- **Engineering leads** who want to review AI output without reading every line
+- **Enterprises** that need audit trails, traceability, and formal verification for AI-generated code
+- **Security-conscious organizations** where every piece of code must link to a stated requirement
+- **Anyone building with AI** who wants the productivity gains without giving up control
+
 ## Quick Start
 
 ```bash
@@ -248,7 +287,7 @@ Generate human-readable views and dashboards.
 ```
 Options:
   -s, --source <dir>       Source directory  (default: "src")
-  -o, --output <dir>       Output directory  (default: ".generated")
+  -o, --output <dir>       Output directory  (default: "glass-views")
 ```
 
 Output includes:
@@ -344,13 +383,13 @@ glass/
 │   └── mcp/
 │       ├── index.glass         # MCP server entry point
 │       └── tools.glass         # MCP tool registrations
-├── .generated/                 # Auto-generated views (never hand-edit)
+├── glass-views/                # Auto-generated views (never hand-edit)
 │   ├── units/                  # Per-unit intent, contract, verification views
 │   ├── master-intent-outline.md
 │   ├── master-contract-outline.md
 │   ├── verification-dashboard.md
 │   └── business-view.md
-├── .annotations/               # Human annotations
+├── annotations/                # Human annotations
 ├── dist/                       # Compiled TypeScript output
 └── tests/                      # Test suite
 ```
@@ -512,8 +551,8 @@ your-project/
   "language": "typescript",
   "projectName": "my-project",
   "outputDir": "dist",
-  "generatedDir": ".generated",
-  "annotationsDir": ".annotations"
+  "generatedDir": "glass-views",
+  "annotationsDir": "annotations"
 }
 ```
 

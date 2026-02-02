@@ -22,7 +22,7 @@
 
 ## Invariants
 
-- Annotations are persisted to .annotations/ directory
+- Annotations are persisted to annotations/ directory
 
 ## Failure Modes
 

@@ -265,9 +265,9 @@ glass/
 │   ├── cli/                     # CLI commands
 │   ├── adapters/                # Language adapters
 │   └── types/                   # TypeScript type definitions
-├── .generated/                  # Auto-generated views (never hand-edit)
+├── glass-views/                 # Auto-generated views (never hand-edit)
 ├── dist/                        # Compiled output
-├── .annotations/                # Human annotations on outlines
+├── annotations/                 # Human annotations on outlines
 ├── tests/                       # Test suite
 └── packages/
     ├── mcp-server/              # MCP server package
@@ -279,7 +279,7 @@ glass/
 - Commit messages: `[task-<id>] <imperative description>`
 - One logical change per commit
 - Never commit: `node_modules/`, `dist/`, `.env`, credentials
-- Optionally commit: `.generated/`
+- Optionally commit: `glass-views/`
 
 ## Integration with Taskmaster
 

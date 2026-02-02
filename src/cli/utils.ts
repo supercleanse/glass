@@ -27,7 +27,7 @@ export function discoverGlassFiles(dir: string): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== ".generated") {
+    if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== "glass-views") {
       files.push(...discoverGlassFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith(".glass") && entry.name !== "manifest.glass") {
       files.push(fullPath);

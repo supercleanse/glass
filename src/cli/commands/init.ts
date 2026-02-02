@@ -29,9 +29,9 @@ export const initCommand = new Command("init")
       "src",
       "src/glass",
       "dist",
-      ".generated",
-      ".generated/units",
-      ".annotations",
+      "glass-views",
+      "glass-views/units",
+      "annotations",
       "tests",
     ];
 
@@ -65,8 +65,8 @@ Intent Registry:
       language: opts.language,
       projectName: name,
       outputDir: "dist",
-      generatedDir: ".generated",
-      annotationsDir: ".annotations",
+      generatedDir: "glass-views",
+      annotationsDir: "annotations",
     };
     fs.writeFileSync(
       path.join(targetDir, "glass.config.json"),
@@ -77,7 +77,7 @@ Intent Registry:
     // Generate .gitignore
     fs.writeFileSync(
       path.join(targetDir, ".gitignore"),
-      "node_modules/\ndist/\n.generated/\n*.log\n.DS_Store\n",
+      "node_modules/\ndist/\n*.log\n.DS_Store\n",
       "utf-8",
     );
 

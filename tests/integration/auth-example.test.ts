@@ -140,7 +140,7 @@ describe("Auth System Example (PRD Section 17)", () => {
       verificationResults.set(file.id, verifyContract(file));
     }
 
-    const viewsDir = path.join(tempDir, ".generated");
+    const viewsDir = path.join(tempDir, "glass-views");
     const viewResult = generateAllViews(files, linkResult.value, verificationResults, viewsDir);
     expect(viewResult.ok).toBe(true);
     if (!viewResult.ok) return;
