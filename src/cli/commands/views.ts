@@ -1,5 +1,6 @@
 /**
  * glass views — generate human-readable views without full compilation.
+ * @fails ProjectNotFound | ViewGenerationFailed
  */
 
 import { Command } from "commander";

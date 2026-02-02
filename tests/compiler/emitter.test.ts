@@ -26,6 +26,9 @@ function makeFile(overrides: Partial<GlassFile> & { id: string }): GlassFile {
       advisories: [],
     },
     implementation: 'export function stub() { return true; }',
+    specPath: "/test/" + overrides.id.replace(/\./g, "/") + ".glass",
+    implementationPath: null,
+    separatedFormat: false,
     ...overrides,
   };
 }

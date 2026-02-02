@@ -1,5 +1,6 @@
 /**
  * glass annotate — attach human annotations to generated outlines.
+ * @fails ProjectNotFound | UnitNotFound | AnnotationNotFound | InvalidTarget
  */
 
 import { Command } from "commander";

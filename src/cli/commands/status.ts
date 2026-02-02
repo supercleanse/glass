@@ -1,5 +1,6 @@
 /**
  * glass status — display verification status dashboard.
+ * @fails ProjectNotFound
  */
 
 import { Command } from "commander";

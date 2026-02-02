@@ -5,6 +5,7 @@
  *
  * Conforms to PRD Section 14.2. Configurable via:
  *   { "mcpServers": { "glass": { "command": "glass-mcp-server", "args": ["--project", "./my-project"] } } }
+ * @fails InvalidProjectPath | TransportError
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";

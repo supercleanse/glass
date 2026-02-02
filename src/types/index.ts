@@ -180,8 +180,14 @@ export interface GlassFile {
   intent: Intent;
   /** The Contract layer — WHAT this code guarantees. */
   contract: Contract;
-  /** The raw implementation source code. */
+  /** The raw implementation source code (loaded from paired file or legacy inline). */
   implementation: string;
+  /** Absolute path to the .glass spec file. */
+  specPath: string;
+  /** Absolute path to the implementation file, or null for inline/group units. */
+  implementationPath: string | null;
+  /** True if implementation is loaded from a separate file (new format). */
+  separatedFormat: boolean;
 }
 
 // ============================================================
@@ -327,7 +333,8 @@ export type ParseErrorReason =
   | "FileNotFound"
   | "InvalidFormat"
   | "MissingSection"
-  | "InvalidSectionContent";
+  | "InvalidSectionContent"
+  | "ImplementationFileNotFound";
 
 /** Error returned when parsing a .glass file fails. */
 export interface ParseError {

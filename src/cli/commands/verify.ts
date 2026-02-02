@@ -1,5 +1,6 @@
 /**
  * glass verify — run contract verification on all .glass files.
+ * @fails ProjectNotFound | VerificationFailed
  */
 
 import { Command } from "commander";

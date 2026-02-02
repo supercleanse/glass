@@ -14,6 +14,21 @@ import type { GlassFile, VerificationAssertion } from "../types/index";
 import { getVirtualPath } from "./ts-program-factory";
 
 // ============================================================
+// Source File Resolution
+// ============================================================
+
+/**
+ * Get the source file path for a Glass unit in a ts.Program.
+ * Separated-format files use their real .ts path on disk;
+ * legacy inline files use the virtual path.
+ */
+function getSourceFilePath(file: GlassFile): string {
+  return (file.separatedFormat && file.implementationPath)
+    ? file.implementationPath
+    : getVirtualPath(file.id);
+}
+
+// ============================================================
 // AST Traversal Utilities
 // ============================================================
 
@@ -97,7 +112,7 @@ export function verifyGuaranteesWithAST(
 ): VerificationAssertion[] {
   const assertions: VerificationAssertion[] = [];
   const checker = program.getTypeChecker();
-  const sourceFile = program.getSourceFile(getVirtualPath(file.id));
+  const sourceFile = program.getSourceFile(getSourceFilePath(file));
   if (!sourceFile) return assertions;
 
   const exportedFunctions = findExportedFunctions(sourceFile);
@@ -259,7 +274,7 @@ export function verifyRequiresWithAST(
 ): VerificationAssertion[] {
   const assertions: VerificationAssertion[] = [];
   const checker = program.getTypeChecker();
-  const sourceFile = program.getSourceFile(getVirtualPath(file.id));
+  const sourceFile = program.getSourceFile(getSourceFilePath(file));
   if (!sourceFile) return assertions;
 
   const exportedFunctions = findExportedFunctions(sourceFile);
@@ -375,7 +390,7 @@ export function verifyFailureModesWithAST(
   program: ts.Program,
 ): VerificationAssertion[] {
   const assertions: VerificationAssertion[] = [];
-  const sourceFile = program.getSourceFile(getVirtualPath(file.id));
+  const sourceFile = program.getSourceFile(getSourceFilePath(file));
   if (!sourceFile) return assertions;
 
   // Find all Err() calls
@@ -510,7 +525,7 @@ export function verifyInvariantsWithAST(
 ): VerificationAssertion[] {
   const assertions: VerificationAssertion[] = [];
   const checker = program.getTypeChecker();
-  const sourceFile = program.getSourceFile(getVirtualPath(file.id));
+  const sourceFile = program.getSourceFile(getSourceFilePath(file));
   if (!sourceFile) return assertions;
 
   const exportedFunctions = findExportedFunctions(sourceFile);

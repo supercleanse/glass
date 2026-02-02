@@ -107,7 +107,7 @@ Glass operates as a pre-compiler that sits between human intent and deployable c
 ```
 Human intent (conversation / annotation)
     ↓
-AI generates .glass files (intents + contracts + implementation)
+AI generates .glass spec files (intents + contracts) and paired implementation files (.ts/.rs)
     ↓
 Glass Compiler (THE ENFORCEMENT LAYER)
     │  • Parses contracts from .glass files
@@ -142,9 +142,11 @@ Nothing deploys unless both passes succeed.
 
 ## 4. The .glass File Format
 
-Each unit of functionality lives in a single .glass file. This file contains all three layers: intent, contract, and implementation. The Glass toolchain extracts human-readable views automatically.
+Each unit of functionality has a `.glass` spec file containing its intent and contract, paired with a target-language implementation file (`.ts` or `.rs`) with the same basename. The `.glass` file is **spec-only** -- it declares *why* and *what*, while the paired file contains *how*. The Glass toolchain extracts human-readable views automatically.
 
 ### 4.1 File Structure
+
+The `.glass` spec file (e.g., `authenticate_user.glass`):
 
 ```
 === Glass Unit ===
@@ -198,16 +200,14 @@ fails:
 
 advisories:
   - rate_limit_login uses fail-open policy (see unit for details)
-
-=== Implementation ===
-// AI-generated TypeScript implementation
-// ... (actual code here)
 ```
+
+The paired implementation file (`authenticate_user.ts`) contains the AI-generated TypeScript code that satisfies the contract.
 
 ### 4.2 Key Principles
 
-- **Single source of truth:** The .glass file is the only real file. All human-readable documents are generated from it.
-- **AI-authored:** The AI generates every section. Humans review the generated outlines, not the .glass file.
+- **Spec/implementation separation:** The `.glass` file is the spec (intent + contract). The paired `.ts`/`.rs` file is the implementation. This clean separation keeps specs human-readable and implementation in native target-language files.
+- **AI-authored:** The AI generates both spec and implementation files. Humans review the generated outlines, not the code.
 - **Versioned:** Every .glass file has a version. Changes are tracked in the manifest.
 - **Linked:** Every .glass file has an id that links it to its parent intent, its sub-intents, and its siblings.
 
@@ -223,7 +223,7 @@ Glass enforces a strict separation between three layers, each with a distinct pu
 | **Contract** | WHAT does it guarantee? | Structured outline | Auditors, security, architects |
 | **Verification** | DID it pass? | Checklist | Engineers, CI/CD pipelines |
 
-The implementation layer (the actual code) sits beneath all three. It is AI-generated, rarely human-read, and formally verified against the contracts.
+The implementation (the actual code in paired `.ts`/`.rs` files) sits beneath all three. It is AI-generated, rarely human-read, and formally verified against the contracts.
 
 ---
 
@@ -518,7 +518,7 @@ All views are generated as markdown files in the glass-views/ directory. They ar
 
 ### 11.1 Compilation Steps
 
-1. **Parse** — Read all .glass files. Extract intent, contract, and implementation sections.
+1. **Parse** — Read all .glass spec files. Extract intent and contract sections. Locate paired implementation files.
 2. **Link** — Resolve all parent/child intent relationships. Build the intent tree. Verify all references are valid.
 3. **Verify Completeness** — Every implementation has an intent and contract. Every failure mode is handled. Every intent traces to a source.
 4. **Verify Contracts** — Formally prove (where possible) that implementations satisfy their contracts. Inject runtime checks where proof is not possible.
@@ -527,9 +527,10 @@ All views are generated as markdown files in the glass-views/ directory. They ar
 
 ### 11.2 What the Compiler Enforces
 
-- Every implementation unit has an intent and contract.
+- Every `.glass` spec file has both an intent and contract section.
+- Every `.glass` spec file has a paired implementation file (`.ts`/`.rs`).
 - Every contract requirement maps to a verifiable assertion.
-- Every failure mode declared in the contract is handled in the implementation.
+- Every failure mode declared in the contract is handled in the paired implementation.
 - No implementation exists without a parent intent.
 - Contract guarantees are formally checked against the code.
 - Invariants are instrumented as runtime checks where formal proof is not possible.
@@ -666,9 +667,10 @@ Location: .claude/skills/glass/SKILL.md
 
 The skill provides:
   - Full Glass methodology knowledge
-  - .glass file format specification
+  - .glass spec file format specification
   - Contract writing best practices
   - Automatic manifest maintenance
+  - Spec/implementation pairing conventions
   - Integration with the MCP server or CLI
 ```
 
@@ -720,11 +722,12 @@ glass-framework/
 │   │
 │   │  Contains:
 │   │  - Full Glass methodology
-│   │  - .glass file format spec
+│   │  - .glass spec file format
+│   │  - Spec/implementation pairing rules
 │   │  - Contract writing rules
 │   │  - Manifest maintenance rules
 │   │  - Intent hierarchy rules
-│   │  - "Always generate .glass files"
+│   │  - "Always generate .glass spec + paired .ts files"
 │   │  - "Always maintain the manifest"
 │   │  - "Never create implementation without a contract"
 │   │
@@ -745,7 +748,7 @@ glass-framework/
 └── glass-views/                  # Views generated by Claude per CLAUDE.md
 ```
 
-During this phase, the CLAUDE.md is the authority. It can't prove correctness, but it ensures the project follows Glass conventions from day one. Every .glass file has an intent. Every unit has a contract. The manifest tracks origins. The structure is right even if the enforcement is manual.
+During this phase, the CLAUDE.md is the authority. It can't prove correctness, but it ensures the project follows Glass conventions from day one. Every `.glass` spec file has an intent and a contract. Every spec has a paired implementation file. The manifest tracks origins. The structure is right even if the enforcement is manual.
 
 ### 15.4 Phase 2: Self-Hosting (The Ignition)
 
@@ -791,7 +794,7 @@ Workflow during Bootstrap:
 3. CLAUDE.md says: "Before implementing, encode this plan
    as a Glass intent in the manifest and create the .glass
    file with contract"
-4. Claude writes the intent, contract, then implementation
+4. Claude writes the .glass spec (intent + contract), then the paired implementation file
 5. The plan doesn't evaporate — it becomes a permanent,
    structured intent with a formal contract
 ```
@@ -858,14 +861,14 @@ project-root/
 ├── glass.config.json            # Project configuration
 ├── src/
 │   ├── auth/
-│   │   ├── authenticate_user.glass
-│   │   ├── validate_credentials.glass
-│   │   ├── manage_session.glass
-│   │   ├── sanitize_input.glass
-│   │   ├── rate_limit_login.glass
-│   │   └── log_auth_attempt.glass
+│   │   ├── authenticate_user.glass + authenticate_user.ts
+│   │   ├── validate_credentials.glass + validate_credentials.ts
+│   │   ├── manage_session.glass + manage_session.ts
+│   │   ├── sanitize_input.glass + sanitize_input.ts
+│   │   ├── rate_limit_login.glass + rate_limit_login.ts
+│   │   └── log_auth_attempt.glass + log_auth_attempt.ts
 │   └── orders/
-│       ├── retrieve_orders.glass
+│       ├── retrieve_orders.glass + retrieve_orders.ts
 │       └── ...
 ├── glass-views/                  # Auto-generated, never hand-edit
 │   ├── master-intent-outline.md
@@ -892,7 +895,7 @@ project-root/
 
 > **What Gets Committed to Git**
 >
-> **Commit:** manifest.glass, glass.config.json, src/*.glass, annotations/
+> **Commit:** manifest.glass, glass.config.json, src/*.glass, src/*.ts (paired implementations), annotations/
 >
 > **Optionally commit:** glass-views/ (useful for review, but can be regenerated)
 >
@@ -915,7 +918,7 @@ AI: Generates manifest.glass with:
   - 3 AI-generated intents (sanitize, rate limit, audit log)
   - All AI intents auto-approved under security/audit policy
 
-AI: Generates 6 .glass files in src/auth/
+AI: Generates 6 .glass spec files + 6 paired .ts files in src/auth/
 AI: Runs glass compile
 AI: All 6 units PROVEN
 AI: 1 advisory (rate limiter fail-open policy)
@@ -969,7 +972,7 @@ cd dist && npm install && wrangler deploy
 
 - Comprehensive CLAUDE.md proto-compiler
 - Project structure following Glass conventions from day one
-- All source files as .glass files (convention-enforced, not compiler-enforced)
+- All source units as .glass spec files paired with .ts implementation files (convention-enforced, not compiler-enforced)
 - Manifest maintained manually by Claude Code per CLAUDE.md rules
 - Written in TypeScript
 

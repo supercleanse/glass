@@ -146,7 +146,8 @@ Follow these rules for all Glass source files:
 
 ### Always
 
-- Generate `.glass` files with all three sections: Intent, Contract, Implementation
+- Generate `.glass` files with both sections: Intent and Contract (spec-only)
+- Ensure every `.glass` file has a paired implementation file (`.ts` or `.rs`) with the same basename
 - Maintain the `manifest.glass` — track every requirement origin
 - Write contracts for every unit — requires, guarantees, invariants, fails
 - Link every intent to its source (PRD, conversation, or AI-generated)
@@ -156,14 +157,16 @@ Follow these rules for all Glass source files:
 
 ### Never
 
-- Create implementation without a contract
-- Create a contract without an intent
+- Create an implementation file (`.ts`/`.rs`) without a paired `.glass` spec file
+- Create a `.glass` spec without both Intent and Contract sections
 - Leave failure modes unhandled
 - Expose sensitive data in outputs or logs
 - Modify source .glass files during compilation
 - Skip the verification step
 
 ### .glass File Format
+
+`.glass` files are **spec-only** -- they contain Intent and Contract sections but no implementation code. Implementation lives in a paired target-language file (`.ts` or `.rs`) with the same basename. For example, `parser.glass` is paired with `parser.ts`.
 
 ```
 === Glass Unit ===
@@ -176,10 +179,10 @@ purpose: <plain English description of why this exists>
 source: <prd | conversation/<id> | ai-generated>
 parent: <parent intent id | null>
 stakeholder: <user | product | engineering | security>
-
-sub-intents:
+subIntents:
   - <child.intent.id>
   - <child.intent.id> (ai-generated, <reason>)
+approvalStatus: <approved | pending | auto-approved>
 
 === Contract ===
 requires:
@@ -200,10 +203,9 @@ fails:
 
 advisories:
   - <decision flagged for human review>
-
-=== Implementation ===
-// TypeScript implementation here
 ```
+
+> **Note:** The parser supports both the current spec-only format and the legacy 4-section format (with `=== Implementation ===`) for backward compatibility.
 
 ### Intent Hierarchy
 
@@ -245,7 +247,7 @@ Every contract must have:
 
 ### Naming
 
-- Files: `kebab-case.ts` or `kebab-case.glass`
+- Files: `kebab-case.glass` (spec) paired with `kebab-case.ts` (implementation)
 - Classes: `PascalCase`
 - Functions/methods: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`

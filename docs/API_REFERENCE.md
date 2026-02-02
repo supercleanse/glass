@@ -134,6 +134,8 @@ glass eject [options]
 
 ## .glass File Format
 
+`.glass` files are **spec-only** -- they contain the Intent and Contract sections. Implementation lives in a paired target-language file (`.ts` or `.rs`) with the same basename. For example, `parser.glass` is paired with `parser.ts`.
+
 ```
 === Glass Unit ===
 id: <dotted.identifier>
@@ -166,10 +168,9 @@ fails:
   <ErrorType>: <handling strategy>
 advisories:
   - <decision for human review>
-
-=== Implementation ===
-<code>
 ```
+
+> **Note:** The parser supports both the current spec-only format and the legacy 4-section format (with `=== Implementation ===`) for backward compatibility.
 
 ## glass.config.json
 

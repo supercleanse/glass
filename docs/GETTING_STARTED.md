@@ -27,9 +27,9 @@ my-app/
   tests/                  # Test files
 ```
 
-### 2. Create a .glass file
+### 2. Create a .glass spec file and its paired implementation
 
-Create `src/glass/hello.glass`:
+Create `src/glass/hello.glass` (the spec):
 
 ```
 === Glass Unit ===
@@ -59,8 +59,11 @@ invariants:
   - "Input name is not modified"
 fails: []
 advisories: []
+```
 
-=== Implementation ===
+Create `src/glass/hello.ts` (the paired implementation):
+
+```typescript
 export function hello(name: string): string {
   if (!name || name.trim().length === 0) {
     return "Hello, World!";
@@ -68,6 +71,8 @@ export function hello(name: string): string {
   return "Hello, " + name + "!";
 }
 ```
+
+`.glass` files are spec-only (Intent + Contract). Implementation lives in a paired `.ts` file with the same basename.
 
 ### 3. Verify
 

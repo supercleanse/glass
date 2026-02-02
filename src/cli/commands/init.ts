@@ -1,5 +1,6 @@
 /**
  * glass init — initialize a new Glass project.
+ * @fails DirectoryExists
  */
 
 import { Command } from "commander";
