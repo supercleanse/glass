@@ -10,11 +10,11 @@
 ## INSTRUMENTED
 
 - [+] "Compiler subsystem namespace is established" on_failure: []
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "All compiler units are children of this intent"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "Compiler subsystem namespace is established" on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: "All compiler units are children of this intent" — Invariant will be checked at runtime
+- Runtime check needed: "Compiler subsystem namespace is established" on_failure: [] — Guarantee requires runtime verification
+- Runtime check needed: "All compiler units are children of this intent" — Invariant requires runtime verification

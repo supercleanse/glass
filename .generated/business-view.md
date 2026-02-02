@@ -24,12 +24,13 @@
     - **Provide shared utilities for CLI commands including .glass file discovery and project loading** _(AI-generated)_
   - **Group intent for the Glass compiler pipeline — parse, link, verify, and emit** _(AI-generated)_
     - **"Manage human annotations on Glass units for AI-human collaboration"** _(PRD)_
+    - **Provide AST-based contract verification using the TypeScript Compiler API for PROVEN-level assertions** _(AI-generated)_
     - **Output clean standard TypeScript from verified .glass files with dependency resolution and atomic writes** _(AI-generated)_
     - **Orchestrate the full Glass compilation pipeline (parse, link, verify, emit)** _(AI-generated)_
     - **Build and validate the intent tree from parsed .glass files, resolving parent-child relationships** _(AI-generated)_
     - **Parse .glass files into structured GlassFile objects, extracting the three layers (Intent, Contract, Implementation)** _(AI-generated)_
     - **Create TypeScript Program instances from .glass implementations for AST-based verification** _(AI-generated)_
-    - **Verify that implementations satisfy their contracts through static analysis and pattern matching** _(AI-generated)_
+    - **Verify that implementations satisfy their contracts through Phase 1 pattern matching and Phase 2 AST-based analysis** _(AI-generated)_
     - **Generate human-readable views, checklists, and dashboards from Glass units for stakeholder review** _(PRD)_
   - **Export the complete Glass public API as a single entry point** _(PRD)_
   - **Group intent for the Glass MCP server — expose Glass tools via Model Context Protocol** _(AI-generated)_

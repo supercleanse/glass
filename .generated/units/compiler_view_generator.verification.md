@@ -10,52 +10,48 @@
 ## INSTRUMENTED
 
 - [+] files is a non-empty array of valid GlassFile objects
-  - Precondition will be checked at runtime
-- [+] tree is a valid IntentTree with all references resolved
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] results contains a VerificationResult for each file
-  - Precondition will be checked at runtime
+  - Parameter referenced but type match not confirmable
 - [+] outputDir is a valid writable path
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Generates per-unit views: intent outline, contract outline, verification checklist
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Generates aggregate views: business view, security view, verification dashboard
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Generates master documents: master intent outline, master contract outline
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] All views are valid markdown with auto-generated header
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Returns array of all generated file paths
-  - Success guarantee will be checked at runtime
-- [+] Returns ViewGeneratorError with reason and message
-  - Failure guarantee will be checked at runtime
-- [+] Source .glass files are never modified
-  - Invariant will be checked at runtime
-- [+] View generation is deterministic
-  - Invariant will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Generated views reflect current state of inputs
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: InvalidInput
-  - Error type 'InvalidInput' is referenced but handler completeness deferred to runtime
+  - Error 'InvalidInput' referenced; try/catch present
 
 ## PROVEN
 
+- [+] tree is a valid IntentTree with all references resolved
+  - Parameter 'tree' has type 'IntentTree' in generateBusinessView()
+- [+] Returns ViewGeneratorError with reason and message
+  - Failure return type contains 'ViewGeneratorError'
+- [+] Source .glass files are never modified
+  - 'files' is not mutated (no assignment/mutation patterns found)
+- [+] View generation is deterministic
+  - No non-deterministic calls detected
 - [+] Failure mode handled: WriteError
-  - Error type 'WriteError' is caught and handled with appropriate response
+  - Error 'WriteError' found in Err() call via AST
 
 ## Advisories
 
-- Runtime check needed: files is a non-empty array of valid GlassFile objects — Precondition will be checked at runtime
-- Runtime check needed: tree is a valid IntentTree with all references resolved — Precondition will be checked at runtime
-- Runtime check needed: results contains a VerificationResult for each file — Precondition will be checked at runtime
-- Runtime check needed: outputDir is a valid writable path — Precondition will be checked at runtime
-- Runtime check needed: Generates per-unit views: intent outline, contract outline, verification checklist — Success guarantee will be checked at runtime
-- Runtime check needed: Generates aggregate views: business view, security view, verification dashboard — Success guarantee will be checked at runtime
-- Runtime check needed: Generates master documents: master intent outline, master contract outline — Success guarantee will be checked at runtime
-- Runtime check needed: All views are valid markdown with auto-generated header — Success guarantee will be checked at runtime
-- Runtime check needed: Returns array of all generated file paths — Success guarantee will be checked at runtime
-- Runtime check needed: Returns ViewGeneratorError with reason and message — Failure guarantee will be checked at runtime
-- Runtime check needed: Source .glass files are never modified — Invariant will be checked at runtime
-- Runtime check needed: View generation is deterministic — Invariant will be checked at runtime
-- Runtime check needed: Generated views reflect current state of inputs — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: InvalidInput — Error type 'InvalidInput' is referenced but handler completeness deferred to runtime
+- Runtime check needed: files is a non-empty array of valid GlassFile objects — Semantic precondition: runtime verification required
+- Runtime check needed: results contains a VerificationResult for each file — Parameter referenced but type match not confirmable
+- Runtime check needed: outputDir is a valid writable path — Semantic precondition: runtime verification required
+- Runtime check needed: Generates per-unit views: intent outline, contract outline, verification checklist — Guarantee requires runtime verification
+- Runtime check needed: Generates aggregate views: business view, security view, verification dashboard — Guarantee requires runtime verification
+- Runtime check needed: Generates master documents: master intent outline, master contract outline — Guarantee requires runtime verification
+- Runtime check needed: All views are valid markdown with auto-generated header — Guarantee requires runtime verification
+- Runtime check needed: Returns array of all generated file paths — Guarantee requires runtime verification
+- Runtime check needed: Generated views reflect current state of inputs — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: InvalidInput — Error 'InvalidInput' referenced; try/catch present

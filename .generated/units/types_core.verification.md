@@ -10,32 +10,32 @@
 ## INSTRUMENTED
 
 - [+] "TypeScript strict mode is enabled"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "All types compile without errors under strict mode"
-  - Success guarantee will be checked at runtime
-- [+] "Result<T,E> provides Ok and Err constructors with type narrowing"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "mapResult, flatMapResult, and collectResults are pure functions"
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] "All PRD domain concepts have corresponding type definitions"
-  - Success guarantee will be checked at runtime
-- [+] "GlassFile type represents all three .glass sections"
-  - Success guarantee will be checked at runtime
-- [+] "Contract type includes requires, guarantees, invariants, fails, and advisories" on_failure: []
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Types are purely declarative with no runtime side effects"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] "Result discriminated union uses 'ok' boolean for type narrowing" fails: []
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
+
+## PROVEN
+
+- [+] "Result<T,E> provides Ok and Err constructors with type narrowing"
+  - Exports found: Result, Ok, Err
+- [+] "GlassFile type represents all three .glass sections"
+  - Exports found: GlassFile
+- [+] "Contract type includes requires, guarantees, invariants, fails, and advisories" on_failure: []
+  - Exports found: Contract
 
 ## Advisories
 
-- Runtime check needed: "TypeScript strict mode is enabled" — Precondition will be checked at runtime
-- Runtime check needed: "All types compile without errors under strict mode" — Success guarantee will be checked at runtime
-- Runtime check needed: "Result<T,E> provides Ok and Err constructors with type narrowing" — Success guarantee will be checked at runtime
-- Runtime check needed: "mapResult, flatMapResult, and collectResults are pure functions" — Success guarantee will be checked at runtime
-- Runtime check needed: "All PRD domain concepts have corresponding type definitions" — Success guarantee will be checked at runtime
-- Runtime check needed: "GlassFile type represents all three .glass sections" — Success guarantee will be checked at runtime
-- Runtime check needed: "Contract type includes requires, guarantees, invariants, fails, and advisories" on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: "Types are purely declarative with no runtime side effects" — Invariant will be checked at runtime
-- Runtime check needed: "Result discriminated union uses 'ok' boolean for type narrowing" fails: [] — Invariant will be checked at runtime
+- Runtime check needed: "TypeScript strict mode is enabled" — Semantic precondition: runtime verification required
+- Runtime check needed: "All types compile without errors under strict mode" — Guarantee requires runtime verification
+- Runtime check needed: "mapResult, flatMapResult, and collectResults are pure functions" — Referenced identifiers found in exports
+- Runtime check needed: "All PRD domain concepts have corresponding type definitions" — Guarantee requires runtime verification
+- Runtime check needed: "Types are purely declarative with no runtime side effects" — Invariant requires runtime verification
+- Runtime check needed: "Result discriminated union uses 'ok' boolean for type narrowing" fails: [] — Invariant requires runtime verification

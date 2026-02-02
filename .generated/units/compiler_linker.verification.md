@@ -7,44 +7,39 @@
 
 **Assertions:** 12/12 passed
 
-## INSTRUMENTED
+## PROVEN
 
 - [+] "files is an array of valid GlassFile objects"
-  - Precondition will be checked at runtime
-- [+] "each file has a unique id"
-  - Precondition will be checked at runtime
+  - Parameter 'files' has type 'GlassFile[]' in linkIntentTree()
 - [+] "Returns IntentTree with all relationships resolved"
-  - Success guarantee will be checked at runtime
-- [+] "No circular dependencies exist"
-  - Success guarantee will be checked at runtime
-- [+] "All parent references point to existing files"
-  - Success guarantee will be checked at runtime
-- [+] "All sub-intent references point to existing files"
-  - Success guarantee will be checked at runtime
+  - Return type 'Result<IntentTree, LinkError>' contains 'IntentTree'
 - [+] "Returns LinkError with reason and unitId"
-  - Failure guarantee will be checked at runtime
+  - Failure return type contains 'LinkError'
 - [+] "Input files are never modified"
-  - Invariant will be checked at runtime
+  - 'files' is not mutated (no assignment/mutation patterns found)
 - [+] "Linker is deterministic"
-  - Invariant will be checked at runtime
+  - No non-deterministic calls detected
 - [+] Failure mode handled: DanglingReference
-  - Error type 'DanglingReference' is referenced but handler completeness deferred to runtime
+  - Error 'DanglingReference' found in Err() call via AST
 - [+] Failure mode handled: CircularDependency
-  - Error type 'CircularDependency' is referenced but handler completeness deferred to runtime
+  - Error 'CircularDependency' found in Err() call via AST
 - [+] Failure mode handled: DuplicateId
-  - Error type 'DuplicateId' is referenced but handler completeness deferred to runtime
+  - Error 'DuplicateId' found in Err() call via AST
+
+## INSTRUMENTED
+
+- [+] "each file has a unique id"
+  - Semantic precondition: runtime verification required
+- [+] "No circular dependencies exist"
+  - Guarantee requires runtime verification
+- [+] "All parent references point to existing files"
+  - Guarantee requires runtime verification
+- [+] "All sub-intent references point to existing files"
+  - Guarantee requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "files is an array of valid GlassFile objects" — Precondition will be checked at runtime
-- Runtime check needed: "each file has a unique id" — Precondition will be checked at runtime
-- Runtime check needed: "Returns IntentTree with all relationships resolved" — Success guarantee will be checked at runtime
-- Runtime check needed: "No circular dependencies exist" — Success guarantee will be checked at runtime
-- Runtime check needed: "All parent references point to existing files" — Success guarantee will be checked at runtime
-- Runtime check needed: "All sub-intent references point to existing files" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns LinkError with reason and unitId" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Input files are never modified" — Invariant will be checked at runtime
-- Runtime check needed: "Linker is deterministic" — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: DanglingReference — Error type 'DanglingReference' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: CircularDependency — Error type 'CircularDependency' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: DuplicateId — Error type 'DuplicateId' is referenced but handler completeness deferred to runtime
+- Runtime check needed: "each file has a unique id" — Semantic precondition: runtime verification required
+- Runtime check needed: "No circular dependencies exist" — Guarantee requires runtime verification
+- Runtime check needed: "All parent references point to existing files" — Guarantee requires runtime verification
+- Runtime check needed: "All sub-intent references point to existing files" — Guarantee requires runtime verification

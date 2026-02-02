@@ -127,6 +127,12 @@
 
 **Failure Modes:** UnitNotFound, AnnotationNotFound, InvalidTarget, WriteError
 
+## compiler.ast_verifier
+
+**Requires:** "file is a valid GlassFile with contract and implementation"; "program is a valid ts.Program with type checker"
+
+**Guarantees:** "verifyGuaranteesWithAST proves return types via type checker"; "verifyRequiresWithAST proves parameter types via type checker"; "verifyFailureModesWithAST finds Err() calls, throw statements, catch clauses via AST"; "verifyInvariantsWithAST detects mutation, sensitive data exposure, determinism, statelessness"
+
 ## compiler.emitter
 
 **Requires:** "files are verified GlassFile objects (all contracts satisfied)"; "verificationResults contains PROVEN status for each file"; "outputDir is a valid writable path"
@@ -175,7 +181,7 @@
 
 **Requires:** "file is a valid GlassFile with contract and implementation"
 
-**Guarantees:** "Returns VerificationResult with all assertions checked"; "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)"; "Overall status is PROVEN if all assertions pass"
+**Guarantees:** "Returns VerificationResult with all assertions checked"; "Each assertion has a verification level (PROVEN, INSTRUMENTED, TESTED, UNVERIFIABLE)"; "Overall status is PROVEN if all assertions pass"; "verifyAll uses batch ts.Program for performance"; "Uses Phase 2 AST verification when ts.Program available, falls back to Phase 1"
 
 ## compiler.view_generator
 

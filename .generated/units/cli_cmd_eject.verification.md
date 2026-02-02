@@ -10,44 +10,45 @@
 ## INSTRUMENTED
 
 - [+] dist/ directory exists and contains compiled output
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] Output directory is writable
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] Copies all compiled TypeScript from dist/ to output directory
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Copies tsconfig.json and package.json
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Creates EJECTED.md documenting the ejection
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Ejected project is a standalone TypeScript project
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Error message if dist/ is empty or output exists
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
-- [+] Source .glass files are never modified
-  - Invariant will be checked at runtime
-- [+] dist/ directory is never modified (read-only copy)
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Failure mode handled: DistNotFound
-  - Error type 'DistNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'DistNotFound' referenced in implementation
 - [+] Failure mode handled: OutputExists
-  - Error type 'OutputExists' is referenced but handler completeness deferred to runtime
+  - Error 'OutputExists' referenced in implementation
+
+## PROVEN
+
+- [+] Source .glass files are never modified
+  - 'files' is not mutated (no assignment/mutation patterns found)
+- [+] dist/ directory is never modified (read-only copy)
+  - 'directory' is not mutated (no assignment/mutation patterns found)
 
 ## Advisories
 
-- Runtime check needed: dist/ directory exists and contains compiled output — Precondition will be checked at runtime
-- Runtime check needed: Output directory is writable — Precondition will be checked at runtime
-- Runtime check needed: Copies all compiled TypeScript from dist/ to output directory — Success guarantee will be checked at runtime
-- Runtime check needed: Copies tsconfig.json and package.json — Success guarantee will be checked at runtime
-- Runtime check needed: Creates EJECTED.md documenting the ejection — Success guarantee will be checked at runtime
-- Runtime check needed: Ejected project is a standalone TypeScript project — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Error message if dist/ is empty or output exists — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Source .glass files are never modified — Invariant will be checked at runtime
-- Runtime check needed: dist/ directory is never modified (read-only copy) — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: DistNotFound — Error type 'DistNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: OutputExists — Error type 'OutputExists' is referenced but handler completeness deferred to runtime
+- Runtime check needed: dist/ directory exists and contains compiled output — Precondition requires runtime verification
+- Runtime check needed: Output directory is writable — Precondition requires runtime verification
+- Runtime check needed: Copies all compiled TypeScript from dist/ to output directory — Guarantee requires runtime verification
+- Runtime check needed: Copies tsconfig.json and package.json — Guarantee requires runtime verification
+- Runtime check needed: Creates EJECTED.md documenting the ejection — Guarantee requires runtime verification
+- Runtime check needed: Ejected project is a standalone TypeScript project — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Error message if dist/ is empty or output exists — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Failure mode handled: DistNotFound — Error 'DistNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: OutputExists — Error 'OutputExists' referenced in implementation

@@ -10,38 +10,38 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] unitId argument identifies an existing Glass unit
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] Displays ancestry chain from root to target unit
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Shows purpose, source, and approval for each ancestor
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Lists direct children of the target unit
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Reports if unit not found
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Trace display is read-only
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 - [+] Failure mode handled: UnitNotFound
-  - Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'UnitNotFound' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: unitId argument identifies an existing Glass unit — Precondition will be checked at runtime
-- Runtime check needed: Displays ancestry chain from root to target unit — Success guarantee will be checked at runtime
-- Runtime check needed: Shows purpose, source, and approval for each ancestor — Success guarantee will be checked at runtime
-- Runtime check needed: Lists direct children of the target unit — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Reports if unit not found — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Trace display is read-only — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: UnitNotFound — Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: unitId argument identifies an existing Glass unit — Precondition requires runtime verification
+- Runtime check needed: Displays ancestry chain from root to target unit — Guarantee requires runtime verification
+- Runtime check needed: Shows purpose, source, and approval for each ancestor — Guarantee requires runtime verification
+- Runtime check needed: Lists direct children of the target unit — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Reports if unit not found — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Trace display is read-only — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: UnitNotFound — Error 'UnitNotFound' referenced in implementation

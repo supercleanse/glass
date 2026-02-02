@@ -10,44 +10,45 @@
 ## INSTRUMENTED
 
 - [+] Exports GlassCompiler class
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports parser functions: parseGlassFile, parseGlassContent
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports linker functions: linkIntentTree, getAncestors, getChildren
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports verifier functions: verifyContract, verifyAll
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports emitter function: emitTypeScript
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports annotation functions
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports manifest functions
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports view generator: generateAllViews
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports all type definitions from types/index
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exports Result utilities: Ok, Err, mapResult, flatMapResult, collectResults
-  - Success guarantee will be checked at runtime
-- [+] Exports VERSION constant on_failure: []
-  - Success guarantee will be checked at runtime
-- [+] Entry point is a pure re-export module with no logic
-  - Invariant will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] VERSION matches package.json version
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
+
+## PROVEN
+
+- [+] Exports VERSION constant on_failure: []
+  - Exports found: VERSION
+- [+] Entry point is a pure re-export module with no logic
+  - Module is pure re-exports
 
 ## Advisories
 
-- Runtime check needed: Exports GlassCompiler class — Success guarantee will be checked at runtime
-- Runtime check needed: Exports parser functions: parseGlassFile, parseGlassContent — Success guarantee will be checked at runtime
-- Runtime check needed: Exports linker functions: linkIntentTree, getAncestors, getChildren — Success guarantee will be checked at runtime
-- Runtime check needed: Exports verifier functions: verifyContract, verifyAll — Success guarantee will be checked at runtime
-- Runtime check needed: Exports emitter function: emitTypeScript — Success guarantee will be checked at runtime
-- Runtime check needed: Exports annotation functions — Success guarantee will be checked at runtime
-- Runtime check needed: Exports manifest functions — Success guarantee will be checked at runtime
-- Runtime check needed: Exports view generator: generateAllViews — Success guarantee will be checked at runtime
-- Runtime check needed: Exports all type definitions from types/index — Success guarantee will be checked at runtime
-- Runtime check needed: Exports Result utilities: Ok, Err, mapResult, flatMapResult, collectResults — Success guarantee will be checked at runtime
-- Runtime check needed: Exports VERSION constant on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: Entry point is a pure re-export module with no logic — Invariant will be checked at runtime
-- Runtime check needed: VERSION matches package.json version — Invariant will be checked at runtime
+- Runtime check needed: Exports GlassCompiler class — Guarantee requires runtime verification
+- Runtime check needed: Exports parser functions: parseGlassFile, parseGlassContent — Guarantee requires runtime verification
+- Runtime check needed: Exports linker functions: linkIntentTree, getAncestors, getChildren — Guarantee requires runtime verification
+- Runtime check needed: Exports verifier functions: verifyContract, verifyAll — Guarantee requires runtime verification
+- Runtime check needed: Exports emitter function: emitTypeScript — Guarantee requires runtime verification
+- Runtime check needed: Exports annotation functions — Guarantee requires runtime verification
+- Runtime check needed: Exports manifest functions — Guarantee requires runtime verification
+- Runtime check needed: Exports view generator: generateAllViews — Guarantee requires runtime verification
+- Runtime check needed: Exports all type definitions from types/index — Guarantee requires runtime verification
+- Runtime check needed: Exports Result utilities: Ok, Err, mapResult, flatMapResult, collectResults — Guarantee requires runtime verification
+- Runtime check needed: VERSION matches package.json version — Invariant requires runtime verification

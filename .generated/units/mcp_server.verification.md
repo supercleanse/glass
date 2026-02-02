@@ -10,35 +10,35 @@
 ## INSTRUMENTED
 
 - [+] process.argv contains --project <dir> argument
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] stdio transport is available (stdin/stdout)
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] McpServer created with name glass-mcp-server
-  - Side-effect guarantee will be checked at runtime: McpServer created with name glass-mcp-server
+  - Guarantee requires runtime verification
 - [+] All tools registered via registerTools
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Server connected to stdio transport
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Error written to stderr
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Process exits with code 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] One server per process
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: InvalidProjectPath
-  - Error type 'InvalidProjectPath' is referenced but handler completeness deferred to runtime
+  - Error 'InvalidProjectPath' referenced in implementation
 - [+] Failure mode handled: TransportError
-  - Error type 'TransportError' is referenced but handler completeness deferred to runtime
+  - Error 'TransportError' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: process.argv contains --project <dir> argument — Precondition will be checked at runtime
-- Runtime check needed: stdio transport is available (stdin/stdout) — Precondition will be checked at runtime
-- Runtime check needed: McpServer created with name glass-mcp-server — Side-effect guarantee will be checked at runtime: McpServer created with name glass-mcp-server
-- Runtime check needed: All tools registered via registerTools — Success guarantee will be checked at runtime
-- Runtime check needed: Server connected to stdio transport — Success guarantee will be checked at runtime
-- Runtime check needed: Error written to stderr — Failure guarantee will be checked at runtime
-- Runtime check needed: Process exits with code 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: One server per process — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: InvalidProjectPath — Error type 'InvalidProjectPath' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: TransportError — Error type 'TransportError' is referenced but handler completeness deferred to runtime
+- Runtime check needed: process.argv contains --project <dir> argument — Precondition requires runtime verification
+- Runtime check needed: stdio transport is available (stdin/stdout) — Precondition requires runtime verification
+- Runtime check needed: McpServer created with name glass-mcp-server — Guarantee requires runtime verification
+- Runtime check needed: All tools registered via registerTools — Guarantee requires runtime verification
+- Runtime check needed: Server connected to stdio transport — Guarantee requires runtime verification
+- Runtime check needed: Error written to stderr — Failure guarantee requires runtime verification
+- Runtime check needed: Process exits with code 1 — Failure guarantee requires runtime verification
+- Runtime check needed: One server per process — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: InvalidProjectPath — Error 'InvalidProjectPath' referenced in implementation
+- Runtime check needed: Failure mode handled: TransportError — Error 'TransportError' referenced in implementation

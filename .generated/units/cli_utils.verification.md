@@ -10,29 +10,30 @@
 ## INSTRUMENTED
 
 - [+] dir is a valid directory path
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] discoverGlassFiles returns all .glass files recursively under dir
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] discoverGlassFiles excludes node_modules, .generated, and manifest.glass
-  - Success guarantee will be checked at runtime
-- [+] loadProject returns ProjectContext with parsed files, linked tree, and verification results
-  - Success guarantee will be checked at runtime
+  - Referenced identifiers found in exports
 - [+] discoverGlassFiles returns empty array if directory does not exist
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] loadProject returns Err with descriptive error message
-  - Failure guarantee will be checked at runtime
-- [+] Discovery never modifies files
-  - Invariant will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] loadProject runs the full pipeline: parse, link, verify
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
+
+## PROVEN
+
+- [+] loadProject returns ProjectContext with parsed files, linked tree, and verification results
+  - Return type 'Result<ProjectContext, string>' contains 'ProjectContext'
+- [+] Discovery never modifies files
+  - 'discovery' is not mutated (no assignment/mutation patterns found)
 
 ## Advisories
 
-- Runtime check needed: dir is a valid directory path — Precondition will be checked at runtime
-- Runtime check needed: discoverGlassFiles returns all .glass files recursively under dir — Success guarantee will be checked at runtime
-- Runtime check needed: discoverGlassFiles excludes node_modules, .generated, and manifest.glass — Success guarantee will be checked at runtime
-- Runtime check needed: loadProject returns ProjectContext with parsed files, linked tree, and verification results — Success guarantee will be checked at runtime
-- Runtime check needed: discoverGlassFiles returns empty array if directory does not exist — Failure guarantee will be checked at runtime
-- Runtime check needed: loadProject returns Err with descriptive error message — Failure guarantee will be checked at runtime
-- Runtime check needed: Discovery never modifies files — Invariant will be checked at runtime
-- Runtime check needed: loadProject runs the full pipeline: parse, link, verify — Invariant will be checked at runtime
+- Runtime check needed: dir is a valid directory path — Semantic precondition: runtime verification required
+- Runtime check needed: discoverGlassFiles returns all .glass files recursively under dir — Referenced identifiers found in exports
+- Runtime check needed: discoverGlassFiles excludes node_modules, .generated, and manifest.glass — Referenced identifiers found in exports
+- Runtime check needed: discoverGlassFiles returns empty array if directory does not exist — Failure guarantee requires runtime verification
+- Runtime check needed: loadProject returns Err with descriptive error message — Failure guarantee requires runtime verification
+- Runtime check needed: loadProject runs the full pipeline: parse, link, verify — Invariant requires runtime verification

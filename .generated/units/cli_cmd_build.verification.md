@@ -10,30 +10,30 @@
 ## INSTRUMENTED
 
 - [+] Source directory contains .glass files
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] Runs GlassCompiler.compile() pipeline
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Displays diagnostic messages with severity colors
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Displays error diagnostics
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Delegates to GlassCompiler class
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: CompilationFailed
-  - Error type 'CompilationFailed' is referenced but handler completeness deferred to runtime
+  - Error 'CompilationFailed' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: Source directory contains .glass files — Precondition will be checked at runtime
-- Runtime check needed: Runs GlassCompiler.compile() pipeline — Success guarantee will be checked at runtime
-- Runtime check needed: Displays diagnostic messages with severity colors — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Displays error diagnostics — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Delegates to GlassCompiler class — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: CompilationFailed — Error type 'CompilationFailed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Source directory contains .glass files — Precondition requires runtime verification
+- Runtime check needed: Runs GlassCompiler.compile() pipeline — Guarantee requires runtime verification
+- Runtime check needed: Displays diagnostic messages with severity colors — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Displays error diagnostics — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Delegates to GlassCompiler class — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: CompilationFailed — Error 'CompilationFailed' referenced in implementation
 - Uses GlassCompiler stub; glass compile command provides the real pipeline

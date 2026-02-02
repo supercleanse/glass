@@ -10,11 +10,11 @@
 ## INSTRUMENTED
 
 - [+] "Glass framework namespace is established" on_failure: []
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "This is the root intent — no parent exists"
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 
 ## Advisories
 
-- Runtime check needed: "Glass framework namespace is established" on_failure: [] — Success guarantee will be checked at runtime
-- Runtime check needed: "This is the root intent — no parent exists" — Invariant will be checked at runtime
+- Runtime check needed: "Glass framework namespace is established" on_failure: [] — Guarantee requires runtime verification
+- Runtime check needed: "This is the root intent — no parent exists" — Invariant requires runtime verification

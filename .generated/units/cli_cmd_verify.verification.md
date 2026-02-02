@@ -10,32 +10,32 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Displays per-unit verification status with pass/fail counts
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Verbose mode shows individual assertion details
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0 when all units pass
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Displays error details for failing units
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1 when any unit fails verification
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Verification is read-only — no files modified
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 - [+] Failure mode handled: VerificationFailed
-  - Error type 'VerificationFailed' is referenced but handler completeness deferred to runtime
+  - Error 'VerificationFailed' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: Displays per-unit verification status with pass/fail counts — Success guarantee will be checked at runtime
-- Runtime check needed: Verbose mode shows individual assertion details — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 when all units pass — Success guarantee will be checked at runtime
-- Runtime check needed: Displays error details for failing units — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 when any unit fails verification — Failure guarantee will be checked at runtime
-- Runtime check needed: Verification is read-only — no files modified — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: VerificationFailed — Error type 'VerificationFailed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: Displays per-unit verification status with pass/fail counts — Guarantee requires runtime verification
+- Runtime check needed: Verbose mode shows individual assertion details — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 when all units pass — Guarantee requires runtime verification
+- Runtime check needed: Displays error details for failing units — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 when any unit fails verification — Failure guarantee requires runtime verification
+- Runtime check needed: Verification is read-only — no files modified — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: VerificationFailed — Error 'VerificationFailed' referenced in implementation

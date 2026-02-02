@@ -10,32 +10,32 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] Renders ASCII tree showing parent-child relationships
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Each node shows unit ID, purpose, source tag, and approval status
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Depth option limits tree rendering depth
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Error message with details
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Tree display is read-only
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: Renders ASCII tree showing parent-child relationships — Success guarantee will be checked at runtime
-- Runtime check needed: Each node shows unit ID, purpose, source tag, and approval status — Success guarantee will be checked at runtime
-- Runtime check needed: Depth option limits tree rendering depth — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Error message with details — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Tree display is read-only — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: Renders ASCII tree showing parent-child relationships — Guarantee requires runtime verification
+- Runtime check needed: Each node shows unit ID, purpose, source tag, and approval status — Guarantee requires runtime verification
+- Runtime check needed: Depth option limits tree rendering depth — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Error message with details — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Tree display is read-only — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation

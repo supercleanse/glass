@@ -10,46 +10,42 @@
 ## INSTRUMENTED
 
 - [+] "files are verified GlassFile objects (all contracts satisfied)"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "verificationResults contains PROVEN status for each file"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "outputDir is a valid writable path"
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] "Emitted TypeScript compiles with tsc"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "No Glass artifacts in output code"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "Each file has auto-generated header comment"
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "tsconfig.json generated for the output"
-  - Success guarantee will be checked at runtime
-- [+] "Returns EmitterError with reason and details"
-  - Failure guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] "No partial files written on failure"
-  - Failure guarantee will be checked at runtime
-- [+] "Source .glass files are never modified"
-  - Invariant will be checked at runtime
-- [+] "Emission is deterministic"
-  - Invariant will be checked at runtime
-- [+] Failure mode handled: VerificationNotPassed
-  - Error type 'VerificationNotPassed' is referenced but handler completeness deferred to runtime
+  - Failure guarantee requires runtime verification
 
 ## PROVEN
 
+- [+] "Returns EmitterError with reason and details"
+  - Failure return type contains 'EmitterError'
+- [+] "Source .glass files are never modified"
+  - 'files' is not mutated (no assignment/mutation patterns found)
+- [+] "Emission is deterministic"
+  - No non-deterministic calls detected
+- [+] Failure mode handled: VerificationNotPassed
+  - Error 'VerificationNotPassed' found in Err() call via AST
 - [+] Failure mode handled: WriteError
-  - Error type 'WriteError' is caught and handled with appropriate response
+  - Error 'WriteError' found in Err() call via AST
 
 ## Advisories
 
-- Runtime check needed: "files are verified GlassFile objects (all contracts satisfied)" — Precondition will be checked at runtime
-- Runtime check needed: "verificationResults contains PROVEN status for each file" — Precondition will be checked at runtime
-- Runtime check needed: "outputDir is a valid writable path" — Precondition will be checked at runtime
-- Runtime check needed: "Emitted TypeScript compiles with tsc" — Success guarantee will be checked at runtime
-- Runtime check needed: "No Glass artifacts in output code" — Success guarantee will be checked at runtime
-- Runtime check needed: "Each file has auto-generated header comment" — Success guarantee will be checked at runtime
-- Runtime check needed: "tsconfig.json generated for the output" — Success guarantee will be checked at runtime
-- Runtime check needed: "Returns EmitterError with reason and details" — Failure guarantee will be checked at runtime
-- Runtime check needed: "No partial files written on failure" — Failure guarantee will be checked at runtime
-- Runtime check needed: "Source .glass files are never modified" — Invariant will be checked at runtime
-- Runtime check needed: "Emission is deterministic" — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: VerificationNotPassed — Error type 'VerificationNotPassed' is referenced but handler completeness deferred to runtime
+- Runtime check needed: "files are verified GlassFile objects (all contracts satisfied)" — Semantic precondition: runtime verification required
+- Runtime check needed: "verificationResults contains PROVEN status for each file" — Semantic precondition: runtime verification required
+- Runtime check needed: "outputDir is a valid writable path" — Semantic precondition: runtime verification required
+- Runtime check needed: "Emitted TypeScript compiles with tsc" — Guarantee requires runtime verification
+- Runtime check needed: "No Glass artifacts in output code" — Guarantee requires runtime verification
+- Runtime check needed: "Each file has auto-generated header comment" — Guarantee requires runtime verification
+- Runtime check needed: "tsconfig.json generated for the output" — Guarantee requires runtime verification
+- Runtime check needed: "No partial files written on failure" — Failure guarantee requires runtime verification

@@ -1,0 +1,86 @@
+# Glass Verifier Phase 2: TypeScript Compiler API Integration
+
+## Overview
+
+Upgrade the Glass contract verifier (`src/compiler/verifier.ts`) from regex-based pattern matching (Phase 1) to TypeScript Compiler API AST analysis (Phase 2). This will allow the verifier to produce PROVEN-level assertions instead of INSTRUMENTED for most contract checks.
+
+## Current State
+
+The Phase 1 verifier uses `identifierExists()` (regex word boundary), `hasTryCatch()` (string matching), and `catchHandlesErrorType()` (regex patterns) to verify contracts. Out of 279 assertions across 30 Glass units, only 5 achieve PROVEN status; the remaining 274 are INSTRUMENTED ("will be checked at runtime").
+
+## Goal
+
+Replace pattern-matching verification with TypeScript Compiler API analysis so that:
+- Return type guarantees are proven via the type checker
+- Function signature requires are proven via parameter type analysis
+- Error handling (fails) is proven via control flow analysis of catch blocks
+- Invariants about data flow are proven via AST traversal
+- The number of PROVEN assertions increases significantly (target: >50% of assertions)
+
+## Technical Approach
+
+### Phase 2a: TypeScript Program Creation
+
+Create a `ts.Program` from the implementation section of each `.glass` file. This requires:
+1. Writing the implementation to a temporary in-memory source file (or using `ts.createSourceFile` for syntax-only analysis)
+2. Creating a `ts.Program` with the project's `tsconfig.json` compiler options
+3. Getting the `ts.TypeChecker` from the program for semantic analysis
+
+The key challenge: `.glass` files contain raw TypeScript in their Implementation section, but they import from other modules. The verifier needs to resolve these imports against the actual project source.
+
+### Phase 2b: Return Type Verification (Guarantees)
+
+For each success guarantee like "Returns IntentTree with all relationships resolved":
+1. Find the exported function(s) in the AST
+2. Get the return type from the type checker
+3. Check if the return type matches or contains the guaranteed type
+4. For `Result<T, E>` return types, verify both success and failure type parameters
+
+This replaces the current `identifierExists(impl, typeName)` check with actual type-level proof.
+
+### Phase 2c: Parameter Type Verification (Requires)
+
+For each require like "files is an array of valid GlassFile objects":
+1. Find function parameters in the AST
+2. Check parameter types against the require assertion
+3. Verify that the parameter is actually used (not just declared) via reference counting
+
+### Phase 2d: Error Handling Verification (Fails)
+
+For each failure mode like "DanglingReference: Error(LinkError, reason: DanglingReference)":
+1. Find all throw statements and Err() calls in the AST
+2. Extract the error type from each
+3. Verify that every declared failure mode has at least one corresponding throw/Err path
+4. Use control flow analysis to verify catch blocks handle the declared types
+
+### Phase 2e: Invariant Verification
+
+For invariants like "Input files are never modified":
+1. Track parameter references through the AST
+2. Check for mutation patterns (assignment to properties, push/pop/splice calls)
+3. For "never exposed" invariants, check if sensitive identifiers flow to console.log/return/write
+
+### Phase 2f: Update Verification Levels
+
+Update the assertion level assignment logic:
+- PROVEN: Type checker confirms the assertion (return types, parameter types, error types)
+- INSTRUMENTED: AST analysis shows the pattern exists but can't fully prove it (side effects, runtime values)
+- TESTED: Assertion can only be verified through generated tests
+- UNVERIFIABLE: Requires human review (semantic properties like "deterministic")
+
+## Constraints
+
+- Must not break backward compatibility: all currently-passing verifications must still pass
+- Must not require additional npm dependencies beyond `typescript` (already a devDependency)
+- The verifier must remain fast: target <500ms for verifying all 30 Glass units
+- Must work with the existing `.glass` file format (no changes to parser or file format)
+- Must update the corresponding `verifier.glass` file to keep the .glass and .ts in sync
+
+## Success Criteria
+
+- `glass verify --source src/` still shows 30/30 PROVEN with 0 failures
+- The number of PROVEN assertions increases from 5 to >100 (out of 279)
+- The number of INSTRUMENTED assertions decreases correspondingly
+- Self-compilation still succeeds: `glass compile --source src/`
+- Idempotency is preserved
+- Performance stays under 500ms for the full 30-unit verification

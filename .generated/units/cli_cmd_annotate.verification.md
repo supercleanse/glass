@@ -10,44 +10,44 @@
 ## INSTRUMENTED
 
 - [+] Current directory or --source flag points to a valid Glass project
-  - Precondition will be checked at runtime
+  - Semantic precondition: runtime verification required
 - [+] unitId argument identifies an existing Glass unit
-  - Precondition will be checked at runtime
+  - Precondition requires runtime verification
 - [+] With target and note: creates annotation and displays ID
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] With --list flag: displays all annotations for the unit
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] With --resolve flag: marks annotation as resolved
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Exit code is 0
-  - Success guarantee will be checked at runtime
+  - Guarantee requires runtime verification
 - [+] Reports if unit or annotation not found
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Exit code is 1
-  - Failure guarantee will be checked at runtime
+  - Failure guarantee requires runtime verification
 - [+] Annotations are persisted to .annotations/ directory
-  - Invariant will be checked at runtime
+  - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
-  - Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'ProjectNotFound' referenced in implementation
 - [+] Failure mode handled: UnitNotFound
-  - Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'UnitNotFound' referenced in implementation
 - [+] Failure mode handled: AnnotationNotFound
-  - Error type 'AnnotationNotFound' is referenced but handler completeness deferred to runtime
+  - Error 'AnnotationNotFound' referenced in implementation
 - [+] Failure mode handled: InvalidTarget
-  - Error type 'InvalidTarget' is referenced but handler completeness deferred to runtime
+  - Error 'InvalidTarget' referenced in implementation
 
 ## Advisories
 
-- Runtime check needed: Current directory or --source flag points to a valid Glass project — Precondition will be checked at runtime
-- Runtime check needed: unitId argument identifies an existing Glass unit — Precondition will be checked at runtime
-- Runtime check needed: With target and note: creates annotation and displays ID — Success guarantee will be checked at runtime
-- Runtime check needed: With --list flag: displays all annotations for the unit — Success guarantee will be checked at runtime
-- Runtime check needed: With --resolve flag: marks annotation as resolved — Success guarantee will be checked at runtime
-- Runtime check needed: Exit code is 0 — Success guarantee will be checked at runtime
-- Runtime check needed: Reports if unit or annotation not found — Failure guarantee will be checked at runtime
-- Runtime check needed: Exit code is 1 — Failure guarantee will be checked at runtime
-- Runtime check needed: Annotations are persisted to .annotations/ directory — Invariant will be checked at runtime
-- Runtime check needed: Failure mode handled: ProjectNotFound — Error type 'ProjectNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: UnitNotFound — Error type 'UnitNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: AnnotationNotFound — Error type 'AnnotationNotFound' is referenced but handler completeness deferred to runtime
-- Runtime check needed: Failure mode handled: InvalidTarget — Error type 'InvalidTarget' is referenced but handler completeness deferred to runtime
+- Runtime check needed: Current directory or --source flag points to a valid Glass project — Semantic precondition: runtime verification required
+- Runtime check needed: unitId argument identifies an existing Glass unit — Precondition requires runtime verification
+- Runtime check needed: With target and note: creates annotation and displays ID — Guarantee requires runtime verification
+- Runtime check needed: With --list flag: displays all annotations for the unit — Guarantee requires runtime verification
+- Runtime check needed: With --resolve flag: marks annotation as resolved — Guarantee requires runtime verification
+- Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
+- Runtime check needed: Reports if unit or annotation not found — Failure guarantee requires runtime verification
+- Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
+- Runtime check needed: Annotations are persisted to .annotations/ directory — Invariant requires runtime verification
+- Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: UnitNotFound — Error 'UnitNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: AnnotationNotFound — Error 'AnnotationNotFound' referenced in implementation
+- Runtime check needed: Failure mode handled: InvalidTarget — Error 'InvalidTarget' referenced in implementation
