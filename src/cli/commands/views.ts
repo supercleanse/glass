@@ -11,7 +11,7 @@ import { generateAllViews } from "../../compiler/view-generator";
 export const viewsCommand = new Command("views")
   .description("Generate human-readable views and dashboards")
   .option("-s, --source <dir>", "Source directory", "src")
-  .option("-o, --output <dir>", "Output directory", ".generated")
+  .option("-o, --output <dir>", "Output directory", "glass-views")
   .action(async (opts) => {
     console.log(chalk.blue("Glass") + " Generating views...\n");
 

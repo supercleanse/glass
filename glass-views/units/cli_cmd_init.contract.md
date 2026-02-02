@@ -9,7 +9,7 @@
 
 ## Guarantees on Success
 
-- Creates project directory with src/, dist/, .generated/, .annotations/, tests/
+- Creates project directory with src/, dist/, glass-views/, annotations/, tests/
 - Creates manifest.glass with project name and default settings
 - Creates glass.config.json with project configuration
 - Creates .gitignore with standard Glass ignore patterns

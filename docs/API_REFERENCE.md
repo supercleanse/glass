@@ -59,7 +59,7 @@ glass views [options]
 
 **Options:**
 - `-s, --source <dir>` — Source directory (default: `src`)
-- `-o, --output <dir>` — Output directory (default: `.generated`)
+- `-o, --output <dir>` — Output directory (default: `glass-views`)
 
 ### glass status
 
@@ -179,8 +179,8 @@ advisories:
   "language": "typescript",
   "projectName": "my-app",
   "outputDir": "dist",
-  "generatedDir": ".generated",
-  "annotationsDir": ".annotations"
+  "generatedDir": "glass-views",
+  "annotationsDir": "annotations"
 }
 ```
 

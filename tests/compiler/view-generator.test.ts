@@ -260,7 +260,7 @@ describe("View Generator", () => {
       const results = new Map<string, VerificationResult>();
       results.set("test.unit", verifyContract(files[0]));
 
-      const outputDir = path.join(tempDir, ".generated");
+      const outputDir = path.join(tempDir, "glass-views");
       const viewResult = generateAllViews(files, treeResult.value, results, outputDir);
       expect(viewResult.ok).toBe(true);
       if (!viewResult.ok) return;

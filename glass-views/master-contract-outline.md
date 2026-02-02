@@ -41,7 +41,7 @@
 
 **Requires:** Current directory or --source flag points to a valid Glass project; Output directory is writable
 
-**Guarantees:** All contracts verified before emission; Views generated in .generated/ directory; TypeScript emitted to output directory; Compilation duration reported; Exit code is 0
+**Guarantees:** All contracts verified before emission; Views generated in glass-views/ directory; TypeScript emitted to output directory; Compilation duration reported; Exit code is 0
 
 **Failure Modes:** ProjectNotFound, VerificationFailed, EmitFailed
 
@@ -57,7 +57,7 @@
 
 **Requires:** name argument is a non-empty string
 
-**Guarantees:** Creates project directory with src/, dist/, .generated/, .annotations/, tests/; Creates manifest.glass with project name and default settings; Creates glass.config.json with project configuration; Creates .gitignore with standard Glass ignore patterns; Exit code is 0
+**Guarantees:** Creates project directory with src/, dist/, glass-views/, annotations/, tests/; Creates manifest.glass with project name and default settings; Creates glass.config.json with project configuration; Creates .gitignore with standard Glass ignore patterns; Exit code is 0
 
 **Failure Modes:** DirectoryExists
 
@@ -97,7 +97,7 @@
 
 **Requires:** Current directory or --source flag points to a valid Glass project
 
-**Guarantees:** Views generated in .generated/ directory; Reports count of generated views; Exit code is 0
+**Guarantees:** Views generated in glass-views/ directory; Reports count of generated views; Exit code is 0
 
 **Failure Modes:** ProjectNotFound, ViewGenerationFailed
 
@@ -117,13 +117,13 @@
 
 **Requires:** dir is a valid directory path
 
-**Guarantees:** discoverGlassFiles returns all .glass files recursively under dir; discoverGlassFiles excludes node_modules, .generated, and manifest.glass; loadProject returns ProjectContext with parsed files, linked tree, and verification results
+**Guarantees:** discoverGlassFiles returns all .glass files recursively under dir; discoverGlassFiles excludes node_modules, glass-views, and manifest.glass; loadProject returns ProjectContext with parsed files, linked tree, and verification results
 
 ## compiler.annotations
 
 **Requires:** annotationsDir is a valid directory path; unitId is a non-empty string; target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*)
 
-**Guarantees:** addAnnotation persists annotation to .annotations/<unitId>.annotations.json; Each annotation has a unique generated ID; resolveAnnotation sets resolved: true and persists; deleteAnnotation removes the annotation from storage; loadAnnotations returns all annotations for a unit; getUnresolvedAnnotations returns only annotations where resolved is false
+**Guarantees:** addAnnotation persists annotation to annotations/<unitId>.annotations.json; Each annotation has a unique generated ID; resolveAnnotation sets resolved: true and persists; deleteAnnotation removes the annotation from storage; loadAnnotations returns all annotations for a unit; getUnresolvedAnnotations returns only annotations where resolved is false
 
 **Failure Modes:** UnitNotFound, AnnotationNotFound, InvalidTarget, WriteError
 

@@ -25,7 +25,7 @@
   - Failure guarantee requires runtime verification
 - [+] Exit code is 1
   - Failure guarantee requires runtime verification
-- [+] Annotations are persisted to .annotations/ directory
+- [+] Annotations are persisted to annotations/ directory
   - Invariant requires runtime verification
 - [+] Failure mode handled: ProjectNotFound
   - Error 'ProjectNotFound' referenced in implementation
@@ -46,7 +46,7 @@
 - Runtime check needed: Exit code is 0 — Guarantee requires runtime verification
 - Runtime check needed: Reports if unit or annotation not found — Failure guarantee requires runtime verification
 - Runtime check needed: Exit code is 1 — Failure guarantee requires runtime verification
-- Runtime check needed: Annotations are persisted to .annotations/ directory — Invariant requires runtime verification
+- Runtime check needed: Annotations are persisted to annotations/ directory — Invariant requires runtime verification
 - Runtime check needed: Failure mode handled: ProjectNotFound — Error 'ProjectNotFound' referenced in implementation
 - Runtime check needed: Failure mode handled: UnitNotFound — Error 'UnitNotFound' referenced in implementation
 - Runtime check needed: Failure mode handled: AnnotationNotFound — Error 'AnnotationNotFound' referenced in implementation

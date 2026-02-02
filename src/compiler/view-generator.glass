@@ -484,7 +484,7 @@ export function generateMasterContractOutline(files: GlassFile[]): string {
 // ============================================================
 
 /**
- * Generate all views and write to the .generated/ directory.
+ * Generate all views and write to the glass-views/ directory.
  */
 export function generateAllViews(
   files: GlassFile[],

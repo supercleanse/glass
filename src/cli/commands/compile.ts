@@ -59,7 +59,7 @@ export const compileCommand = new Command("compile")
 
     // Step 5: Generate views
     console.log(chalk.blue("[5/6]") + " Generating views...");
-    const viewsDir = path.join(path.dirname(opts.source), ".generated");
+    const viewsDir = path.join(path.dirname(opts.source), "glass-views");
     generateAllViews(glassFiles, tree, verificationResults, viewsDir);
     console.log(chalk.green("[5/6]") + " Generating views... done");
 

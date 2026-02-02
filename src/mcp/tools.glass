@@ -77,7 +77,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: "Directory already exists and is not empty" }) }] };
       }
 
-      const dirs = ["", "src", "src/glass", "dist", ".generated", ".generated/units", ".annotations", "tests"];
+      const dirs = ["", "src", "src/glass", "dist", "glass-views", "glass-views/units", "annotations", "tests"];
       for (const dir of dirs) {
         fs.mkdirSync(path.join(targetDir, dir), { recursive: true });
       }
@@ -87,7 +87,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       fs.writeFileSync(path.join(targetDir, "manifest.glass"),
         `Glass Manifest: ${projectName}\nVersion: 0.1.0\nLanguage: ${lang}\nCreated: ${date}\n\nOrigins:\n\nPolicies:\n  auto-approve: security, audit, infrastructure\n  require-approval: business-logic, data-model\n\nIntent Registry:\n  user-originated: 0 intents\n  conversation-derived: 0 intents\n  ai-generated: 0 intents\n`, "utf-8");
       fs.writeFileSync(path.join(targetDir, "glass.config.json"),
-        JSON.stringify({ version: "0.1.0", language, projectName, outputDir: "dist", generatedDir: ".generated", annotationsDir: ".annotations" }, null, 2) + "\n", "utf-8");
+        JSON.stringify({ version: "0.1.0", language, projectName, outputDir: "dist", generatedDir: "glass-views", annotationsDir: "annotations" }, null, 2) + "\n", "utf-8");
 
       return { content: [{ type: "text", text: JSON.stringify({ success: true, data: { projectPath: targetDir, language }, summary: "Initialized Glass project: " + projectName }) }] };
     },
@@ -166,7 +166,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       }
 
       // Generate views
-      const viewsDir = path.join(projectRoot, ".generated");
+      const viewsDir = path.join(projectRoot, "glass-views");
       generateAllViews(glassFiles, tree, verificationResults, viewsDir);
 
       // Generate instrumentation plans
@@ -201,7 +201,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       description: "Generate human-readable outlines, checklists, and dashboards",
       inputSchema: {
         source: z.string().default("src").describe("Source directory"),
-        output: z.string().default(".generated").describe("Output directory for views"),
+        output: z.string().default("glass-views").describe("Output directory for views"),
       },
     },
     async ({ source, output }) => {
@@ -374,7 +374,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       },
     },
     async ({ unitId, target, note, author }) => {
-      const annotationsDir = path.resolve(projectRoot, ".annotations");
+      const annotationsDir = path.resolve(projectRoot, "annotations");
       const result = addAnnotation(annotationsDir, unitId, target, note, author);
       if (!result.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: result.error.message }) }] };
@@ -399,7 +399,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       },
     },
     async ({ unitId }) => {
-      const annotationsDir = path.resolve(projectRoot, ".annotations");
+      const annotationsDir = path.resolve(projectRoot, "annotations");
       if (unitId) {
         const annotations = loadAnnotations(annotationsDir, unitId);
         return { content: [{ type: "text", text: JSON.stringify({

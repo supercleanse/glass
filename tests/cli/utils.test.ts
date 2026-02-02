@@ -37,12 +37,12 @@ describe("CLI Utilities", () => {
       expect(files).toHaveLength(2);
     });
 
-    it("should skip node_modules and .generated directories", () => {
+    it("should skip node_modules and glass-views directories", () => {
       fs.mkdirSync(path.join(tempDir, "node_modules"), { recursive: true });
-      fs.mkdirSync(path.join(tempDir, ".generated"), { recursive: true });
+      fs.mkdirSync(path.join(tempDir, "glass-views"), { recursive: true });
       fs.writeFileSync(path.join(tempDir, "test.glass"), "content");
       fs.writeFileSync(path.join(tempDir, "node_modules", "bad.glass"), "content");
-      fs.writeFileSync(path.join(tempDir, ".generated", "bad.glass"), "content");
+      fs.writeFileSync(path.join(tempDir, "glass-views", "bad.glass"), "content");
 
       const files = discoverGlassFiles(tempDir);
       expect(files).toHaveLength(1);

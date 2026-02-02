@@ -11,7 +11,7 @@
 ## Guarantees on Success
 
 - All contracts verified before emission
-- Views generated in .generated/ directory
+- Views generated in glass-views/ directory
 - TypeScript emitted to output directory
 - Compilation duration reported
 - Exit code is 0

@@ -9,7 +9,7 @@
 
 ## Guarantees on Success
 
-- Views generated in .generated/ directory
+- Views generated in glass-views/ directory
 - Reports count of generated views
 - Exit code is 0
 

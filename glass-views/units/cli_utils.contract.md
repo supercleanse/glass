@@ -10,7 +10,7 @@
 ## Guarantees on Success
 
 - discoverGlassFiles returns all .glass files recursively under dir
-- discoverGlassFiles excludes node_modules, .generated, and manifest.glass
+- discoverGlassFiles excludes node_modules, glass-views, and manifest.glass
 - loadProject returns ProjectContext with parsed files, linked tree, and verification results
 
 ## Guarantees on Failure

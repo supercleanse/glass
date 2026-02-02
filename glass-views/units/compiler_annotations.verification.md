@@ -15,7 +15,7 @@
   - Parameter referenced but type match not confirmable
 - [+] target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*)
   - Semantic precondition: runtime verification required
-- [+] addAnnotation persists annotation to .annotations/<unitId>.annotations.json
+- [+] addAnnotation persists annotation to annotations/<unitId>.annotations.json
   - Referenced identifiers found in exports
 - [+] Each annotation has a unique generated ID
   - Guarantee requires runtime verification
@@ -52,7 +52,7 @@
 - Runtime check needed: annotationsDir is a valid directory path — Semantic precondition: runtime verification required
 - Runtime check needed: unitId is a non-empty string — Parameter referenced but type match not confirmable
 - Runtime check needed: target follows valid format: line:<n> or dotted path (intent.*, contract.*, implementation.*) — Semantic precondition: runtime verification required
-- Runtime check needed: addAnnotation persists annotation to .annotations/<unitId>.annotations.json — Referenced identifiers found in exports
+- Runtime check needed: addAnnotation persists annotation to annotations/<unitId>.annotations.json — Referenced identifiers found in exports
 - Runtime check needed: Each annotation has a unique generated ID — Guarantee requires runtime verification
 - Runtime check needed: resolveAnnotation sets resolved: true and persists — Referenced identifiers found in exports
 - Runtime check needed: deleteAnnotation removes the annotation from storage — Referenced identifiers found in exports

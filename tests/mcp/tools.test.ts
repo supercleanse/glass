@@ -41,7 +41,7 @@ describe("MCP Tools", () => {
     it("should handle glass_init via project creation", () => {
       // Verify the init tool creates files by testing the underlying function
       const targetDir = path.join(tempDir, "test-project");
-      const dirs = ["", "src", "src/glass", "dist", ".generated", ".annotations", "tests"];
+      const dirs = ["", "src", "src/glass", "dist", "glass-views", "annotations", "tests"];
       for (const dir of dirs) {
         fs.mkdirSync(path.join(targetDir, dir), { recursive: true });
       }
@@ -56,7 +56,7 @@ describe("MCP Tools", () => {
     });
 
     it("should handle glass_annotate via annotation system", () => {
-      const annotationsDir = path.join(tempDir, ".annotations");
+      const annotationsDir = path.join(tempDir, "annotations");
       const result = addAnnotation(annotationsDir, "test.unit", "line:5", "Test note", "ai-assistant");
       expect(result.ok).toBe(true);
       if (!result.ok) return;

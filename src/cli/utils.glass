@@ -18,7 +18,7 @@ requires:
 guarantees:
   on_success:
     - discoverGlassFiles returns all .glass files recursively under dir
-    - discoverGlassFiles excludes node_modules, .generated, and manifest.glass
+    - discoverGlassFiles excludes node_modules, glass-views, and manifest.glass
     - loadProject returns ProjectContext with parsed files, linked tree, and verification results
   on_failure:
     - discoverGlassFiles returns empty array if directory does not exist
@@ -58,7 +58,7 @@ export function discoverGlassFiles(dir: string): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== ".generated") {
+    if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== "glass-views") {
       files.push(...discoverGlassFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith(".glass") && entry.name !== "manifest.glass") {
       files.push(fullPath);

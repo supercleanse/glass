@@ -13,7 +13,7 @@
   - Semantic precondition: runtime verification required
 - [+] discoverGlassFiles returns all .glass files recursively under dir
   - Referenced identifiers found in exports
-- [+] discoverGlassFiles excludes node_modules, .generated, and manifest.glass
+- [+] discoverGlassFiles excludes node_modules, glass-views, and manifest.glass
   - Referenced identifiers found in exports
 - [+] discoverGlassFiles returns empty array if directory does not exist
   - Failure guarantee requires runtime verification
@@ -33,7 +33,7 @@
 
 - Runtime check needed: dir is a valid directory path — Semantic precondition: runtime verification required
 - Runtime check needed: discoverGlassFiles returns all .glass files recursively under dir — Referenced identifiers found in exports
-- Runtime check needed: discoverGlassFiles excludes node_modules, .generated, and manifest.glass — Referenced identifiers found in exports
+- Runtime check needed: discoverGlassFiles excludes node_modules, glass-views, and manifest.glass — Referenced identifiers found in exports
 - Runtime check needed: discoverGlassFiles returns empty array if directory does not exist — Failure guarantee requires runtime verification
 - Runtime check needed: loadProject returns Err with descriptive error message — Failure guarantee requires runtime verification
 - Runtime check needed: loadProject runs the full pipeline: parse, link, verify — Invariant requires runtime verification

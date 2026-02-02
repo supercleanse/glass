@@ -22,8 +22,8 @@ my-app/
   glass.config.json       # Project configuration
   src/glass/              # Your .glass files go here
   dist/                   # Compiled output
-  .generated/             # Human-readable views
-  .annotations/           # Human annotations
+  glass-views/            # Human-readable views
+  annotations/            # Human annotations
   tests/                  # Test files
 ```
 
