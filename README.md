@@ -355,18 +355,72 @@ glass/
 └── tests/                      # Test suite
 ```
 
-## MCP Server
+## Using with AI Assistants
 
-Glass includes an MCP (Model Context Protocol) server that exposes all tools to AI assistants.
+Glass is designed to be used with AI. There are three ways to integrate, from simplest to most powerful.
+
+### Option 1: Claude Skill (Recommended for Claude Code)
+
+The Claude Skill teaches Claude how to work with Glass projects. When the skill is loaded, Claude automatically generates `.glass` files, maintains the manifest, writes proper contracts, and follows Glass methodology without being reminded.
+
+**Setup for a new project:**
 
 ```bash
-# Run the MCP server
-npx glass-mcp-server /path/to/project
+# Initialize your project
+npx glass init my-project
+cd my-project
+
+# Create the skill directory and copy the skill file
+mkdir -p .claude/skills/glass
+cp /path/to/glass/.claude/skills/glass/SKILL.md .claude/skills/glass/SKILL.md
 ```
 
-The server provides these tools: `glass_init`, `glass_verify`, `glass_compile`, `glass_views`, `glass_status`, `glass_tree`, `glass_trace`, `glass_annotate`, `glass_annotations_list`.
+**Setup for an existing Glass project (like this repo):**
 
-To use with Claude Desktop or other MCP clients, add to your MCP config:
+The skill file is already at `.claude/skills/glass/SKILL.md`. Claude Code picks it up automatically when working in this directory.
+
+**What the skill does:**
+
+When Claude has the skill loaded, it will:
+
+1. Generate `.glass` files instead of raw `.ts` files
+2. Always include Intent, Contract, and Implementation sections
+3. Update `manifest.glass` when adding or removing units
+4. Write proper contracts with requires, guarantees, invariants, and fails
+5. Use the correct intent hierarchy (parent references, sub-intents)
+6. Run `glass verify` and `glass compile` to check its work
+7. Present generated views for human review
+
+**Example conversation with the skill active:**
+
+```
+You:    "Add a user authentication module"
+
+Claude: [Creates auth.glass with intent, contract, and implementation]
+        [Updates manifest.glass with new unit]
+        [Runs glass verify to check contracts]
+        [Runs glass compile to emit TypeScript]
+        "I've created auth.glass with 3 guarantees and 2 failure modes.
+         All assertions PROVEN. Here's the contract outline for review..."
+```
+
+**Skill file location:**
+
+```
+your-project/
+└── .claude/
+    └── skills/
+        └── glass/
+            └── SKILL.md    # Claude reads this automatically
+```
+
+### Option 2: MCP Server (For Any MCP-Compatible AI)
+
+The Glass MCP server exposes all commands as tools that any MCP-compatible AI assistant can call programmatically.
+
+**Setup for Claude Code:**
+
+Add to your project's `.mcp.json`:
 
 ```json
 {
@@ -377,6 +431,75 @@ To use with Claude Desktop or other MCP clients, add to your MCP config:
     }
   }
 }
+```
+
+**Setup for Claude Desktop:**
+
+Add to your Claude Desktop MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "glass": {
+      "command": "npx",
+      "args": ["glass-mcp-server", "/path/to/your/project"]
+    }
+  }
+}
+```
+
+**Available MCP tools:**
+
+| Tool | Description |
+|---|---|
+| `glass_init` | Initialize a new Glass project |
+| `glass_verify` | Run contract verification, return results as JSON |
+| `glass_compile` | Full compilation pipeline |
+| `glass_views` | Generate human-readable views |
+| `glass_status` | Verification status dashboard |
+| `glass_tree` | Intent hierarchy tree |
+| `glass_trace` | Provenance chain for a unit |
+| `glass_annotate` | Add annotation to a unit |
+| `glass_annotations_list` | List annotations |
+
+All tools return structured JSON:
+
+```json
+{
+  "success": true,
+  "data": { "allPassed": true, "totalUnits": 32 },
+  "summary": "All units verified successfully"
+}
+```
+
+### Option 3: CLI Only (Any Workflow)
+
+Use the `glass` CLI directly in your terminal or CI pipeline. No AI integration required.
+
+```bash
+npx glass init my-project
+npx glass verify --source src/
+npx glass compile --source src/
+```
+
+### Using Both Skill + MCP Together
+
+For the best experience with Claude Code, use both:
+
+- The **Skill** gives Claude knowledge of Glass conventions (how to write `.glass` files, contracts, intents)
+- The **MCP server** gives Claude tools to run verification and compilation directly
+
+```
+your-project/
+├── .claude/
+│   └── skills/
+│       └── glass/
+│           └── SKILL.md        # Glass methodology knowledge
+├── .mcp.json                   # MCP server configuration
+├── manifest.glass
+├── glass.config.json
+└── src/
+    └── *.glass
 ```
 
 ## Configuration
