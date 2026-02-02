@@ -6,7 +6,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import * as path from "path";
-import { loadProject } from "../utils";
+import { loadProject, loadGlassConfig, resolveGlassDir, resolveSourceDir } from "../utils";
 import {
   addAnnotation,
   loadAnnotations,
@@ -19,7 +19,8 @@ export const annotateCommand = new Command("annotate")
   .argument("<unitId>", "Glass unit ID to annotate")
   .argument("[target]", "Target: line:<n> or dotted path (e.g., contract.guarantees.success.2)")
   .argument("[note]", "Annotation text")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("-a, --annotations <dir>", "Annotations directory", "annotations")
   .option("--author <name>", "Annotation author", "human")
   .option("--resolve <id>", "Resolve an annotation by ID")
@@ -48,7 +49,11 @@ export const annotateCommand = new Command("annotate")
     }
 
     // Validate unit exists
-    const project = loadProject(opts.source);
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
+    const sourceDir = opts.source ?? config?.sourceDir ?? "src";
+    const project = loadProject(glassDir, projectRoot, sourceDir);
     if (!project.ok) {
       console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;

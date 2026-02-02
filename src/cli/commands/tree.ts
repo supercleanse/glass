@@ -5,15 +5,20 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { loadProject } from "../utils";
+import { loadProject, loadGlassConfig, resolveGlassDir, resolveSourceDir } from "../utils";
 import type { IntentTree } from "../../types/index";
 
 export const treeCommand = new Command("tree")
   .description("Display the intent hierarchy tree")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("-d, --depth <n>", "Maximum tree depth")
   .action(async (opts) => {
-    const project = loadProject(opts.source);
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
+    const sourceDir = opts.source ?? config?.sourceDir ?? "src";
+    const project = loadProject(glassDir, projectRoot, sourceDir);
     if (!project.ok) {
       console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;

@@ -2,7 +2,7 @@
 
 AI writes the code. Humans review structured outlines. The compiler guarantees the contracts are satisfied.
 
-Glass is a framework for AI-first software development. Every unit of code has a **spec** (`.glass` file with Intent and Contract) and a **paired implementation file** (`.ts` or `.rs`). The Glass compiler parses `.glass` spec files, links them into an intent hierarchy, verifies that implementations satisfy their contracts, and emits target-language code.
+Glass is a framework for AI-first software development. Every unit of code has a **spec** (`.glass` file with Intent and Contract in the `glass/` directory) and a **paired implementation file** (`.ts` or `.rs` in the `src/` directory). The Glass compiler parses `.glass` spec files, links them into an intent hierarchy, verifies that implementations satisfy their contracts, and emits target-language code.
 
 Glass is self-hosting: the compiler verifies and compiles itself. All 32 units are **PROVEN**.
 
@@ -57,16 +57,16 @@ npm install
 npm run build
 
 # Verify all contracts (runs AST-based verification)
-npx glass verify --source src/
+npx glass verify --glass-dir glass/ --source src/
 
 # Compile .glass files to TypeScript
-npx glass compile --source src/
+npx glass compile --glass-dir glass/ --source src/
 
 # See the intent hierarchy
-npx glass tree --source src/
+npx glass tree --glass-dir glass/ --source src/
 
 # Check verification status dashboard
-npx glass status --source src/
+npx glass status --glass-dir glass/ --source src/
 ```
 
 ### Start a New Project
@@ -76,13 +76,13 @@ npx glass init my-project
 cd my-project
 ```
 
-This creates a project with `manifest.glass`, `glass.config.json`, and the standard directory structure.
+This creates a project with `manifest.glass`, `glass.config.json`, a `glass/` directory for specs, and an `src/` directory for implementation.
 
 ## How It Works
 
 ### The .glass File Format
 
-`.glass` files are **spec-only** -- they contain the Intent and Contract sections. Implementation lives in a paired target-language file (e.g., `parser.glass` is paired with `parser.ts`).
+`.glass` files are **spec-only** -- they contain the Intent and Contract sections and live in the `glass/` directory. Implementation lives in a paired target-language file in the `src/` directory with a mirrored path (e.g., `glass/compiler/parser.glass` is paired with `src/compiler/parser.ts`).
 
 ```
 === Glass Unit ===
@@ -126,7 +126,7 @@ advisories:
 
 **Contract** declares *what* the code promises. Preconditions (`requires`), postconditions (`guarantees`), properties that always hold (`invariants`), error handling (`fails`), and decisions flagged for human review (`advisories`).
 
-**Implementation** lives in a paired `.ts` (or `.rs`) file with the same basename. The compiler verifies that the implementation satisfies the contract declared in the `.glass` spec.
+**Implementation** lives in a paired `.ts` (or `.rs`) file in the `src/` directory with the same relative path. The compiler verifies that the implementation satisfies the contract declared in the `.glass` spec.
 
 ### Compiler Pipeline
 
@@ -134,7 +134,7 @@ advisories:
 .glass files  -->  Parse  -->  Link  -->  Verify  -->  Generate Views  -->  Emit .ts
 ```
 
-1. **Parse** -- Reads `.glass` spec files and extracts Intent and Contract sections; locates paired implementation files
+1. **Parse** -- Reads `.glass` spec files from `glass/` and extracts Intent and Contract sections; locates paired implementation files in `src/`
 2. **Link** -- Builds the intent hierarchy tree and checks for dangling references
 3. **Verify** -- Proves paired implementations satisfy contracts using TypeScript AST analysis
 4. **Generate Views** -- Creates human-readable outlines, checklists, and dashboards
@@ -161,15 +161,15 @@ A unit passes verification when all its assertions pass. The overall status is *
 
 ### Self-Hosting
 
-Glass compiles and verifies itself. The `.glass` spec files and their paired `.ts` implementation files in `src/` *are* the source code. Running `glass compile --source src/` emits the TypeScript files to `dist/`, and those compiled files can then verify and compile the source again -- producing byte-identical output (idempotent).
+Glass compiles and verifies itself. The `.glass` spec files in `glass/` and their paired `.ts` implementation files in `src/` *are* the source code. Running `glass compile --glass-dir glass/ --source src/` emits the TypeScript files to `dist/`, and those compiled files can then verify and compile the source again -- producing byte-identical output (idempotent).
 
 ```bash
 # The compiler verifies itself
-npx glass verify --source src/
+npx glass verify --glass-dir glass/ --source src/
 # Summary: 32/32 units verified
 
 # The compiler compiles itself
-npx glass compile --source src/
+npx glass compile --glass-dir glass/ --source src/
 # Compilation successful! 32 files emitted
 ```
 
@@ -194,7 +194,8 @@ Run contract verification on all `.glass` files.
 
 ```
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
   --failures-only          Show only failed units
   -v, --verbose            Show detailed failure messages
 ```
@@ -203,10 +204,10 @@ Example:
 
 ```bash
 # Verify all units
-npx glass verify --source src/
+npx glass verify --glass-dir glass/ --source src/
 
 # Show only failures with details
-npx glass verify --source src/ --failures-only -v
+npx glass verify --glass-dir glass/ --source src/ --failures-only -v
 ```
 
 ### `glass compile`
@@ -215,7 +216,8 @@ Full compilation pipeline: parse, link, verify, generate views, emit.
 
 ```
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
   -o, --output <dir>       Output directory  (default: "dist")
   --no-verify              Skip verification step
   --clean                  Clean output directory before emitting
@@ -226,13 +228,13 @@ Example:
 
 ```bash
 # Compile with verification
-npx glass compile --source src/
+npx glass compile --glass-dir glass/ --source src/
 
 # Compile without verification (faster)
-npx glass compile --source src/ --no-verify
+npx glass compile --glass-dir glass/ --source src/ --no-verify
 
 # Clean build
-npx glass compile --source src/ --clean
+npx glass compile --glass-dir glass/ --source src/ --clean
 ```
 
 ### `glass status`
@@ -241,7 +243,8 @@ Display verification status dashboard.
 
 ```
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
 ```
 
 ### `glass tree`
@@ -250,7 +253,8 @@ Display the intent hierarchy tree.
 
 ```
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
   -d, --depth <n>          Maximum tree depth
 ```
 
@@ -263,7 +267,8 @@ Arguments:
   unitId                   Glass unit ID to trace
 
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
   -c, --contracts          Show contracts at each level
 ```
 
@@ -271,10 +276,10 @@ Example:
 
 ```bash
 # Trace a unit's provenance
-npx glass trace compiler.parser --source src/
+npx glass trace compiler.parser --glass-dir glass/ --source src/
 
 # With contracts at each level
-npx glass trace compiler.parser --source src/ -c
+npx glass trace compiler.parser --glass-dir glass/ --source src/ -c
 ```
 
 ### `glass views`
@@ -283,7 +288,8 @@ Generate human-readable views and dashboards.
 
 ```
 Options:
-  -s, --source <dir>       Source directory  (default: "src")
+  -g, --glass-dir <dir>    Glass specs directory  (default: "glass")
+  -s, --source <dir>       Implementation source directory  (default: "src")
   -o, --output <dir>       Output directory  (default: "glass-views")
 ```
 
@@ -352,34 +358,60 @@ Legacy alias for `compile`.
 
 ## Project Structure
 
+Specs (`.glass` files) live in the top-level `glass/` directory. Implementation (`.ts` files) lives in `src/`. The two directories mirror each other in structure. Humans review specs in `glass/`; AI generates implementation in `src/`.
+
 ```
-glass/
+glass-project/
 ├── manifest.glass              # Living requirements document
-├── glass.config.json           # Project configuration
-├── src/
-│   ├── index.glass             # Public API entry point
+├── glass.config.json           # Project configuration (glassDir, sourceDir)
+├── glass/                      # Specs — human-facing (.glass files)
+│   ├── index.glass             # Public API entry point spec
 │   ├── types/
-│   │   └── index.glass         # Type definitions
+│   │   └── index.glass         # Type definitions spec
 │   ├── compiler/
-│   │   ├── index.glass + index.ts         # Compiler orchestrator
-│   │   ├── parser.glass + parser.ts       # .glass file parser
-│   │   ├── linker.glass + linker.ts       # Intent tree linker
-│   │   ├── verifier.glass + verifier.ts   # Contract verifier (Phase 1 + 2)
-│   │   ├── ast-verifier.glass + ast-verifier.ts  # AST-based verification
-│   │   ├── ts-program-factory.glass + ts-program-factory.ts  # TS Program creation
-│   │   ├── emitter.glass + emitter.ts     # TypeScript code emitter
-│   │   ├── manifest.glass + manifest.ts   # Manifest parser
-│   │   ├── annotations.glass + annotations.ts  # Annotation management
-│   │   └── view-generator.glass + view-generator.ts # View/dashboard generation
+│   │   ├── index.glass         # Compiler orchestrator spec
+│   │   ├── parser.glass        # .glass file parser spec
+│   │   ├── linker.glass        # Intent tree linker spec
+│   │   ├── verifier.glass      # Contract verifier spec
+│   │   ├── ast-verifier.glass  # AST-based verification spec
+│   │   ├── ts-program-factory.glass  # TS Program creation spec
+│   │   ├── emitter.glass       # TypeScript code emitter spec
+│   │   ├── manifest.glass      # Manifest parser spec
+│   │   ├── annotations.glass   # Annotation management spec
+│   │   └── view-generator.glass # View/dashboard generation spec
 │   ├── cli/
-│   │   ├── index.glass         # CLI entry point
-│   │   ├── utils.glass         # Shared CLI utilities
+│   │   ├── index.glass         # CLI entry point spec
+│   │   ├── utils.glass         # Shared CLI utilities spec
+│   │   └── commands/           # Individual CLI command specs
+│   ├── adapters/
+│   │   └── typescript.glass    # TypeScript language adapter spec
+│   └── mcp/
+│       ├── index.glass         # MCP server entry point spec
+│       └── tools.glass         # MCP tool registrations spec
+├── src/                        # Implementation — compiled artifacts (.ts files)
+│   ├── index.ts                # Public API entry point
+│   ├── types/
+│   │   └── index.ts            # Type definitions
+│   ├── compiler/
+│   │   ├── index.ts            # Compiler orchestrator
+│   │   ├── parser.ts           # .glass file parser
+│   │   ├── linker.ts           # Intent tree linker
+│   │   ├── verifier.ts         # Contract verifier (Phase 1 + 2)
+│   │   ├── ast-verifier.ts     # AST-based verification
+│   │   ├── ts-program-factory.ts  # TS Program creation
+│   │   ├── emitter.ts          # TypeScript code emitter
+│   │   ├── manifest.ts         # Manifest parser
+│   │   ├── annotations.ts      # Annotation management
+│   │   └── view-generator.ts   # View/dashboard generation
+│   ├── cli/
+│   │   ├── index.ts            # CLI entry point
+│   │   ├── utils.ts            # Shared CLI utilities
 │   │   └── commands/           # Individual CLI commands
 │   ├── adapters/
-│   │   └── typescript.glass    # TypeScript language adapter
+│   │   └── typescript.ts       # TypeScript language adapter
 │   └── mcp/
-│       ├── index.glass         # MCP server entry point
-│       └── tools.glass         # MCP tool registrations
+│       ├── index.ts            # MCP server entry point
+│       └── tools.ts            # MCP tool registrations
 ├── glass-views/                # Auto-generated views (never hand-edit)
 │   ├── units/                  # Per-unit intent, contract, verification views
 │   ├── master-intent-outline.md
@@ -514,8 +546,8 @@ Use the `glass` CLI directly in your terminal or CI pipeline. No AI integration 
 
 ```bash
 npx glass init my-project
-npx glass verify --source src/
-npx glass compile --source src/
+npx glass verify --glass-dir glass/ --source src/
+npx glass compile --glass-dir glass/ --source src/
 ```
 
 ### Using Both Skill + MCP Together
@@ -534,8 +566,10 @@ your-project/
 ├── .mcp.json                   # MCP server configuration
 ├── manifest.glass
 ├── glass.config.json
-└── src/
-    └── *.glass
+├── glass/                      # Specs (.glass files)
+│   └── ...
+└── src/                        # Implementation (.ts files)
+    └── ...
 ```
 
 ## Configuration
@@ -547,11 +581,18 @@ your-project/
   "version": "0.1.0",
   "language": "typescript",
   "projectName": "my-project",
+  "glassDir": "glass",
+  "sourceDir": "src",
   "outputDir": "dist",
   "generatedDir": "glass-views",
   "annotationsDir": "annotations"
 }
 ```
+
+- `glassDir` -- directory containing `.glass` spec files (default: `"glass"`)
+- `sourceDir` -- directory containing implementation files (default: `"src"`)
+
+CLI flags `--glass-dir` and `--source` override these config values.
 
 ## Intent Hierarchy
 
@@ -608,10 +649,10 @@ npm run build
 npm test
 
 # Verify contracts
-npx glass verify --source src/
+npx glass verify --glass-dir glass/ --source src/
 
 # Full compile (verify + emit + views)
-npx glass compile --source src/
+npx glass compile --glass-dir glass/ --source src/
 
 # Lint
 npm run lint

@@ -507,17 +507,30 @@ const LANGUAGE_EXTENSIONS: Record<TargetLanguage, string> = {
 
 /**
  * Resolve the paired implementation file for a .glass spec.
- * Convention: same directory, same basename, language-appropriate extension.
+ *
+ * Two modes:
+ * - Cross-directory: glassRoot + sourceDir provided → maps glass/compiler/parser.glass to src/compiler/parser.ts
+ * - Co-located (legacy): no sourceDir → same directory, same basename
+ *
  * Returns the file content and absolute path, or an error if not found.
  */
 function resolveImplementationFile(
   glassFilePath: string,
   language: TargetLanguage,
+  options?: { glassRoot?: string; sourceDir?: string },
 ): Result<{ content: string; path: string }, ParseError> {
-  const dir = path.dirname(glassFilePath);
   const basename = path.basename(glassFilePath, ".glass");
   const ext = LANGUAGE_EXTENSIONS[language] || ".ts";
-  const implPath = path.join(dir, basename + ext);
+
+  let implPath: string;
+  if (options?.glassRoot && options?.sourceDir) {
+    // Cross-directory: map from glass/ tree to src/ tree
+    const relativePath = path.relative(options.glassRoot, path.dirname(glassFilePath));
+    implPath = path.join(options.sourceDir, relativePath, basename + ext);
+  } else {
+    // Legacy co-located: same directory
+    implPath = path.join(path.dirname(glassFilePath), basename + ext);
+  }
 
   let content: string;
   try {
@@ -538,12 +551,23 @@ function resolveImplementationFile(
 // GlassParser Orchestrator (Subtask 4.5)
 // ============================================================
 
+/** Options for cross-directory implementation resolution. */
+export interface ParseOptions {
+  /** Absolute path to the root of the glass spec directory. */
+  glassRoot?: string;
+  /** Absolute path to the implementation source directory. */
+  sourceDir?: string;
+}
+
 /**
  * Parse a .glass file from a file path.
  * Supports both legacy format (with inline Implementation section)
  * and the new separated format (implementation in paired .ts/.rs file).
  */
-export function parseGlassFile(filePath: string): Result<GlassFile, ParseError> {
+export function parseGlassFile(
+  filePath: string,
+  options?: ParseOptions,
+): Result<GlassFile, ParseError> {
   let content: string;
   try {
     content = fs.readFileSync(filePath, "utf-8");
@@ -556,7 +580,7 @@ export function parseGlassFile(filePath: string): Result<GlassFile, ParseError> 
   }
 
   const absPath = path.resolve(filePath);
-  return parseGlassContent(content, absPath);
+  return parseGlassContent(content, absPath, options);
 }
 
 /**
@@ -567,6 +591,7 @@ export function parseGlassFile(filePath: string): Result<GlassFile, ParseError> 
 export function parseGlassContent(
   content: string,
   filePath: string,
+  options?: ParseOptions,
 ): Result<GlassFile, ParseError> {
   // Step 1: Split into sections
   const sections = splitSections(content, filePath);
@@ -611,7 +636,7 @@ export function parseGlassContent(
   }
 
   // New format: look for paired implementation file
-  const implResult = resolveImplementationFile(filePath, header.value.language);
+  const implResult = resolveImplementationFile(filePath, header.value.language, options);
   if (implResult.ok) {
     return Ok({
       id: header.value.id,

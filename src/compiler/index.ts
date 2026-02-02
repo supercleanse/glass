@@ -8,7 +8,7 @@ import type { CompilerOptions, CompilationResult, DiagnosticMessage } from "../t
 
 /** Default compiler options. */
 const DEFAULT_OPTIONS: CompilerOptions = {
-  rootDir: "src",
+  rootDir: "glass",
   outDir: "dist",
   strict: true,
   sourceMap: true,

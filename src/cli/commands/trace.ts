@@ -5,16 +5,21 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { loadProject } from "../utils";
+import { loadProject, loadGlassConfig, resolveGlassDir, resolveSourceDir } from "../utils";
 import type { IntentTree, GlassFile } from "../../types/index";
 
 export const traceCommand = new Command("trace")
   .description("Show full provenance chain for a unit")
   .argument("<unitId>", "Glass unit ID to trace")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("-c, --contracts", "Show contracts at each level", false)
   .action(async (unitId: string, opts) => {
-    const project = loadProject(opts.source);
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
+    const sourceDir = opts.source ?? config?.sourceDir ?? "src";
+    const project = loadProject(glassDir, projectRoot, sourceDir);
     if (!project.ok) {
       console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;

@@ -115,6 +115,9 @@ function resolveImportPath(
  * Used to resolve relative imports correctly.
  */
 function inferSourcePath(file: GlassFile, projectRoot: string): string | undefined {
+  // Prefer the explicit implementation path if available
+  if (file.implementationPath) return file.implementationPath;
+
   // Try common patterns based on the unit ID
   const idParts = file.id.split(".");
   const candidates: string[] = [];
@@ -123,7 +126,7 @@ function inferSourcePath(file: GlassFile, projectRoot: string): string | undefin
     const [mod, name] = idParts;
     candidates.push(
       path.join(projectRoot, "src", mod, name + ".ts"),
-      path.join(projectRoot, "src", mod, name + ".glass"),
+      path.join(projectRoot, "glass", mod, name + ".glass"),
       path.join(projectRoot, "src", mod, "index.ts"),
     );
   }
@@ -131,7 +134,7 @@ function inferSourcePath(file: GlassFile, projectRoot: string): string | undefin
   // Also try flat patterns
   candidates.push(
     path.join(projectRoot, "src", idParts.join("/") + ".ts"),
-    path.join(projectRoot, "src", idParts.join("/") + ".glass"),
+    path.join(projectRoot, "glass", idParts.join("/") + ".glass"),
   );
 
   for (const candidate of candidates) {

@@ -7,7 +7,7 @@ import * as path from "path";
 import { parseGlassFile } from "../compiler/parser";
 import { linkIntentTree } from "../compiler/linker";
 import { verifyAll } from "../compiler/verifier";
-import type { GlassFile, IntentTree, VerificationResult, Result } from "../types/index";
+import type { GlassFile, GlassConfig, IntentTree, VerificationResult, Result } from "../types/index";
 import { Ok, Err, collectResults } from "../types/index";
 
 export interface ProjectContext {
@@ -15,6 +15,34 @@ export interface ProjectContext {
   glassFiles: GlassFile[];
   tree: IntentTree;
   verificationResults: Map<string, VerificationResult>;
+}
+
+/**
+ * Load glass.config.json from a project root directory.
+ */
+export function loadGlassConfig(projectRoot: string): GlassConfig | null {
+  const configPath = path.join(projectRoot, "glass.config.json");
+  if (!fs.existsSync(configPath)) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    return raw as GlassConfig;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve the glass spec directory from config, with fallback.
+ */
+export function resolveGlassDir(projectRoot: string, config: GlassConfig | null): string {
+  return path.resolve(projectRoot, config?.glassDir ?? "glass");
+}
+
+/**
+ * Resolve the implementation source directory from config, with fallback.
+ */
+export function resolveSourceDir(projectRoot: string, config: GlassConfig | null): string {
+  return path.resolve(projectRoot, config?.sourceDir ?? "src");
 }
 
 /**
@@ -38,15 +66,38 @@ export function discoverGlassFiles(dir: string): string[] {
 
 /**
  * Load and parse all .glass files, link the intent tree, and verify contracts.
+ *
+ * @param glassDir - Directory containing .glass spec files
+ * @param projectRoot - Project root directory (defaults to cwd)
+ * @param sourceDir - Directory containing implementation .ts/.rs files (for cross-directory resolution)
  */
-export function loadProject(sourceDir: string, projectRoot?: string): Result<ProjectContext, string> {
-  const filePaths = discoverGlassFiles(sourceDir);
+export function loadProject(
+  glassDir: string,
+  projectRoot?: string,
+  sourceDir?: string,
+): Result<ProjectContext, string> {
+  let filePaths = discoverGlassFiles(glassDir);
+  let effectiveSourceDir = sourceDir;
+
+  // Backward compatibility: if no .glass files in glassDir, try sourceDir (legacy co-located layout)
+  if (filePaths.length === 0 && sourceDir) {
+    filePaths = discoverGlassFiles(sourceDir);
+    if (filePaths.length > 0) {
+      // Legacy layout: .glass files co-located with .ts files — no cross-directory mapping needed
+      effectiveSourceDir = undefined;
+    }
+  }
+
   if (filePaths.length === 0) {
-    return Err("No .glass files found in " + sourceDir);
+    return Err("No .glass files found in " + glassDir);
   }
 
   // Parse all files
-  const parseResults = filePaths.map((fp) => parseGlassFile(fp));
+  const resolvedGlassDir = path.resolve(glassDir);
+  const resolvedSourceDir = effectiveSourceDir ? path.resolve(effectiveSourceDir) : undefined;
+  const parseResults = filePaths.map((fp) =>
+    parseGlassFile(fp, { glassRoot: resolvedGlassDir, sourceDir: resolvedSourceDir }),
+  );
   const parsed: GlassFile[] = [];
   for (const r of parseResults) {
     if (!r.ok) {
@@ -66,7 +117,7 @@ export function loadProject(sourceDir: string, projectRoot?: string): Result<Pro
   const verificationResults = verifyAll(parsed, root);
 
   return Ok({
-    rootDir: sourceDir,
+    rootDir: glassDir,
     glassFiles: parsed,
     tree: treeResult.value,
     verificationResults,

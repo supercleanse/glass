@@ -27,8 +27,8 @@ export const initCommand = new Command("init")
     // Create directory structure (PRD Section 16)
     const dirs = [
       "",
+      "glass",
       "src",
-      "src/glass",
       "dist",
       "glass-views",
       "glass-views/units",
@@ -68,6 +68,8 @@ Intent Registry:
       outputDir: "dist",
       generatedDir: "glass-views",
       annotationsDir: "annotations",
+      glassDir: "glass",
+      sourceDir: "src",
     };
     fs.writeFileSync(
       path.join(targetDir, "glass.config.json"),
@@ -88,7 +90,7 @@ Intent Registry:
     console.log("");
     console.log(chalk.green("Project initialized!") + " Next steps:");
     console.log("  cd " + name);
-    console.log("  # Add .glass files to src/glass/");
+    console.log("  # Add .glass spec files to glass/");
     console.log("  glass verify");
     console.log("  glass compile");
   });

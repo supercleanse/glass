@@ -41,7 +41,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: "Directory already exists and is not empty" }) }] };
       }
 
-      const dirs = ["", "src", "src/glass", "dist", "glass-views", "glass-views/units", "annotations", "tests"];
+      const dirs = ["", "glass", "src", "dist", "glass-views", "glass-views/units", "annotations", "tests"];
       for (const dir of dirs) {
         fs.mkdirSync(path.join(targetDir, dir), { recursive: true });
       }
@@ -51,7 +51,7 @@ export function registerTools(server: McpServer, projectRoot: string) {
       fs.writeFileSync(path.join(targetDir, "manifest.glass"),
         `Glass Manifest: ${projectName}\nVersion: 0.1.0\nLanguage: ${lang}\nCreated: ${date}\n\nOrigins:\n\nPolicies:\n  auto-approve: security, audit, infrastructure\n  require-approval: business-logic, data-model\n\nIntent Registry:\n  user-originated: 0 intents\n  conversation-derived: 0 intents\n  ai-generated: 0 intents\n`, "utf-8");
       fs.writeFileSync(path.join(targetDir, "glass.config.json"),
-        JSON.stringify({ version: "0.1.0", language, projectName, outputDir: "dist", generatedDir: "glass-views", annotationsDir: "annotations" }, null, 2) + "\n", "utf-8");
+        JSON.stringify({ version: "0.1.0", language, projectName, outputDir: "dist", generatedDir: "glass-views", annotationsDir: "annotations", glassDir: "glass", sourceDir: "src" }, null, 2) + "\n", "utf-8");
 
       return { content: [{ type: "text", text: JSON.stringify({ success: true, data: { projectPath: targetDir, language }, summary: "Initialized Glass project: " + projectName }) }] };
     },
@@ -64,13 +64,15 @@ export function registerTools(server: McpServer, projectRoot: string) {
       title: "Glass Verify",
       description: "Run contract verification pipeline and return verification results",
       inputSchema: {
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
         failuresOnly: z.boolean().default(false).describe("Show only failures"),
       },
     },
-    async ({ source, failuresOnly }) => {
-      const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir, projectRoot);
+    async ({ glassDir, source, failuresOnly }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -104,17 +106,19 @@ export function registerTools(server: McpServer, projectRoot: string) {
       title: "Glass Compile",
       description: "Run full Glass compilation pipeline: verify + emit target-language code",
       inputSchema: {
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
         output: z.string().default("dist").describe("Output directory"),
         noVerify: z.boolean().default(false).describe("Skip verification step"),
         clean: z.boolean().default(false).describe("Clean output before emitting"),
       },
     },
-    async ({ source, output, noVerify, clean }) => {
-      const sourceDir = path.resolve(projectRoot, source);
+    async ({ glassDir, source, output, noVerify, clean }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
       const outputDir = path.resolve(projectRoot, output);
 
-      const project = loadProject(sourceDir, projectRoot);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -164,15 +168,17 @@ export function registerTools(server: McpServer, projectRoot: string) {
       title: "Glass Views",
       description: "Generate human-readable outlines, checklists, and dashboards",
       inputSchema: {
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
         output: z.string().default("glass-views").describe("Output directory for views"),
       },
     },
-    async ({ source, output }) => {
-      const sourceDir = path.resolve(projectRoot, source);
+    async ({ glassDir, source, output }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
       const outputDir = path.resolve(projectRoot, output);
 
-      const project = loadProject(sourceDir, projectRoot);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -198,12 +204,14 @@ export function registerTools(server: McpServer, projectRoot: string) {
       title: "Glass Status",
       description: "Return current verification status of all units as a summary dashboard",
       inputSchema: {
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
       },
     },
-    async ({ source }) => {
-      const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir, projectRoot);
+    async ({ glassDir, source }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -236,13 +244,15 @@ export function registerTools(server: McpServer, projectRoot: string) {
       title: "Glass Tree",
       description: "Display the full intent hierarchy tree with approval status and sources",
       inputSchema: {
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
         depth: z.number().optional().describe("Maximum tree depth to display"),
       },
     },
-    async ({ source, depth }) => {
-      const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir, projectRoot);
+    async ({ glassDir, source, depth }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }
@@ -286,12 +296,14 @@ export function registerTools(server: McpServer, projectRoot: string) {
       description: "Show the full provenance chain for a unit: from business goal to implementation",
       inputSchema: {
         unitId: z.string().describe("Unit ID to trace provenance for"),
-        source: z.string().default("src").describe("Source directory"),
+        glassDir: z.string().default("glass").describe("Glass spec directory"),
+        source: z.string().default("src").describe("Implementation source directory"),
       },
     },
-    async ({ unitId, source }) => {
-      const sourceDir = path.resolve(projectRoot, source);
-      const project = loadProject(sourceDir, projectRoot);
+    async ({ unitId, glassDir, source }) => {
+      const resolvedGlassDir = path.resolve(projectRoot, glassDir);
+      const resolvedSourceDir = path.resolve(projectRoot, source);
+      const project = loadProject(resolvedGlassDir, projectRoot, resolvedSourceDir);
       if (!project.ok) {
         return { content: [{ type: "text", text: JSON.stringify({ success: false, error: project.error }) }] };
       }

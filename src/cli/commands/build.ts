@@ -6,19 +6,24 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { GlassCompiler } from "../../compiler/index";
+import { loadGlassConfig } from "../utils";
 import type { CompilerOptions } from "../../types/index";
 
 export const buildCommand = new Command("build")
   .description("Compile Glass source files")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("-o, --output <dir>", "Output directory", "dist")
   .option("--strict", "Enable strict mode", true)
   .option("--no-source-map", "Disable source maps")
   .option("--no-declaration", "Disable declaration files")
   .option("-v, --verbose", "Enable verbose output", false)
   .action(async (opts) => {
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
     const options: Partial<CompilerOptions> = {
-      rootDir: opts.source,
+      rootDir: glassDir,
       outDir: opts.output,
       strict: opts.strict,
       sourceMap: opts.sourceMap,

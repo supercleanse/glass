@@ -147,7 +147,7 @@ Follow these rules for all Glass source files:
 ### Always
 
 - Generate `.glass` files with both sections: Intent and Contract (spec-only)
-- Ensure every `.glass` file has a paired implementation file (`.ts` or `.rs`) with the same basename
+- Ensure every `.glass` file in `glass/` has a paired implementation file (`.ts` or `.rs`) in `src/` with the same basename
 - Maintain the `manifest.glass` — track every requirement origin
 - Write contracts for every unit — requires, guarantees, invariants, fails
 - Link every intent to its source (PRD, conversation, or AI-generated)
@@ -157,7 +157,7 @@ Follow these rules for all Glass source files:
 
 ### Never
 
-- Create an implementation file (`.ts`/`.rs`) without a paired `.glass` spec file
+- Create an implementation file in `src/` (`.ts`/`.rs`) without a paired `.glass` spec file in `glass/`
 - Create a `.glass` spec without both Intent and Contract sections
 - Leave failure modes unhandled
 - Expose sensitive data in outputs or logs
@@ -166,7 +166,7 @@ Follow these rules for all Glass source files:
 
 ### .glass File Format
 
-`.glass` files are **spec-only** -- they contain Intent and Contract sections but no implementation code. Implementation lives in a paired target-language file (`.ts` or `.rs`) with the same basename. For example, `parser.glass` is paired with `parser.ts`.
+`.glass` files are **spec-only** -- they contain Intent and Contract sections but no implementation code. Implementation lives in a paired target-language file (`.ts` or `.rs`) with the same basename in the mirrored `src/` directory. For example, `glass/compiler/parser.glass` is paired with `src/compiler/parser.ts`.
 
 ```
 === Glass Unit ===
@@ -247,7 +247,7 @@ Every contract must have:
 
 ### Naming
 
-- Files: `kebab-case.glass` (spec) paired with `kebab-case.ts` (implementation)
+- Files: `kebab-case.glass` (spec, in `glass/`) paired with `kebab-case.ts` (implementation, in `src/`)
 - Classes: `PascalCase`
 - Functions/methods: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
@@ -256,13 +256,24 @@ Every contract must have:
 
 ### Project Structure
 
+Specs (`.glass` files) live in the top-level `glass/` directory. Implementation (`.ts` files) lives in `src/`. The two directories mirror each other in structure. Humans work in `glass/` (specs); AI generates code in `src/` (implementation). The `glass.config.json` file configures both via `glassDir` and `sourceDir` fields.
+
 ```
-glass/
+glass-project/
 ├── CLAUDE.md                    # This file (project guide)
 ├── IGNITION.md                  # Self-hosting milestone record
 ├── manifest.glass               # Living requirements document
-├── glass.config.json            # Project configuration
-├── src/
+├── glass.config.json            # Project configuration (glassDir, sourceDir)
+├── glass/                       # Specs — human-facing (.glass files)
+│   ├── compiler/                # Mirrors src/compiler/
+│   │   ├── parser.glass
+│   │   ├── verifier.glass
+│   │   └── ...
+│   ├── cli/                     # Mirrors src/cli/
+│   │   └── commands/
+│   ├── adapters/
+│   └── types/
+├── src/                         # Implementation — compiled artifacts (.ts files)
 │   ├── compiler/                # Parser, linker, verifier, emitter
 │   ├── cli/                     # CLI commands
 │   ├── adapters/                # Language adapters
@@ -304,8 +315,8 @@ Each Taskmaster task maps to a Glass unit:
 After any change to `.glass` files, run:
 
 ```bash
-glass verify --source src/     # All 30 units must be PROVEN
-glass compile --source src/    # Must emit 30 files successfully
+glass verify --glass-dir glass/ --source src/     # All units must be PROVEN
+glass compile --glass-dir glass/ --source src/     # Must emit files successfully
 ```
 
 The Glass compiler enforces all contract rules automatically. See [IGNITION.md](IGNITION.md) for the full milestone record.

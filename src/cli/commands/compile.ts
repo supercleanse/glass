@@ -5,7 +5,7 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { loadProject } from "../utils";
+import { loadProject, loadGlassConfig, resolveGlassDir, resolveSourceDir } from "../utils";
 import { emitTypeScript } from "../../compiler/emitter";
 import { generateAllViews } from "../../compiler/view-generator";
 import { generateInstrumentation } from "../../compiler/verifier";
@@ -13,7 +13,8 @@ import * as path from "path";
 
 export const compileCommand = new Command("compile")
   .description("Run full Glass compilation pipeline")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("-o, --output <dir>", "Output directory", "dist")
   .option("--no-verify", "Skip verification step")
   .option("--clean", "Clean output directory before emitting", false)
@@ -23,7 +24,11 @@ export const compileCommand = new Command("compile")
 
     // Step 1-4: Parse, link, verify
     console.log(chalk.blue("[1/6]") + " Parsing .glass files...");
-    const project = loadProject(opts.source);
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
+    const sourceDir = opts.source ?? config?.sourceDir ?? "src";
+    const project = loadProject(glassDir, projectRoot, sourceDir);
     if (!project.ok) {
       console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;
@@ -60,7 +65,7 @@ export const compileCommand = new Command("compile")
 
     // Step 5: Generate views
     console.log(chalk.blue("[5/6]") + " Generating views...");
-    const viewsDir = path.join(path.dirname(opts.source), "glass-views");
+    const viewsDir = path.join(projectRoot, "glass-views");
     generateAllViews(glassFiles, tree, verificationResults, viewsDir);
     console.log(chalk.green("[5/6]") + " Generating views... done");
 

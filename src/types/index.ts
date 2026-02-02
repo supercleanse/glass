@@ -430,6 +430,10 @@ export interface GlassConfig {
   generatedDir: string;
   /** Directory for annotation storage. */
   annotationsDir: string;
+  /** Directory containing .glass spec files (default: "glass"). */
+  glassDir?: string;
+  /** Directory containing implementation source files (default: "src"). */
+  sourceDir?: string;
   /** Entry point Glass unit ID (optional). */
   entryPoint?: string;
   /** Module system for output. */
