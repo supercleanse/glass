@@ -26,6 +26,7 @@
     - compiler.orchestrator: Orchestrate the full Glass compilation pipeline (parse, link, verify, emit)
     - compiler.linker: Build and validate the intent tree from parsed .glass files, resolving parent-child relationships
     - compiler.parser: Parse .glass files into structured GlassFile objects, extracting the three layers (Intent, Contract, Implementation)
+    - compiler.ts_program_factory: Create TypeScript Program instances from .glass implementations for AST-based verification
     - compiler.verifier: Verify that implementations satisfy their contracts through static analysis and pattern matching
     - compiler.view_generator: Generate human-readable views, checklists, and dashboards from Glass units for stakeholder review
   - glass.entry: Export the complete Glass public API as a single entry point

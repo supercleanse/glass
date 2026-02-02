@@ -12,7 +12,7 @@ Policies:
   require-approval: business-logic, data-model, compiler-semantics
 
 Intent Registry:
-  user-originated: 26 intents
+  user-originated: 27 intents
   conversation-derived: 0 intents
   ai-generated: 0 intents
 
@@ -30,6 +30,7 @@ Intent Registry:
     compiler.manifest          src/compiler/manifest.glass
     compiler.annotations       src/compiler/annotations.glass
     compiler.view_generator    src/compiler/view-generator.glass
+    compiler.ts_program_factory src/compiler/ts-program-factory.glass
 
     # CLI Layer
     cli.entry                  src/cli/index.glass

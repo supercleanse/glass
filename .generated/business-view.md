@@ -28,6 +28,7 @@
     - **Orchestrate the full Glass compilation pipeline (parse, link, verify, emit)** _(AI-generated)_
     - **Build and validate the intent tree from parsed .glass files, resolving parent-child relationships** _(AI-generated)_
     - **Parse .glass files into structured GlassFile objects, extracting the three layers (Intent, Contract, Implementation)** _(AI-generated)_
+    - **Create TypeScript Program instances from .glass implementations for AST-based verification** _(AI-generated)_
     - **Verify that implementations satisfy their contracts through static analysis and pattern matching** _(AI-generated)_
     - **Generate human-readable views, checklists, and dashboards from Glass units for stakeholder review** _(PRD)_
   - **Export the complete Glass public API as a single entry point** _(PRD)_

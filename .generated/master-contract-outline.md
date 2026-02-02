@@ -163,6 +163,14 @@
 
 **Failure Modes:** FileNotFound, InvalidFormat, MissingSection, InvalidSectionContent
 
+## compiler.ts_program_factory
+
+**Requires:** "TypeScript compiler API is available (typescript package installed)"; "projectRoot points to a directory with tsconfig.json"; "GlassFile has a non-empty implementation section"
+
+**Guarantees:** "createProgramFromGlassFile returns a ts.Program with type checker"; "createBatchProgram returns all source files in a single shared program"; "getVirtualPath returns a deterministic path for a unit ID"; "Relative imports in implementations are resolved against actual source"
+
+**Failure Modes:** SyntaxError
+
 ## compiler.verifier
 
 **Requires:** "file is a valid GlassFile with contract and implementation"

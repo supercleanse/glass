@@ -7,12 +7,12 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Units | 30 |
-| Verified (PROVEN) | 30 |
+| Total Units | 31 |
+| Verified (PROVEN) | 31 |
 | Failed | 0 |
-| Total Assertions | 264 |
-| Passed Assertions | 264 |
-| Advisories | 264 |
+| Total Assertions | 277 |
+| Passed Assertions | 277 |
+| Advisories | 278 |
 
 ## Per-Unit Status
 
@@ -38,6 +38,7 @@
 - [!] **compiler.orchestrator**: PROVEN (10/10 assertions, 11 advisory)
 - [!] **compiler.linker**: PROVEN (12/12 assertions, 12 advisory)
 - [!] **compiler.parser**: PROVEN (15/15 assertions, 15 advisory)
+- [!] **compiler.ts_program_factory**: PROVEN (13/13 assertions, 14 advisory)
 - [!] **compiler.verifier**: PROVEN (8/8 assertions, 8 advisory)
 - [!] **compiler.view_generator**: PROVEN (15/15 assertions, 14 advisory)
 - [!] **glass.framework**: PROVEN (2/2 assertions, 2 advisory)
