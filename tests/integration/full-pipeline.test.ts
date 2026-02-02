@@ -89,6 +89,9 @@ describe("Full Pipeline Integration", () => {
         advisories: [],
       },
       implementation: 'export function init(config: any) { return { initialized: true, config }; }',
+      specPath: "/test/app/root.glass",
+      implementationPath: null,
+      separatedFormat: false,
     };
 
     const childA: GlassFile = {
@@ -111,6 +114,9 @@ describe("Full Pipeline Integration", () => {
         advisories: [],
       },
       implementation: 'export function processA(input: string) { return input.toUpperCase(); }',
+      specPath: "/test/app/child_a.glass",
+      implementationPath: null,
+      separatedFormat: false,
     };
 
     const childB: GlassFile = {
@@ -133,6 +139,9 @@ describe("Full Pipeline Integration", () => {
         advisories: [],
       },
       implementation: 'export function processB(data: any) { return data; }',
+      specPath: "/test/app/child_b.glass",
+      implementationPath: null,
+      separatedFormat: false,
     };
 
     const files = [root, childA, childB];
@@ -253,10 +262,13 @@ export function failing() {
     if (missingContract.ok) return;
     expect(missingContract.error.reason).toBe("MissingSection");
 
+    // missing-implementation.glass has no === Implementation === section.
+    // In the new separated format this is valid (spec-only / group unit).
     const missingImpl = parseGlassFile(path.join(invalidDir, "missing-implementation.glass"));
-    expect(missingImpl.ok).toBe(false);
-    if (missingImpl.ok) return;
-    expect(missingImpl.error.reason).toBe("MissingSection");
+    expect(missingImpl.ok).toBe(true);
+    if (!missingImpl.ok) return;
+    expect(missingImpl.value.implementation).toBe("");
+    expect(missingImpl.value.separatedFormat).toBe(true);
   });
 
   it("should detect dangling parent references", () => {
@@ -280,6 +292,9 @@ export function failing() {
         advisories: [],
       },
       implementation: "export function a() {}",
+      specPath: "/test/orphan/child.glass",
+      implementationPath: null,
+      separatedFormat: false,
     };
 
     const linkResult = linkIntentTree([fileA]);

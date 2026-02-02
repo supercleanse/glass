@@ -1,5 +1,6 @@
 /**
  * glass build — compile Glass source files through the full pipeline.
+ * @fails CompilationFailed
  */
 
 import { Command } from "commander";

@@ -29,11 +29,3 @@ invariants:
   - "This is the root intent — no parent exists"
 fails:
 advisories:
-
-=== Implementation ===
-/**
- * Glass Framework — root intent namespace.
- *
- * This unit exists solely to anchor the intent hierarchy.
- * The actual entry point is glass.entry (src/index.glass).
- */

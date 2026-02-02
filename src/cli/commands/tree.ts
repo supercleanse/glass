@@ -1,5 +1,6 @@
 /**
  * glass tree — display the intent hierarchy as an ASCII tree.
+ * @fails ProjectNotFound
  */
 
 import { Command } from "commander";

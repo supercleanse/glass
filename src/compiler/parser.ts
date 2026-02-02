@@ -12,6 +12,7 @@
  */
 
 import * as fs from "fs";
+import * as path from "path";
 import type {
   GlassFile,
   Intent,
@@ -33,13 +34,18 @@ import { Ok, Err } from "../types/index";
 // Section Splitter (Subtask 4.2)
 // ============================================================
 
-/** Section markers in the .glass file format. */
-const SECTION_MARKERS = [
+/** Required section markers in the .glass file format. */
+const REQUIRED_MARKERS = [
   "=== Glass Unit ===",
   "=== Intent ===",
   "=== Contract ===",
-  "=== Implementation ===",
 ] as const;
+
+/** Optional section marker for legacy inline implementation. */
+const IMPLEMENTATION_MARKER = "=== Implementation ===" as const;
+
+/** All known section markers. */
+const ALL_MARKERS = [...REQUIRED_MARKERS, IMPLEMENTATION_MARKER];
 
 type SectionName = "Glass Unit" | "Intent" | "Contract" | "Implementation";
 
@@ -48,12 +54,13 @@ interface RawSections {
   glassUnit: { content: string; startLine: number };
   intent: { content: string; startLine: number };
   contract: { content: string; startLine: number };
-  implementation: { content: string; startLine: number };
+  implementation: { content: string; startLine: number } | null;
 }
 
 /**
  * Split raw .glass file content by section markers.
- * Tracks line numbers for each section start.
+ * Implementation section is optional — when absent, implementation
+ * is loaded from the paired language-specific file.
  */
 function splitSections(content: string, filePath: string): Result<RawSections, ParseError> {
   const lines = content.split(/\r?\n/);
@@ -61,13 +68,13 @@ function splitSections(content: string, filePath: string): Result<RawSections, P
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
-    if (SECTION_MARKERS.includes(trimmed as typeof SECTION_MARKERS[number])) {
+    if (ALL_MARKERS.includes(trimmed as typeof ALL_MARKERS[number])) {
       sectionStarts.push({ marker: trimmed, line: i + 1, index: sectionStarts.length });
     }
   }
 
-  // Validate all four sections present
-  for (const expected of SECTION_MARKERS) {
+  // Validate required sections present
+  for (const expected of REQUIRED_MARKERS) {
     if (!sectionStarts.find((s) => s.marker === expected)) {
       const sectionName = expected.replace(/^=== | ===$/g, "") as SectionName;
       return Err({
@@ -79,8 +86,12 @@ function splitSections(content: string, filePath: string): Result<RawSections, P
     }
   }
 
+  const hasImplementation = sectionStarts.some((s) => s.marker === IMPLEMENTATION_MARKER);
+
   // Validate section order
-  const expectedOrder = [...SECTION_MARKERS];
+  const expectedOrder = hasImplementation
+    ? [...REQUIRED_MARKERS, IMPLEMENTATION_MARKER]
+    : [...REQUIRED_MARKERS];
   for (let i = 0; i < sectionStarts.length; i++) {
     if (sectionStarts[i].marker !== expectedOrder[i]) {
       return Err({
@@ -111,7 +122,7 @@ function splitSections(content: string, filePath: string): Result<RawSections, P
     glassUnit: getContent(0),
     intent: getContent(1),
     contract: getContent(2),
-    implementation: getContent(3),
+    implementation: hasImplementation ? getContent(3) : null,
   });
 }
 
@@ -485,11 +496,52 @@ function parseKeyValuePairs(content: string): Map<string, string> {
 }
 
 // ============================================================
+// Implementation File Resolver
+// ============================================================
+
+/** Map from target language to file extension. */
+const LANGUAGE_EXTENSIONS: Record<TargetLanguage, string> = {
+  typescript: ".ts",
+  rust: ".rs",
+};
+
+/**
+ * Resolve the paired implementation file for a .glass spec.
+ * Convention: same directory, same basename, language-appropriate extension.
+ * Returns the file content and absolute path, or an error if not found.
+ */
+function resolveImplementationFile(
+  glassFilePath: string,
+  language: TargetLanguage,
+): Result<{ content: string; path: string }, ParseError> {
+  const dir = path.dirname(glassFilePath);
+  const basename = path.basename(glassFilePath, ".glass");
+  const ext = LANGUAGE_EXTENSIONS[language] || ".ts";
+  const implPath = path.join(dir, basename + ext);
+
+  let content: string;
+  try {
+    content = fs.readFileSync(implPath, "utf-8");
+  } catch {
+    // No paired file found — this is valid for group units (empty implementation)
+    return Err({
+      reason: "ImplementationFileNotFound",
+      message: "No paired implementation file found: " + implPath,
+      filePath: glassFilePath,
+    });
+  }
+
+  return Ok({ content, path: path.resolve(implPath) });
+}
+
+// ============================================================
 // GlassParser Orchestrator (Subtask 4.5)
 // ============================================================
 
 /**
  * Parse a .glass file from a file path.
+ * Supports both legacy format (with inline Implementation section)
+ * and the new separated format (implementation in paired .ts/.rs file).
  */
 export function parseGlassFile(filePath: string): Result<GlassFile, ParseError> {
   let content: string;
@@ -503,11 +555,14 @@ export function parseGlassFile(filePath: string): Result<GlassFile, ParseError> 
     });
   }
 
-  return parseGlassContent(content, filePath);
+  const absPath = path.resolve(filePath);
+  return parseGlassContent(content, absPath);
 }
 
 /**
  * Parse .glass content from a string.
+ * Supports both legacy (4-section) and new (3-section) formats.
+ * In the new format, implementation is loaded from the paired file on disk.
  */
 export function parseGlassContent(
   content: string,
@@ -539,17 +594,49 @@ export function parseGlassContent(
     return contract;
   }
 
-  // Step 5: Extract implementation as-is
-  const implementation = raw.implementation.content;
+  // Step 5: Resolve implementation
+  if (raw.implementation !== null) {
+    // Legacy format: implementation is inline
+    return Ok({
+      id: header.value.id,
+      version: header.value.version,
+      language: header.value.language,
+      intent: intent.value,
+      contract: contract.value,
+      implementation: raw.implementation.content,
+      specPath: filePath,
+      implementationPath: null,
+      separatedFormat: false,
+    });
+  }
 
-  // Step 6: Assemble GlassFile
+  // New format: look for paired implementation file
+  const implResult = resolveImplementationFile(filePath, header.value.language);
+  if (implResult.ok) {
+    return Ok({
+      id: header.value.id,
+      version: header.value.version,
+      language: header.value.language,
+      intent: intent.value,
+      contract: contract.value,
+      implementation: implResult.value.content,
+      specPath: filePath,
+      implementationPath: implResult.value.path,
+      separatedFormat: true,
+    });
+  }
+
+  // No paired file found — valid for group units (empty implementation)
   return Ok({
     id: header.value.id,
     version: header.value.version,
     language: header.value.language,
     intent: intent.value,
     contract: contract.value,
-    implementation,
+    implementation: "",
+    specPath: filePath,
+    implementationPath: null,
+    separatedFormat: true,
   });
 }
 

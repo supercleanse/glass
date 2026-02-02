@@ -36,11 +36,3 @@ invariants:
   - "All CLI units are children of this intent"
 fails:
 advisories:
-
-=== Implementation ===
-/**
- * Glass CLI — group intent namespace.
- *
- * The CLI is bootstrapped by cli.entry (src/cli/index.glass).
- * This unit anchors the CLI subtree in the intent hierarchy.
- */

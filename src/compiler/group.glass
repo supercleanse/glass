@@ -33,12 +33,3 @@ invariants:
   - "All compiler units are children of this intent"
 fails:
 advisories:
-
-=== Implementation ===
-/**
- * Glass Compiler — group intent namespace.
- *
- * The compiler pipeline is orchestrated by compiler.orchestrator
- * (src/compiler/index.glass). This unit anchors the compiler
- * subtree in the intent hierarchy.
- */

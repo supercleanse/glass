@@ -25,11 +25,3 @@ invariants:
   - "All MCP units are children of this intent"
 fails:
 advisories:
-
-=== Implementation ===
-/**
- * Glass MCP — group intent namespace.
- *
- * The MCP server is bootstrapped by mcp.server (src/mcp/index.glass).
- * This unit anchors the MCP subtree in the intent hierarchy.
- */

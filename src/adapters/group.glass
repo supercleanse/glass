@@ -24,12 +24,3 @@ invariants:
   - "All adapter units are children of this intent"
 fails:
 advisories:
-
-=== Implementation ===
-/**
- * Glass Adapters — group intent namespace.
- *
- * Language adapters translate Glass contracts into target-language
- * constructs. Currently only TypeScript is supported.
- * This unit anchors the adapters subtree in the intent hierarchy.
- */

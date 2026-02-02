@@ -4,6 +4,7 @@
  *
  * Uses the TypeScript Compiler API to enable semantic analysis (type checking,
  * control flow analysis, reference tracking) instead of regex pattern matching.
+ * @fails SyntaxError
  */
 
 import * as ts from "typescript";
@@ -292,10 +293,13 @@ export function createBatchProgram(
   const virtualPaths: string[] = [];
   const allResolvedImports = new Map<string, string>();
 
-  // Create virtual source files for all units
+  // Create source files for all units.
+  // Separated-format files use their real .ts path; legacy files use virtual paths.
   for (const file of files) {
-    const vPath = virtualPath(file.id);
-    const sourcePath = inferSourcePath(file, projectRoot);
+    const filePath = (file.separatedFormat && file.implementationPath)
+      ? file.implementationPath
+      : virtualPath(file.id);
+    const sourcePath = file.implementationPath || inferSourcePath(file, projectRoot);
 
     let implementation = file.implementation;
     if (implementation.includes("#!")) {
@@ -303,15 +307,15 @@ export function createBatchProgram(
     }
 
     const sf = ts.createSourceFile(
-      vPath,
+      filePath,
       implementation,
       options.target ?? ts.ScriptTarget.ES2020,
       true,
       ts.ScriptKind.TS,
     );
 
-    virtualFiles.set(vPath, sf);
-    virtualPaths.push(vPath);
+    virtualFiles.set(filePath, sf);
+    virtualPaths.push(filePath);
 
     // Collect imports
     const imports = resolveImplementationImports(implementation, sourcePath, projectRoot);
@@ -368,8 +372,10 @@ export function createBatchProgram(
     const program = ts.createProgram(virtualPaths, { ...options, noEmit: true }, host);
     const sourceFileMap = new Map<string, ts.SourceFile>();
     for (const file of files) {
-      const vPath = virtualPath(file.id);
-      const sf = program.getSourceFile(vPath);
+      const filePath = (file.separatedFormat && file.implementationPath)
+        ? file.implementationPath
+        : virtualPath(file.id);
+      const sf = program.getSourceFile(filePath);
       if (sf) sourceFileMap.set(file.id, sf);
     }
     return { program, sourceFiles: sourceFileMap };

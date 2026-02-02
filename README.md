@@ -2,7 +2,7 @@
 
 AI writes the code. Humans review structured outlines. The compiler guarantees the contracts are satisfied.
 
-Glass is a framework for AI-first software development. Every unit of code has three sections: **Intent** (why it exists), **Contract** (what it promises), and **Implementation** (the code). The Glass compiler parses `.glass` source files, links them into an intent hierarchy, verifies that implementations satisfy their contracts, and emits target-language code.
+Glass is a framework for AI-first software development. Every unit of code has a **spec** (`.glass` file with Intent and Contract) and a **paired implementation file** (`.ts` or `.rs`). The Glass compiler parses `.glass` spec files, links them into an intent hierarchy, verifies that implementations satisfy their contracts, and emits target-language code.
 
 Glass is self-hosting: the compiler verifies and compiles itself. All 32 units are **PROVEN**.
 
@@ -82,7 +82,7 @@ This creates a project with `manifest.glass`, `glass.config.json`, and the stand
 
 ### The .glass File Format
 
-Every `.glass` file has three sections:
+`.glass` files are **spec-only** -- they contain the Intent and Contract sections. Implementation lives in a paired target-language file (e.g., `parser.glass` is paired with `parser.ts`).
 
 ```
 === Glass Unit ===
@@ -120,16 +120,13 @@ fails:
   MissingSections: "Returns ParseError with reason MissingSections"
 
 advisories:
-
-=== Implementation ===
-// TypeScript code here
 ```
 
 **Intent** declares *why* the code exists, who it's for, and where the requirement came from. Intents form a tree: every unit has a parent, and the tree traces from business goals down to individual functions.
 
 **Contract** declares *what* the code promises. Preconditions (`requires`), postconditions (`guarantees`), properties that always hold (`invariants`), error handling (`fails`), and decisions flagged for human review (`advisories`).
 
-**Implementation** is the actual code. The compiler verifies it satisfies the contract.
+**Implementation** lives in a paired `.ts` (or `.rs`) file with the same basename. The compiler verifies that the implementation satisfies the contract declared in the `.glass` spec.
 
 ### Compiler Pipeline
 
@@ -137,9 +134,9 @@ advisories:
 .glass files  -->  Parse  -->  Link  -->  Verify  -->  Generate Views  -->  Emit .ts
 ```
 
-1. **Parse** -- Reads `.glass` files and extracts Intent, Contract, and Implementation sections
+1. **Parse** -- Reads `.glass` spec files and extracts Intent and Contract sections; locates paired implementation files
 2. **Link** -- Builds the intent hierarchy tree and checks for dangling references
-3. **Verify** -- Proves implementations satisfy contracts using TypeScript AST analysis
+3. **Verify** -- Proves paired implementations satisfy contracts using TypeScript AST analysis
 4. **Generate Views** -- Creates human-readable outlines, checklists, and dashboards
 5. **Emit** -- Outputs target-language source files (TypeScript)
 
@@ -164,7 +161,7 @@ A unit passes verification when all its assertions pass. The overall status is *
 
 ### Self-Hosting
 
-Glass compiles and verifies itself. The 32 `.glass` files in `src/` *are* the source code. Running `glass compile --source src/` emits the TypeScript files to `dist/`, and those compiled files can then verify and compile the `.glass` source again -- producing byte-identical output (idempotent).
+Glass compiles and verifies itself. The `.glass` spec files and their paired `.ts` implementation files in `src/` *are* the source code. Running `glass compile --source src/` emits the TypeScript files to `dist/`, and those compiled files can then verify and compile the source again -- producing byte-identical output (idempotent).
 
 ```bash
 # The compiler verifies itself
@@ -364,16 +361,16 @@ glass/
 │   ├── types/
 │   │   └── index.glass         # Type definitions
 │   ├── compiler/
-│   │   ├── index.glass         # Compiler orchestrator
-│   │   ├── parser.glass        # .glass file parser
-│   │   ├── linker.glass        # Intent tree linker
-│   │   ├── verifier.glass      # Contract verifier (Phase 1 + 2)
-│   │   ├── ast-verifier.glass  # AST-based verification functions
-│   │   ├── ts-program-factory.glass  # TypeScript Program creation
-│   │   ├── emitter.glass       # TypeScript code emitter
-│   │   ├── manifest.glass      # Manifest parser
-│   │   ├── annotations.glass   # Annotation management
-│   │   └── view-generator.glass # View/dashboard generation
+│   │   ├── index.glass + index.ts         # Compiler orchestrator
+│   │   ├── parser.glass + parser.ts       # .glass file parser
+│   │   ├── linker.glass + linker.ts       # Intent tree linker
+│   │   ├── verifier.glass + verifier.ts   # Contract verifier (Phase 1 + 2)
+│   │   ├── ast-verifier.glass + ast-verifier.ts  # AST-based verification
+│   │   ├── ts-program-factory.glass + ts-program-factory.ts  # TS Program creation
+│   │   ├── emitter.glass + emitter.ts     # TypeScript code emitter
+│   │   ├── manifest.glass + manifest.ts   # Manifest parser
+│   │   ├── annotations.glass + annotations.ts  # Annotation management
+│   │   └── view-generator.glass + view-generator.ts # View/dashboard generation
 │   ├── cli/
 │   │   ├── index.glass         # CLI entry point
 │   │   ├── utils.glass         # Shared CLI utilities
@@ -422,8 +419,8 @@ The skill file is already at `.claude/skills/glass/SKILL.md`. Claude Code picks 
 
 When Claude has the skill loaded, it will:
 
-1. Generate `.glass` files instead of raw `.ts` files
-2. Always include Intent, Contract, and Implementation sections
+1. Generate `.glass` spec files paired with `.ts` implementation files
+2. Always include Intent and Contract sections in `.glass` files
 3. Update `manifest.glass` when adding or removing units
 4. Write proper contracts with requires, guarantees, invariants, and fails
 5. Use the correct intent hierarchy (parent references, sub-intents)
@@ -435,7 +432,7 @@ When Claude has the skill loaded, it will:
 ```
 You:    "Add a user authentication module"
 
-Claude: [Creates auth.glass with intent, contract, and implementation]
+Claude: [Creates auth.glass (spec) and auth.ts (implementation)]
         [Updates manifest.glass with new unit]
         [Runs glass verify to check contracts]
         [Runs glass compile to emit TypeScript]

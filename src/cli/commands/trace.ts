@@ -1,5 +1,6 @@
 /**
  * glass trace — display full provenance chain from business goal to implementation.
+ * @fails ProjectNotFound | UnitNotFound
  */
 
 import { Command } from "commander";

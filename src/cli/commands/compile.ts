@@ -1,5 +1,6 @@
 /**
  * glass compile — run full compilation pipeline: parse, link, verify, generate views, emit.
+ * @fails ProjectNotFound | VerificationFailed | EmitFailed
  */
 
 import { Command } from "commander";

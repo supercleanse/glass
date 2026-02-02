@@ -1,5 +1,6 @@
 /**
  * glass eject — export clean target-language code with no Glass dependencies.
+ * @fails DistNotFound | OutputExists
  */
 
 import { Command } from "commander";
