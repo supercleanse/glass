@@ -5,17 +5,22 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { loadProject } from "../utils";
+import { loadProject, loadGlassConfig, resolveGlassDir, resolveSourceDir } from "../utils";
 
 export const verifyCommand = new Command("verify")
   .description("Run contract verification on Glass source files")
-  .option("-s, --source <dir>", "Source directory", "src")
+  .option("-g, --glass-dir <dir>", "Glass spec directory")
+  .option("-s, --source <dir>", "Implementation source directory")
   .option("--failures-only", "Show only failed units", false)
   .option("-v, --verbose", "Enable verbose output", false)
   .action(async (opts) => {
     console.log(chalk.blue("Glass") + " Verifying...\n");
 
-    const project = loadProject(opts.source);
+    const projectRoot = process.cwd();
+    const config = loadGlassConfig(projectRoot);
+    const glassDir = opts.glassDir ?? config?.glassDir ?? "glass";
+    const sourceDir = opts.source ?? config?.sourceDir ?? "src";
+    const project = loadProject(glassDir, projectRoot, sourceDir);
     if (!project.ok) {
       console.error(chalk.red("Error:") + " " + project.error);
       process.exitCode = 1;

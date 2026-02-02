@@ -41,7 +41,7 @@ describe("MCP Tools", () => {
     it("should handle glass_init via project creation", () => {
       // Verify the init tool creates files by testing the underlying function
       const targetDir = path.join(tempDir, "test-project");
-      const dirs = ["", "src", "src/glass", "dist", "glass-views", "annotations", "tests"];
+      const dirs = ["", "glass", "src", "dist", "glass-views", "annotations", "tests"];
       for (const dir of dirs) {
         fs.mkdirSync(path.join(targetDir, dir), { recursive: true });
       }

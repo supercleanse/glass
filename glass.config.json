@@ -4,5 +4,7 @@
   "projectName": "glass-framework",
   "outputDir": "dist",
   "generatedDir": "glass-views",
-  "annotationsDir": "annotations"
+  "annotationsDir": "annotations",
+  "glassDir": "glass",
+  "sourceDir": "src"
 }
