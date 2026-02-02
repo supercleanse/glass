@@ -9,15 +9,23 @@ import * as fs from "fs";
 import * as path from "path";
 
 export const initCommand = new Command("init")
-  .description("Initialize a new Glass project")
-  .argument("<name>", "Project name")
+  .description("Initialize a new Glass project (defaults to current directory)")
+  .argument("[name]", "Project name / directory (defaults to current directory)")
   .option("-l, --language <lang>", "Target language (typescript | rust)", "typescript")
   .option("--no-git", "Skip git initialization")
-  .action(async (name: string, opts) => {
-    const targetDir = path.resolve(name);
+  .action(async (nameArg: string | undefined, opts) => {
+    const inPlace = !nameArg;
+    const targetDir = inPlace ? process.cwd() : path.resolve(nameArg);
+    const name = inPlace ? path.basename(targetDir) : nameArg;
 
-    if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
+    if (!inPlace && fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
       console.error(chalk.red("Error:") + " Directory '" + name + "' already exists and is not empty");
+      process.exitCode = 1;
+      return;
+    }
+
+    if (inPlace && fs.existsSync(path.join(targetDir, "glass.config.json"))) {
+      console.error(chalk.red("Error:") + " glass.config.json already exists — project already initialized");
       process.exitCode = 1;
       return;
     }
@@ -89,7 +97,9 @@ Intent Registry:
     console.log(chalk.green("  +") + " Created directory structure");
     console.log("");
     console.log(chalk.green("Project initialized!") + " Next steps:");
-    console.log("  cd " + name);
+    if (!inPlace) {
+      console.log("  cd " + name);
+    }
     console.log("  # Add .glass spec files to glass/");
     console.log("  glass verify");
     console.log("  glass compile");
