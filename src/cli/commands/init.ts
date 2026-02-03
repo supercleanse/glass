@@ -89,7 +89,7 @@ Intent Registry:
     // Generate .gitignore
     fs.writeFileSync(
       path.join(targetDir, ".gitignore"),
-      "node_modules/\ndist/\n*.log\n.DS_Store\n",
+      "node_modules/\ndist/\n*.log\n.DS_Store\n.claude/settings.local.json\n",
       "utf-8",
     );
 
@@ -102,7 +102,7 @@ Intent Registry:
 
     // Determine which AI seed file to create/update
     const aiTool = await resolveAiTool(targetDir, opts.ai);
-    const seedContent = generateSeedContent(name, opts.language);
+    const seedContent = generateSeedContent();
     const seededFiles: string[] = [];
 
     const filesToSeed = aiTool === "all" ? AI_TOOLS.map((t) => t.file) : [AI_TOOL_MAP[aiTool]];
@@ -124,12 +124,16 @@ Intent Registry:
       }
     }
 
+    // Generate Claude Code hook to enforce spec-first workflow
+    generateGlassHook(targetDir);
+
     console.log(chalk.green("  +") + " Created manifest.glass");
     console.log(chalk.green("  +") + " Created glass.config.json");
     console.log(chalk.green("  +") + " Created GLASS.md");
     if (seededFiles.length > 0) {
       console.log(chalk.green("  +") + " AI context: " + seededFiles.join(", "));
     }
+    console.log(chalk.green("  +") + " Created .claude/hooks (spec-first enforcement)");
     console.log(chalk.green("  +") + " Created directory structure");
     console.log("");
     console.log(chalk.green("Project initialized!") + " Next steps:");
@@ -214,81 +218,110 @@ async function resolveAiTool(targetDir: string, flagValue?: string): Promise<AiT
 // AI Seed File Content
 // ============================================================
 
-function generateSeedContent(projectName: string, language: string): string {
-  const lang = language === "rust" ? "Rust" : "TypeScript";
-  const ext = language === "rust" ? ".rs" : ".ts";
-  return `# Glass Framework — Required Workflow
+function generateSeedContent(): string {
+  return `This project uses the Glass Framework. Read GLASS.md before writing any code.
 
-This project uses the **Glass Framework**. You MUST follow this workflow for ALL code changes.
-
-## The Rule
-
-**Write the \`.glass\` spec FIRST. Then write the implementation. Never the other way around.**
-
-- Specs live in \`glass/\` — these are the source of truth
-- Implementation lives in \`src/\` — this is generated from specs
-- A \`.glass\` file defines the Intent (WHY) and Contract (WHAT)
-- The paired \`${ext}\` file contains the Implementation (HOW)
-
-## Workflow
-
-1. Create or update the \`.glass\` spec in \`glass/\`
-2. Create or update the implementation in \`src/\`
-3. Run \`glass verify\` to confirm contracts are satisfied
-4. Run \`glass compile\` to emit verified code
-
-Example: \`glass/auth/login.glass\` pairs with \`src/auth/login${ext}\`
-
-## Never
-
-- Write implementation code without a paired \`.glass\` spec
-- Skip writing the spec "to save time" — the spec IS the design
-- Modify \`.glass\` files during compilation
-- Skip verification (\`glass verify\`)
-
-## .glass File Format
-
-\`\`\`
-=== Glass Unit ===
-id: module.unit_name
-version: 0.1.0
-language: ${language}
-
-=== Intent ===
-purpose: Plain English description of why this exists
-source:
-  kind: prd
-  reference: "where this requirement came from"
-parent: null
-stakeholder: user
-subIntents: []
-approvalStatus: approved
-
-=== Contract ===
-requires:
-  - "precondition that must be true before execution"
-guarantees:
-  on_success:
-    - "postcondition guaranteed after successful execution"
-  on_failure:
-    - "postcondition guaranteed when execution fails"
-invariants:
-  - "property that must hold throughout execution"
-fails:
-  ErrorType: "handling strategy"
-\`\`\`
-
-## Commands
-
-\`\`\`bash
-glass verify    # Verify all contracts are satisfied
-glass compile   # Full pipeline: verify + emit ${lang} code
-glass status    # Show verification dashboard
-glass tree      # Display intent hierarchy
-\`\`\`
-
-See [GLASS.md](./GLASS.md) for the complete methodology, contract rules, and project conventions.
+Write the .glass spec FIRST, then the implementation. Never the other way around.
+Specs live in glass/, implementation lives in src/.
+Run glass verify after changes. See GLASS.md for the full methodology and file format.
 `;
+}
+
+// ============================================================
+// Claude Code Hook — Spec-First Enforcement
+// ============================================================
+
+function generateGlassHook(targetDir: string): void {
+  const hooksDir = path.join(targetDir, ".claude", "hooks");
+  fs.mkdirSync(hooksDir, { recursive: true });
+
+  // Write the hook script
+  const hookScript = `#!/bin/bash
+# Glass Framework — spec-first enforcement hook
+# Blocks writes to src/ files that don't have a paired .glass spec in glass/
+
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+
+# Allow if not a src/ file
+case "$FILE_PATH" in
+  */src/*) ;;
+  *) exit 0 ;;
+esac
+
+# Allow non-code files (configs, json, etc.)
+case "$FILE_PATH" in
+  *.ts|*.tsx|*.js|*.jsx|*.rs) ;;
+  *) exit 0 ;;
+esac
+
+# Allow test files
+case "$FILE_PATH" in
+  *.test.*|*.spec.*|*__test__*) exit 0 ;;
+esac
+
+# Extract relative path within src/
+# e.g. /path/to/project/src/compiler/parser.ts -> compiler/parser.ts
+SRC_REL="\${FILE_PATH#*/src/}"
+
+# Build expected .glass path: src/compiler/parser.ts -> glass/compiler/parser.glass
+GLASS_REL="\${SRC_REL%.*}.glass"
+
+# Find project root by looking for glass.config.json
+PROJECT_DIR=$(echo "$INPUT" | jq -r '.cwd // empty')
+if [ -z "$PROJECT_DIR" ]; then
+  PROJECT_DIR="."
+fi
+
+GLASS_FILE="$PROJECT_DIR/glass/$GLASS_REL"
+
+if [ ! -f "$GLASS_FILE" ]; then
+  echo "BLOCKED: Glass spec-first workflow violation" >&2
+  echo "" >&2
+  echo "You are trying to write: $SRC_REL" >&2
+  echo "But no Glass spec exists: glass/$GLASS_REL" >&2
+  echo "" >&2
+  echo "The Glass methodology requires you to write the .glass spec FIRST," >&2
+  echo "then write the implementation. Create the spec file at:" >&2
+  echo "" >&2
+  echo "  glass/$GLASS_REL" >&2
+  echo "" >&2
+  echo "See GLASS.md for the .glass file format." >&2
+  exit 2
+fi
+
+exit 0
+`;
+
+  const hookPath = path.join(hooksDir, "enforce-glass-spec.sh");
+  fs.writeFileSync(hookPath, hookScript, { mode: 0o755 });
+
+  // Write the settings file
+  const settingsPath = path.join(targetDir, ".claude", "settings.json");
+  let settings: Record<string, unknown> = {};
+  if (fs.existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    } catch {
+      // ignore malformed settings
+    }
+  }
+
+  settings.hooks = {
+    PreToolUse: [
+      {
+        matcher: "Write|Edit",
+        hooks: [
+          {
+            type: "command",
+            command: ".claude/hooks/enforce-glass-spec.sh",
+          },
+        ],
+      },
+    ],
+  };
+
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf-8");
 }
 
 // ============================================================
