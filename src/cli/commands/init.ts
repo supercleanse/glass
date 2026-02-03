@@ -102,7 +102,7 @@ Intent Registry:
 
     // Determine which AI seed file to create/update
     const aiTool = await resolveAiTool(targetDir, opts.ai);
-    const seedContent = generateSeedContent(name, opts.language);
+    const seedContent = generateSeedContent();
     const seededFiles: string[] = [];
 
     const filesToSeed = aiTool === "all" ? AI_TOOLS.map((t) => t.file) : [AI_TOOL_MAP[aiTool]];
@@ -218,80 +218,12 @@ async function resolveAiTool(targetDir: string, flagValue?: string): Promise<AiT
 // AI Seed File Content
 // ============================================================
 
-function generateSeedContent(projectName: string, language: string): string {
-  const lang = language === "rust" ? "Rust" : "TypeScript";
-  const ext = language === "rust" ? ".rs" : ".ts";
-  return `# Glass Framework — Required Workflow
+function generateSeedContent(): string {
+  return `This project uses the Glass Framework. Read GLASS.md before writing any code.
 
-This project uses the **Glass Framework**. You MUST follow this workflow for ALL code changes.
-
-## The Rule
-
-**Write the \`.glass\` spec FIRST. Then write the implementation. Never the other way around.**
-
-- Specs live in \`glass/\` — these are the source of truth
-- Implementation lives in \`src/\` — this is generated from specs
-- A \`.glass\` file defines the Intent (WHY) and Contract (WHAT)
-- The paired \`${ext}\` file contains the Implementation (HOW)
-
-## Workflow
-
-1. Create or update the \`.glass\` spec in \`glass/\`
-2. Create or update the implementation in \`src/\`
-3. Run \`glass verify\` to confirm contracts are satisfied
-4. Run \`glass compile\` to emit verified code
-
-Example: \`glass/auth/login.glass\` pairs with \`src/auth/login${ext}\`
-
-## Never
-
-- Write implementation code without a paired \`.glass\` spec
-- Skip writing the spec "to save time" — the spec IS the design
-- Modify \`.glass\` files during compilation
-- Skip verification (\`glass verify\`)
-
-## .glass File Format
-
-\`\`\`
-=== Glass Unit ===
-id: module.unit_name
-version: 0.1.0
-language: ${language}
-
-=== Intent ===
-purpose: Plain English description of why this exists
-source:
-  kind: prd
-  reference: "where this requirement came from"
-parent: null
-stakeholder: user
-subIntents: []
-approvalStatus: approved
-
-=== Contract ===
-requires:
-  - "precondition that must be true before execution"
-guarantees:
-  on_success:
-    - "postcondition guaranteed after successful execution"
-  on_failure:
-    - "postcondition guaranteed when execution fails"
-invariants:
-  - "property that must hold throughout execution"
-fails:
-  ErrorType: "handling strategy"
-\`\`\`
-
-## Commands
-
-\`\`\`bash
-glass verify    # Verify all contracts are satisfied
-glass compile   # Full pipeline: verify + emit ${lang} code
-glass status    # Show verification dashboard
-glass tree      # Display intent hierarchy
-\`\`\`
-
-See [GLASS.md](./GLASS.md) for the complete methodology, contract rules, and project conventions.
+Write the .glass spec FIRST, then the implementation. Never the other way around.
+Specs live in glass/, implementation lives in src/.
+Run glass verify after changes. See GLASS.md for the full methodology and file format.
 `;
 }
 
